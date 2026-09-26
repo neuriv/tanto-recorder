@@ -1,0 +1,1210 @@
+{
+  "schema_version": 1,
+  "kind": "encounter_reconstruction",
+  "boss_id": "maria",
+  "boss_name": "Maria",
+  "complete": false,
+  "issues": [],
+  "source": {
+    "path": "captures/maria-original/native-events.jsonl",
+    "sha256": "a31d9fbd20aecce91ee259310e182befdcbf0faa65be55c257a015bd5caa4d2d"
+  },
+  "actions": [
+    {
+      "id": "boss-1/action:00000C75:motion:1030",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3189,
+        "observed_word0_u16": 3189,
+        "motion_id": 1030,
+        "timing_override": -1,
+        "timing_id": 1030,
+        "flags": 407633920,
+        "ki_cost": 15
+      },
+      "observations": 6,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 705,
+          "t": 41075.3648219
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1191,
+          "t": 41093.9504593
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1275,
+          "t": 41097.6208451
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1382,
+          "t": 41101.7416705
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1709,
+          "t": 41112.4593633
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1979,
+          "t": 41121.7019628
+        }
+      ]
+    },
+    {
+      "id": "boss-1/action:00000C79:motion:1100",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3193,
+        "observed_word0_u16": 3193,
+        "motion_id": 1100,
+        "timing_override": -1,
+        "timing_id": 1100,
+        "flags": 1498152960,
+        "ki_cost": 15
+      },
+      "observations": 6,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 758,
+          "t": 41077.5667815
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 893,
+          "t": 41082.5721594
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1675,
+          "t": 41111.1014711
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1910,
+          "t": 41118.3819419
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2038,
+          "t": 41123.9875446
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2064,
+          "t": 41125.3390065
+        }
+      ]
+    },
+    {
+      "id": "boss-1/action:00000C76:motion:1030",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3190,
+        "observed_word0_u16": 3190,
+        "motion_id": 1030,
+        "timing_override": -1,
+        "timing_id": 1030,
+        "flags": 407633920,
+        "ki_cost": 15
+      },
+      "observations": 2,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 802,
+          "t": 41079.3016974
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1523,
+          "t": 41107.2142402
+        }
+      ]
+    },
+    {
+      "id": "boss-1/action:00000C6E:motion:1001",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3182,
+        "observed_word0_u16": 3182,
+        "motion_id": 1001,
+        "timing_override": -1,
+        "timing_id": 1001,
+        "flags": 407633920,
+        "ki_cost": 15
+      },
+      "observations": 4,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 822,
+          "t": 41080.253214
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1298,
+          "t": 41098.6052659
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1408,
+          "t": 41102.7259579
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1558,
+          "t": 41108.1651011
+        }
+      ]
+    },
+    {
+      "id": "boss-1/action:00000C6F:motion:1002",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3183,
+        "observed_word0_u16": 3183,
+        "motion_id": 1002,
+        "timing_override": -1,
+        "timing_id": 1002,
+        "flags": 407633920,
+        "ki_cost": 15
+      },
+      "observations": 4,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 832,
+          "t": 41080.5534817
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1307,
+          "t": 41098.9055373
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1420,
+          "t": 41103.0263744
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1575,
+          "t": 41108.4654693
+        }
+      ]
+    },
+    {
+      "id": "boss-1/action:00000226:motion:1000",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 550,
+        "observed_word0_u16": 550,
+        "motion_id": 1000,
+        "timing_override": -1,
+        "timing_id": 1000,
+        "flags": 407633920,
+        "ki_cost": 15
+      },
+      "observations": 1,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1069,
+          "t": 41088.3947073
+        }
+      ]
+    },
+    {
+      "id": "boss-1/action:00000245:motion:1010",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 581,
+        "observed_word0_u16": 581,
+        "motion_id": 1010,
+        "timing_override": -1,
+        "timing_id": 1010,
+        "flags": 407633920,
+        "ki_cost": 15
+      },
+      "observations": 3,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1219,
+          "t": 41095.6524083
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1475,
+          "t": 41105.2454024
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1937,
+          "t": 41119.7332392
+        }
+      ]
+    },
+    {
+      "id": "boss-1/action:00000C77:motion:1040",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3191,
+        "observed_word0_u16": 3191,
+        "motion_id": 1040,
+        "timing_override": -1,
+        "timing_id": 1040,
+        "flags": 407633920,
+        "ki_cost": 15
+      },
+      "observations": 1,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1808,
+          "t": 41115.4957014
+        }
+      ]
+    },
+    {
+      "id": "boss-1/action:00000390:motion:1101",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 912,
+        "observed_word0_u16": 912,
+        "motion_id": 1101,
+        "timing_override": -1,
+        "timing_id": 1101,
+        "flags": 551769079808,
+        "ki_cost": 0
+      },
+      "observations": 1,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2081,
+          "t": 41126.0566111
+        }
+      ]
+    },
+    {
+      "id": "boss-2/action:00000C76:motion:1030",
+      "actor_label": "boss-2",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3190,
+        "observed_word0_u16": 3190,
+        "motion_id": 1030,
+        "timing_override": -1,
+        "timing_id": 1030,
+        "flags": 407633920,
+        "ki_cost": 15
+      },
+      "observations": 2,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2238,
+          "t": 41143.6834147
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2325,
+          "t": 41146.4859166
+        }
+      ]
+    },
+    {
+      "id": "boss-2/action:00000C6E:motion:1001",
+      "actor_label": "boss-2",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3182,
+        "observed_word0_u16": 3182,
+        "motion_id": 1001,
+        "timing_override": -1,
+        "timing_id": 1001,
+        "flags": 407633920,
+        "ki_cost": 15
+      },
+      "observations": 5,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2256,
+          "t": 41144.6338126
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2335,
+          "t": 41147.4370272
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3017,
+          "t": 41175.068694
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3085,
+          "t": 41177.6212497
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3315,
+          "t": 41188.1821751
+        }
+      ]
+    },
+    {
+      "id": "boss-2/action:00000C6F:motion:1002",
+      "actor_label": "boss-2",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3183,
+        "observed_word0_u16": 3183,
+        "motion_id": 1002,
+        "timing_override": -1,
+        "timing_id": 1002,
+        "flags": 407633920,
+        "ki_cost": 15
+      },
+      "observations": 4,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2259,
+          "t": 41144.9344961
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2346,
+          "t": 41147.7370035
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3096,
+          "t": 41177.9215951
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3328,
+          "t": 41188.4824778
+        }
+      ]
+    },
+    {
+      "id": "boss-2/action:00000C79:motion:1100",
+      "actor_label": "boss-2",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3193,
+        "observed_word0_u16": 3193,
+        "motion_id": 1100,
+        "timing_override": -1,
+        "timing_id": 1100,
+        "flags": 1498152960,
+        "ki_cost": 15
+      },
+      "observations": 10,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2431,
+          "t": 41150.2932334
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2668,
+          "t": 41159.6698998
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2853,
+          "t": 41168.8458568
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2962,
+          "t": 41172.7330221
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3204,
+          "t": 41183.2937481
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3264,
+          "t": 41185.8464641
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3529,
+          "t": 41200.6114784
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3644,
+          "t": 41204.832424
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3771,
+          "t": 41209.3898048
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3844,
+          "t": 41212.5763548
+        }
+      ]
+    },
+    {
+      "id": "boss-2/action:00000C75:motion:1030",
+      "actor_label": "boss-2",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3189,
+        "observed_word0_u16": 3189,
+        "motion_id": 1030,
+        "timing_override": -1,
+        "timing_id": 1030,
+        "flags": 407633920,
+        "ki_cost": 15
+      },
+      "observations": 10,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2469,
+          "t": 41151.6445124
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2514,
+          "t": 41153.5798817
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2780,
+          "t": 41165.8093197
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2893,
+          "t": 41170.1970922
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2994,
+          "t": 41174.0843495
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3062,
+          "t": 41176.6370033
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3296,
+          "t": 41187.1979715
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3486,
+          "t": 41198.4093193
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3576,
+          "t": 41201.9628469
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3671,
+          "t": 41206.1838236
+        }
+      ]
+    },
+    {
+      "id": "boss-2/action:00000C71:motion:1020",
+      "actor_label": "boss-2",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3185,
+        "observed_word0_u16": 3185,
+        "motion_id": 1020,
+        "timing_override": -1,
+        "timing_id": 1020,
+        "flags": 407633920,
+        "ki_cost": 15
+      },
+      "observations": 1,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2585,
+          "t": 41156.2830768
+        }
+      ]
+    },
+    {
+      "id": "boss-2/action:00000C72:motion:1021",
+      "actor_label": "boss-2",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3186,
+        "observed_word0_u16": 3186,
+        "motion_id": 1021,
+        "timing_override": -1,
+        "timing_id": 1021,
+        "flags": 407633920,
+        "ki_cost": 15
+      },
+      "observations": 1,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2600,
+          "t": 41157.0004433
+        }
+      ]
+    },
+    {
+      "id": "boss-2/action:00000390:motion:1101",
+      "actor_label": "boss-2",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 912,
+        "observed_word0_u16": 912,
+        "motion_id": 1101,
+        "timing_override": -1,
+        "timing_id": 1101,
+        "flags": 551769079808,
+        "ki_cost": 0
+      },
+      "observations": 3,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2671,
+          "t": 41159.9705121
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3774,
+          "t": 41209.7235423
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3849,
+          "t": 41212.8767285
+        }
+      ]
+    },
+    {
+      "id": "boss-2/action:00000C67:motion:1030",
+      "actor_label": "boss-2",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3175,
+        "observed_word0_u16": 3175,
+        "motion_id": 1030,
+        "timing_override": 92,
+        "timing_id": 92,
+        "flags": 407633920,
+        "ki_cost": 0
+      },
+      "observations": 1,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3419,
+          "t": 41193.0871315
+        }
+      ]
+    }
+  ],
+  "observed_successors": [
+    {
+      "actor_label": "boss-1",
+      "from": "boss-1/action:00000C76:motion:1030",
+      "to": "boss-1/action:00000C6E:motion:1001",
+      "count": 2,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 822,
+          "t": 41080.253214
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1558,
+          "t": 41108.1651011
+        }
+      ],
+      "relationship": "observed_native_order"
+    },
+    {
+      "actor_label": "boss-1",
+      "from": "boss-1/action:00000C6E:motion:1001",
+      "to": "boss-1/action:00000C6F:motion:1002",
+      "count": 4,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 832,
+          "t": 41080.5534817
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1307,
+          "t": 41098.9055373
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1420,
+          "t": 41103.0263744
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1575,
+          "t": 41108.4654693
+        }
+      ],
+      "relationship": "observed_native_order"
+    },
+    {
+      "actor_label": "boss-1",
+      "from": "boss-1/action:00000C75:motion:1030",
+      "to": "boss-1/action:00000C6E:motion:1001",
+      "count": 2,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1298,
+          "t": 41098.6052659
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 1408,
+          "t": 41102.7259579
+        }
+      ],
+      "relationship": "observed_native_order"
+    },
+    {
+      "actor_label": "boss-1",
+      "from": "boss-1/action:00000C79:motion:1100",
+      "to": "boss-1/action:00000390:motion:1101",
+      "count": 1,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2081,
+          "t": 41126.0566111
+        }
+      ],
+      "relationship": "observed_native_order"
+    },
+    {
+      "actor_label": "boss-2",
+      "from": "boss-2/action:00000C76:motion:1030",
+      "to": "boss-2/action:00000C6E:motion:1001",
+      "count": 2,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2256,
+          "t": 41144.6338126
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2335,
+          "t": 41147.4370272
+        }
+      ],
+      "relationship": "observed_native_order"
+    },
+    {
+      "actor_label": "boss-2",
+      "from": "boss-2/action:00000C6E:motion:1001",
+      "to": "boss-2/action:00000C6F:motion:1002",
+      "count": 4,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2259,
+          "t": 41144.9344961
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2346,
+          "t": 41147.7370035
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3096,
+          "t": 41177.9215951
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3328,
+          "t": 41188.4824778
+        }
+      ],
+      "relationship": "observed_native_order"
+    },
+    {
+      "actor_label": "boss-2",
+      "from": "boss-2/action:00000C71:motion:1020",
+      "to": "boss-2/action:00000C72:motion:1021",
+      "count": 1,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2600,
+          "t": 41157.0004433
+        }
+      ],
+      "relationship": "observed_native_order"
+    },
+    {
+      "actor_label": "boss-2",
+      "from": "boss-2/action:00000C79:motion:1100",
+      "to": "boss-2/action:00000390:motion:1101",
+      "count": 3,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 2671,
+          "t": 41159.9705121
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3774,
+          "t": 41209.7235423
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3849,
+          "t": 41212.8767285
+        }
+      ],
+      "relationship": "observed_native_order"
+    },
+    {
+      "actor_label": "boss-2",
+      "from": "boss-2/action:00000C75:motion:1030",
+      "to": "boss-2/action:00000C6E:motion:1001",
+      "count": 3,
+      "evidence": [
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3017,
+          "t": 41175.068694
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3085,
+          "t": 41177.6212497
+        },
+        {
+          "path": "captures/maria-original/native-events.jsonl",
+          "line": 3315,
+          "t": 41188.1821751
+        }
+      ],
+      "relationship": "observed_native_order"
+    }
+  ],
+  "strings": [
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C75:motion:1030"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C79:motion:1100"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C76:motion:1030",
+        "boss-1/action:00000C6E:motion:1001",
+        "boss-1/action:00000C6F:motion:1002"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C79:motion:1100"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000226:motion:1000"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C75:motion:1030"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000245:motion:1010"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C75:motion:1030",
+        "boss-1/action:00000C6E:motion:1001",
+        "boss-1/action:00000C6F:motion:1002"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C75:motion:1030",
+        "boss-1/action:00000C6E:motion:1001",
+        "boss-1/action:00000C6F:motion:1002"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000245:motion:1010"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C76:motion:1030",
+        "boss-1/action:00000C6E:motion:1001",
+        "boss-1/action:00000C6F:motion:1002"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C79:motion:1100"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C75:motion:1030"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C77:motion:1040"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C79:motion:1100"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000245:motion:1010"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C75:motion:1030"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C79:motion:1100"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C79:motion:1100",
+        "boss-1/action:00000390:motion:1101"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C76:motion:1030",
+        "boss-2/action:00000C6E:motion:1001",
+        "boss-2/action:00000C6F:motion:1002"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C76:motion:1030",
+        "boss-2/action:00000C6E:motion:1001",
+        "boss-2/action:00000C6F:motion:1002"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C79:motion:1100"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C75:motion:1030"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C75:motion:1030"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C71:motion:1020",
+        "boss-2/action:00000C72:motion:1021"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C79:motion:1100",
+        "boss-2/action:00000390:motion:1101"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C75:motion:1030"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C79:motion:1100"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C75:motion:1030"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C79:motion:1100"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C75:motion:1030",
+        "boss-2/action:00000C6E:motion:1001"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C75:motion:1030",
+        "boss-2/action:00000C6E:motion:1001",
+        "boss-2/action:00000C6F:motion:1002"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C79:motion:1100"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C79:motion:1100"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C75:motion:1030",
+        "boss-2/action:00000C6E:motion:1001",
+        "boss-2/action:00000C6F:motion:1002"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C67:motion:1030"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C75:motion:1030"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C79:motion:1100"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C75:motion:1030"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C79:motion:1100"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C75:motion:1030"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C79:motion:1100",
+        "boss-2/action:00000390:motion:1101"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-2",
+      "actions": [
+        "boss-2/action:00000C79:motion:1100",
+        "boss-2/action:00000390:motion:1101"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    }
+  ],
+  "unclassified_observations": [],
+  "limitations": [
+    "Sword-only derived evidence. Excluded actions break sequence continuity. Observed order is not proof of a combo."
+  ]
+}

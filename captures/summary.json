@@ -1,0 +1,804 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-aerial/take-0001/events.jsonl",
+      "sha256": "d76336a6dda7eb88e113b5ce26eab4fd142f705b7f6c3de60d0e14305cd63923",
+      "format": "sampled_states",
+      "matched_sword_samples": 74,
+      "issues": [],
+      "ranking": "Retained sword sample only"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-izuna/events.jsonl",
+      "sha256": "c1378212f580e772433ed3269c2db6d15dab380ed7dcb0b0b1961f4896645769",
+      "format": "sampled_states",
+      "matched_sword_samples": 243,
+      "issues": [],
+      "ranking": "Retained sword sample only"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-original/take-0002/events.jsonl",
+      "sha256": "4549b1fc937fbde284437bdf0542b9947591b30a5a350a28bc6cdbb7fd797328",
+      "format": "sampled_states",
+      "matched_sword_samples": 70,
+      "issues": [],
+      "ranking": "Retained sword sample only"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-slam/take-0001/events.jsonl",
+      "sha256": "9249d15e7b1ce77d609a379b3eb0f170e4055362f2eff680f938983ce077f735",
+      "format": "sampled_states",
+      "matched_sword_samples": 51,
+      "issues": [],
+      "ranking": "Retained sword sample only"
+    },
+    {
+      "boss_id": "maria",
+      "path": "captures/maria-original/native-events.jsonl",
+      "sha256": "a31d9fbd20aecce91ee259310e182befdcbf0faa65be55c257a015bd5caa4d2d",
+      "format": "native_trace",
+      "ranking": "Excluded: native calls may overlap sampled states; attribution differs."
+    },
+    {
+      "boss_id": "maria",
+      "path": "captures/maria-original/take-0001/events.jsonl",
+      "sha256": "5d3da458b75b404e06cb2973606cd5ad50db792c874ec3c9cca01e5ec31a13a6",
+      "format": "sampled_states",
+      "matched_sword_samples": 0,
+      "issues": [],
+      "ranking": "No attributed known sword observations"
+    },
+    {
+      "boss_id": "okatsu",
+      "path": "captures/okatsu-grab/take-0001/events.jsonl",
+      "sha256": "a84f4965d80ae8309ce1ae64fd7daa2bde2d381a0719072f37a9c25f8d5929b8",
+      "format": "sampled_states",
+      "matched_sword_samples": 27,
+      "issues": [],
+      "ranking": "Retained sword sample only"
+    },
+    {
+      "boss_id": "okatsu",
+      "path": "captures/okatsu-original/events.jsonl",
+      "sha256": "479d67d68790aced061a2aa65da4ce00575a25a59de9d4ec2881998bd041b804",
+      "format": "sampled_states",
+      "matched_sword_samples": 12,
+      "issues": [],
+      "ranking": "Retained sword sample only"
+    },
+    {
+      "boss_id": "william",
+      "path": "captures/william-tiger-sprint/events.jsonl",
+      "sha256": "f6fe5f5dcb44df41f7b585a42772ea2323a061bd28d18f31db4dfc8f474addb3",
+      "format": "sampled_states",
+      "matched_sword_samples": 0,
+      "issues": [],
+      "ranking": "No attributed known sword observations"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-aerial/take-0002/events.jsonl",
+      "sha256": "68d389b753fd27a104921943205fe7488672add8f8dd9d67f2b851e84a4a7e1f",
+      "format": "sampled_states",
+      "review": "Previously local capture; only identities already curated as sword enter the occurrence report",
+      "matched_sword_samples": 15,
+      "issues": [],
+      "ranking": "Retained sword sample only"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-retry/events.jsonl",
+      "sha256": "98cd17126501244e86cfea1bfd12a2d015780cc76f603cbac7f72f35890d2f2c",
+      "format": "sampled_states",
+      "review": "Previously local capture; only identities already curated as sword enter the occurrence report",
+      "matched_sword_samples": 82,
+      "issues": [],
+      "ranking": "Retained sword sample only"
+    },
+    {
+      "boss_id": "william",
+      "path": "captures/william-input/events.jsonl",
+      "sha256": "ad8ece7d39368f520faed952123a3d0c8ba7d2ed728c58eaa6e1148f8ac5c13d",
+      "format": "sampled_states",
+      "review": "Previously local capture; only identities already curated as sword enter the occurrence report",
+      "matched_sword_samples": 0,
+      "issues": [],
+      "ranking": "No attributed known sword observations"
+    }
+  ],
+  "labels": [
+    {
+      "source": "captures/jin-aerial/labels.jsonl",
+      "line": 1,
+      "annotation": {
+        "label": "Flying Swallow",
+        "user_paused_after": true,
+        "noted_wall_time": 1790361499.2065868,
+        "recording_elapsed_at_notice": 59.942,
+        "take": "take-0001",
+        "basis": "User named the move and paused; correlate recent sequence, not exact message latency"
+      }
+    },
+    {
+      "source": "captures/jin-aerial/labels.jsonl",
+      "line": 2,
+      "annotation": {
+        "label": "Aerial somersault",
+        "user_paused_after": true,
+        "next_attack_began": true,
+        "noted_wall_time": 1790361588.097698,
+        "recording_elapsed_at_notice": 148.833,
+        "take": "take-0001",
+        "basis": "User reports one frame of next attack before pause"
+      }
+    },
+    {
+      "source": "captures/jin-izuna/labels.jsonl",
+      "line": 1,
+      "annotation": {
+        "label": "Full Izuna attacker/victim pair",
+        "source": "Automatic exact action sequence after user-requested isolated Izuna recording",
+        "noted_wall_time": 1790362699.9706538,
+        "launcher_time": 417.406209,
+        "contact_time": 417.835158,
+        "attacker_pair_time": 417.987254,
+        "victim_pair_time": 417.994457,
+        "attacker_finish_time": 419.00355,
+        "victim_finish_time": 419.020862
+      }
+    },
+    {
+      "source": "captures/jin-izuna-missed/labels.jsonl",
+      "line": 1,
+      "annotation": {
+        "label": "Izuna Drop",
+        "launcher_observed": true,
+        "final_blow_after": true,
+        "player_died_after": true,
+        "noted_wall_time": 1790361901.266641
+      }
+    },
+    {
+      "source": "captures/jin-slam/labels.jsonl",
+      "line": 1,
+      "annotation": {
+        "kind": "user_label",
+        "label": "Downward sword slash, then Flying Swallow; paused immediately after sequence",
+        "take": "take-0001",
+        "last_recorded_t": 96.352921,
+        "last_boss_t": 74.937556,
+        "identity": "user visual identification; exact preceding action must be correlated"
+      }
+    }
+  ],
+  "occurrences": [
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3186,
+      "motion_id": 5000,
+      "timing_id": 5000,
+      "names": [
+        "Flying Swallow phase2"
+      ],
+      "observed_entries": 49,
+      "censored_observations": 3,
+      "state_samples": 52,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3188,
+      "motion_id": 5002,
+      "timing_id": 5002,
+      "names": [
+        "Flying Swallow phase4"
+      ],
+      "observed_entries": 49,
+      "censored_observations": 3,
+      "state_samples": 52,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3187,
+      "motion_id": 5001,
+      "timing_id": 5001,
+      "names": [
+        "Flying Swallow phase3"
+      ],
+      "observed_entries": 34,
+      "censored_observations": 0,
+      "state_samples": 34,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3183,
+      "motion_id": 2410,
+      "timing_id": 2410,
+      "names": [
+        "Heavy strike 2: cyclone slash"
+      ],
+      "observed_entries": 23,
+      "censored_observations": 1,
+      "state_samples": 24,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3172,
+      "motion_id": 2120,
+      "timing_id": 2120,
+      "names": [
+        "Katana string A, strike 3 (inferred)"
+      ],
+      "observed_entries": 22,
+      "censored_observations": 0,
+      "state_samples": 22,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3171,
+      "motion_id": 2110,
+      "timing_id": 2110,
+      "names": [
+        "Katana string A, strike 2 (inferred)"
+      ],
+      "observed_entries": 21,
+      "censored_observations": 3,
+      "state_samples": 24,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3180,
+      "motion_id": 2310,
+      "timing_id": 2310,
+      "names": [
+        "Heavy sequence: second attack"
+      ],
+      "observed_entries": 21,
+      "censored_observations": 0,
+      "state_samples": 21,
+      "captures": [
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3184,
+      "motion_id": 2420,
+      "timing_id": 2420,
+      "names": [
+        "Heavy strike 3: cyclone finish"
+      ],
+      "observed_entries": 20,
+      "censored_observations": 1,
+      "state_samples": 21,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3185,
+      "motion_id": 1050,
+      "timing_id": 1050,
+      "names": [
+        "Flying Swallow",
+        "Flying Swallow jump"
+      ],
+      "observed_entries": 16,
+      "censored_observations": 36,
+      "state_samples": 52,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3202,
+      "motion_id": 5050,
+      "timing_id": 5050,
+      "names": [
+        "Aerial somersault phase2"
+      ],
+      "observed_entries": 16,
+      "censored_observations": 0,
+      "state_samples": 16,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3203,
+      "motion_id": 5051,
+      "timing_id": 5051,
+      "names": [
+        "Aerial somersault phase3"
+      ],
+      "observed_entries": 15,
+      "censored_observations": 1,
+      "state_samples": 16,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3173,
+      "motion_id": 2130,
+      "timing_id": 2130,
+      "names": [
+        "Katana string A, strike 4 (inferred)"
+      ],
+      "observed_entries": 14,
+      "censored_observations": 0,
+      "state_samples": 14,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3176,
+      "motion_id": 2210,
+      "timing_id": 2210,
+      "names": [
+        "Katana string B, strike 2 (inferred)"
+      ],
+      "observed_entries": 14,
+      "censored_observations": 2,
+      "state_samples": 16,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3181,
+      "motion_id": 2320,
+      "timing_id": 2320,
+      "names": [
+        "Heavy sequence: third attack"
+      ],
+      "observed_entries": 13,
+      "censored_observations": 0,
+      "state_samples": 13,
+      "captures": [
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3182,
+      "motion_id": 2400,
+      "timing_id": 2400,
+      "names": [
+        "Heavy sword string D: vertical slash, two cyclone spins"
+      ],
+      "observed_entries": 13,
+      "censored_observations": 15,
+      "state_samples": 28,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3008,
+      "motion_id": 2300,
+      "timing_id": 2300,
+      "names": [
+        "Heavy sword string C"
+      ],
+      "observed_entries": 11,
+      "censored_observations": 13,
+      "state_samples": 24,
+      "captures": [
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3007,
+      "motion_id": 2100,
+      "timing_id": 2100,
+      "names": [
+        "Sword string A, five recorded strikes"
+      ],
+      "observed_entries": 10,
+      "censored_observations": 17,
+      "state_samples": 27,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3174,
+      "motion_id": 2140,
+      "timing_id": 2140,
+      "names": [
+        "Katana string A, strike 5 (inferred)"
+      ],
+      "observed_entries": 10,
+      "censored_observations": 2,
+      "state_samples": 12,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3175,
+      "motion_id": 2200,
+      "timing_id": 2200,
+      "names": [
+        "Sword string B, four recorded strikes (inferred)"
+      ],
+      "observed_entries": 10,
+      "censored_observations": 9,
+      "state_samples": 19,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3177,
+      "motion_id": 2220,
+      "timing_id": 2220,
+      "names": [
+        "Katana string B, strike 3 (inferred)"
+      ],
+      "observed_entries": 10,
+      "censored_observations": 1,
+      "state_samples": 11,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3178,
+      "motion_id": 2230,
+      "timing_id": 2230,
+      "names": [
+        "Katana string B, strike 4 (inferred)"
+      ],
+      "observed_entries": 7,
+      "censored_observations": 0,
+      "state_samples": 7,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3201,
+      "motion_id": 1050,
+      "timing_id": 1050,
+      "names": [
+        "Aerial somersault"
+      ],
+      "observed_entries": 7,
+      "censored_observations": 9,
+      "state_samples": 16,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3189,
+      "motion_id": 5010,
+      "timing_id": 5010,
+      "names": [
+        "Downward sword slash"
+      ],
+      "observed_entries": 3,
+      "censored_observations": 0,
+      "state_samples": 3,
+      "captures": [
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3192,
+      "motion_id": 5013,
+      "timing_id": 5013,
+      "names": [
+        "Downward sword slash: strike"
+      ],
+      "observed_entries": 3,
+      "censored_observations": 0,
+      "state_samples": 3,
+      "captures": [
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3191,
+      "motion_id": 5012,
+      "timing_id": 5012,
+      "names": [
+        "Downward sword slash: release preparation"
+      ],
+      "observed_entries": 2,
+      "censored_observations": 1,
+      "state_samples": 3,
+      "captures": [
+        "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 946,
+      "motion_id": 5020,
+      "timing_id": 5020,
+      "names": [
+        "Izuna Drop: paired lift"
+      ],
+      "observed_entries": 1,
+      "censored_observations": 0,
+      "state_samples": 1,
+      "captures": [
+        "captures/jin-izuna/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3194,
+      "motion_id": 1050,
+      "timing_id": 1050,
+      "names": [
+        "Izuna Drop: airborne contact"
+      ],
+      "observed_entries": 1,
+      "censored_observations": 0,
+      "state_samples": 1,
+      "captures": [
+        "captures/jin-izuna/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 950,
+      "motion_id": 5022,
+      "timing_id": 5022,
+      "names": [
+        "Izuna Drop: paired slam"
+      ],
+      "observed_entries": 0,
+      "censored_observations": 1,
+      "state_samples": 1,
+      "captures": [
+        "captures/jin-izuna/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3193,
+      "motion_id": 5014,
+      "timing_id": 5014,
+      "names": [
+        "Upward slash launcher",
+        "Izuna Drop"
+      ],
+      "observed_entries": 0,
+      "censored_observations": 2,
+      "state_samples": 2,
+      "captures": [
+        "captures/jin-izuna/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "okatsu",
+      "action_id": 3172,
+      "motion_id": 1220,
+      "timing_id": 1220,
+      "names": [
+        "Charged Rush"
+      ],
+      "observed_entries": 12,
+      "censored_observations": 0,
+      "state_samples": 12,
+      "captures": [
+        "captures/okatsu-grab/take-0001/events.jsonl",
+        "captures/okatsu-original/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "okatsu",
+      "action_id": 3169,
+      "motion_id": 1210,
+      "timing_id": 1210,
+      "names": [
+        "Sword slash string"
+      ],
+      "observed_entries": 6,
+      "censored_observations": 1,
+      "state_samples": 7,
+      "captures": [
+        "captures/okatsu-grab/take-0001/events.jsonl",
+        "captures/okatsu-original/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "okatsu",
+      "action_id": 3171,
+      "motion_id": 1212,
+      "timing_id": 1212,
+      "names": [
+        "Final Slash"
+      ],
+      "observed_entries": 6,
+      "censored_observations": 0,
+      "state_samples": 6,
+      "captures": [
+        "captures/okatsu-grab/take-0001/events.jsonl",
+        "captures/okatsu-original/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "okatsu",
+      "action_id": 3170,
+      "motion_id": 1211,
+      "timing_id": 1211,
+      "names": [
+        "Follow-up Slash"
+      ],
+      "observed_entries": 5,
+      "censored_observations": 2,
+      "state_samples": 7,
+      "captures": [
+        "captures/okatsu-grab/take-0001/events.jsonl",
+        "captures/okatsu-original/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "okatsu",
+      "action_id": 3177,
+      "motion_id": 1310,
+      "timing_id": 1310,
+      "names": [
+        "Sword grab and finisher"
+      ],
+      "observed_entries": 5,
+      "censored_observations": 0,
+      "state_samples": 5,
+      "captures": [
+        "captures/okatsu-grab/take-0001/events.jsonl",
+        "captures/okatsu-original/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "okatsu",
+      "action_id": 865,
+      "motion_id": 1311,
+      "timing_id": 1311,
+      "names": [
+        "Grab Finisher"
+      ],
+      "observed_entries": 2,
+      "censored_observations": 0,
+      "state_samples": 2,
+      "captures": [
+        "captures/okatsu-grab/take-0001/events.jsonl"
+      ]
+    }
+  ],
+  "limitations": [
+    "Targeted recordings are not unbiased boss move probabilities.",
+    "Entries count descriptor or action-counter changes; first observations after gaps are censored.",
+    "State samples are not move occurrences. Polling can miss short actions.",
+    "Aliases share one source identity; native traces and unassigned actors are excluded.",
+    "Human labels preserve notice-time uncertainty and do not prove exact string boundaries."
+  ]
+}

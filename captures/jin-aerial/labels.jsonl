@@ -1,0 +1,2 @@
+{"label": "Flying Swallow", "user_paused_after": true, "noted_wall_time": 1790361499.2065868, "recording_elapsed_at_notice": 59.942, "take": "take-0001", "basis": "User named the move and paused; correlate recent sequence, not exact message latency"}
+{"label": "Aerial somersault", "user_paused_after": true, "next_attack_began": true, "noted_wall_time": 1790361588.097698, "recording_elapsed_at_notice": 148.833, "take": "take-0001", "basis": "User reports one frame of next attack before pause"}

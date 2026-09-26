@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-aerial/labels.jsonl",
+      "sha256": "d91d74c7f82369a5bc33161fb94e9da4d5c50dd4315d7ebbef5a2b119f97b542",
+      "format": "labels"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-aerial/take-0001/events.jsonl",
+      "sha256": "d76336a6dda7eb88e113b5ce26eab4fd142f705b7f6c3de60d0e14305cd63923",
+      "format": "sampled_states"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-izuna/events.jsonl",
+      "sha256": "c1378212f580e772433ed3269c2db6d15dab380ed7dcb0b0b1961f4896645769",
+      "format": "sampled_states"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-izuna/labels.jsonl",
+      "sha256": "ae3f18a2053377e585028776606fed117618060afabc6eb632a5647b65c4815c",
+      "format": "labels"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-izuna-missed/labels.jsonl",
+      "sha256": "d3307c34c548c6fd099ac1afd46d3b02198cf5d090f648ddd10162218117d8b7",
+      "format": "labels"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-original/take-0002/events.jsonl",
+      "sha256": "4549b1fc937fbde284437bdf0542b9947591b30a5a350a28bc6cdbb7fd797328",
+      "format": "sampled_states"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-slam/labels.jsonl",
+      "sha256": "9333be20d0829c19aedea8334b38a0e00ea07cef9850d5edd3235b88aa88eb0d",
+      "format": "labels"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-slam/take-0001/events.jsonl",
+      "sha256": "9249d15e7b1ce77d609a379b3eb0f170e4055362f2eff680f938983ce077f735",
+      "format": "sampled_states"
+    },
+    {
+      "boss_id": "maria",
+      "path": "captures/maria-original/native-events.jsonl",
+      "sha256": "a31d9fbd20aecce91ee259310e182befdcbf0faa65be55c257a015bd5caa4d2d",
+      "format": "native_trace"
+    },
+    {
+      "boss_id": "maria",
+      "path": "captures/maria-original/take-0001/events.jsonl",
+      "sha256": "5d3da458b75b404e06cb2973606cd5ad50db792c874ec3c9cca01e5ec31a13a6",
+      "format": "sampled_states"
+    },
+    {
+      "boss_id": "okatsu",
+      "path": "captures/okatsu-grab/take-0001/events.jsonl",
+      "sha256": "a84f4965d80ae8309ce1ae64fd7daa2bde2d381a0719072f37a9c25f8d5929b8",
+      "format": "sampled_states"
+    },
+    {
+      "boss_id": "okatsu",
+      "path": "captures/okatsu-original/events.jsonl",
+      "sha256": "479d67d68790aced061a2aa65da4ce00575a25a59de9d4ec2881998bd041b804",
+      "format": "sampled_states"
+    },
+    {
+      "boss_id": "william",
+      "path": "captures/william-tiger-sprint/events.jsonl",
+      "sha256": "f6fe5f5dcb44df41f7b585a42772ea2323a061bd28d18f31db4dfc8f474addb3",
+      "format": "sampled_states"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-aerial/take-0002/events.jsonl",
+      "sha256": "68d389b753fd27a104921943205fe7488672add8f8dd9d67f2b851e84a4a7e1f",
+      "format": "sampled_states",
+      "review": "Previously local capture; only identities already curated as sword enter the occurrence report"
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "path": "captures/jin-retry/events.jsonl",
+      "sha256": "98cd17126501244e86cfea1bfd12a2d015780cc76f603cbac7f72f35890d2f2c",
+      "format": "sampled_states",
+      "review": "Previously local capture; only identities already curated as sword enter the occurrence report"
+    },
+    {
+      "boss_id": "william",
+      "path": "captures/william-input/events.jsonl",
+      "sha256": "ad8ece7d39368f520faed952123a3d0c8ba7d2ed728c58eaa6e1148f8ac5c13d",
+      "format": "sampled_states",
+      "review": "Previously local capture; only identities already curated as sword enter the occurrence report"
+    }
+  ],
+  "note": "Append immutable captures and labels here. Curated sword identities remain in the workbook. Native and sampled traces may overlap; do not add their counts."
+}

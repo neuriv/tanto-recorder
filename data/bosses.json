@@ -1,0 +1,51 @@
+[
+  {
+    "id": "okatsu",
+    "name": "Okatsu",
+    "weapon": "sword",
+    "capture_signature": [
+      {
+        "action_id": 3172,
+        "motion_id": 1220
+      },
+      {
+        "action_id": 3174,
+        "motion_id": 1230
+      }
+    ]
+  },
+  {
+    "id": "jin_hayabusa",
+    "name": "Jin Hayabusa",
+    "weapon": "sword",
+    "capture_signature": [
+      {
+        "action_id": 3171,
+        "motion_id": 2110
+      },
+      {
+        "action_id": 3193,
+        "motion_id": 5014
+      }
+    ]
+  },
+  {
+    "id": "maria",
+    "name": "Maria",
+    "weapon": "sword",
+    "capture_signature": [
+      {
+        "action_id": 3182,
+        "motion_id": 1001
+      },
+      {
+        "action_id": 3193,
+        "motion_id": 1100
+      },
+      {
+        "action_id": 912,
+        "motion_id": 1101
+      }
+    ]
+  }
+]

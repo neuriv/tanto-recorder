@@ -1,0 +1,226 @@
+{
+  "object": "0x1a090ff88a0",
+  "owner_like": "0x1a080019710",
+  "banks": [
+    {
+      "index": 0,
+      "address": "0x0",
+      "records": []
+    },
+    {
+      "index": 1,
+      "address": "0x1a081414140",
+      "records": [
+        {
+          "position": 41,
+          "descriptor": "0x1a090bd4f30",
+          "key_u32": 3007,
+          "key_hex": "0x00000BBF",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d7890",
+          "motion_id": 2100,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 42,
+          "descriptor": "0x1a090bd4e60",
+          "key_u32": 3171,
+          "key_hex": "0x00000C63",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d7940",
+          "motion_id": 2110,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 43,
+          "descriptor": "0x1a090bd4d90",
+          "key_u32": 3172,
+          "key_hex": "0x00000C64",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d79f0",
+          "motion_id": 2120,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 44,
+          "descriptor": "0x1a090bd4cc0",
+          "key_u32": 3173,
+          "key_hex": "0x00000C65",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d7aa0",
+          "motion_id": 2130,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 45,
+          "descriptor": "0x1a090bd4bf0",
+          "key_u32": 3174,
+          "key_hex": "0x00000C66",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d7b50",
+          "motion_id": 2140,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 46,
+          "descriptor": "0x1a090bd4b20",
+          "key_u32": 3175,
+          "key_hex": "0x00000C67",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d7c00",
+          "motion_id": 2200,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 47,
+          "descriptor": "0x1a090bd4a50",
+          "key_u32": 3176,
+          "key_hex": "0x00000C68",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d7cb0",
+          "motion_id": 2210,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 48,
+          "descriptor": "0x1a090bd4980",
+          "key_u32": 3177,
+          "key_hex": "0x00000C69",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d5370",
+          "motion_id": 2220,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 49,
+          "descriptor": "0x1a090bd48b0",
+          "key_u32": 3178,
+          "key_hex": "0x00000C6A",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d5420",
+          "motion_id": 2230,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 51,
+          "descriptor": "0x1a090bd4710",
+          "key_u32": 3008,
+          "key_hex": "0x00000BC0",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d5bb0",
+          "motion_id": 2300,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 52,
+          "descriptor": "0x1a090bd4640",
+          "key_u32": 3180,
+          "key_hex": "0x00000C6C",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d5c60",
+          "motion_id": 2310,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 53,
+          "descriptor": "0x1a090bd4570",
+          "key_u32": 3181,
+          "key_hex": "0x00000C6D",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d5d10",
+          "motion_id": 2320,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 54,
+          "descriptor": "0x1a090bd44a0",
+          "key_u32": 3182,
+          "key_hex": "0x00000C6E",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d5dc0",
+          "motion_id": 2400,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 55,
+          "descriptor": "0x1a090bd43d0",
+          "key_u32": 3183,
+          "key_hex": "0x00000C6F",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d5e70",
+          "motion_id": 2410,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 56,
+          "descriptor": "0x1a090bd4300",
+          "key_u32": 3184,
+          "key_hex": "0x00000C70",
+          "enabled_byte": 1,
+          "payload": "0x1a0903d5f20",
+          "motion_id": 2420,
+          "flags": "0x194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 65,
+          "descriptor": "0x1a090bd3bb0",
+          "key_u32": 3193,
+          "key_hex": "0x00000C79",
+          "enabled_byte": 1,
+          "payload": "0x1a0903cc890",
+          "motion_id": 5014,
+          "flags": "0x194c0000",
+          "ki_cost": 20
+        },
+        {
+          "position": 120,
+          "descriptor": "0x1a090bd1170",
+          "key_u32": 3244,
+          "key_hex": "0x00000CAC",
+          "enabled_byte": 1,
+          "payload": "0x1a0903cc470",
+          "motion_id": 5110,
+          "flags": "0x200194c0000",
+          "ki_cost": 10
+        },
+        {
+          "position": 121,
+          "descriptor": "0x1a090bd1240",
+          "key_u32": 3245,
+          "key_hex": "0x00000CAD",
+          "enabled_byte": 1,
+          "payload": "0x1a0903cc520",
+          "motion_id": 5111,
+          "flags": "0x200194c0000",
+          "ki_cost": 10
+        }
+      ],
+      "table": "0x1a090ff6ec0",
+      "count": 136
+    },
+    {
+      "index": 2,
+      "address": "0x1a0eac5d350",
+      "records": [],
+      "table": "0x1a090d4d680",
+      "count": 576
+    }
+  ],
+  "consistency": "Context and table headers rechecked; not an atomic snapshot",
+  "scope": "Sword-only source descriptor evidence. Original bank counts are retained as captured bounds, not the number of retained records."
+}

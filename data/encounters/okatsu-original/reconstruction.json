@@ -1,0 +1,3543 @@
+{
+  "schema_version": 1,
+  "kind": "encounter_reconstruction",
+  "boss_id": "okatsu",
+  "boss_name": "Okatsu",
+  "source": {
+    "path": "captures/okatsu-original/events.jsonl",
+    "sha256": "479d67d68790aced061a2aa65da4ce00575a25a59de9d4ec2881998bd041b804"
+  },
+  "complete": false,
+  "issues": [],
+  "actions": [
+    {
+      "id": "boss-1/action:00000C64:motion:1220:timing:1220",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3172,
+        "observed_word0_u16": 3172,
+        "motion_id": 1220,
+        "timing_id": 1220,
+        "timing_override": -1,
+        "flags": 407633920,
+        "ki_cost": 15,
+        "recovery_frame": 65,
+        "cancel_frame": -1,
+        "ki_pulse_percent": 0,
+        "transition_rows_total": 28,
+        "transition_rows_omitted": 0,
+        "transition_links": [
+          {
+            "row_index": 0,
+            "raw_hex": "ffffffffffffffffffff01ffffffff00000000000000000800806464040000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 0,
+            "kind": "animation_end",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 1,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 4,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 1,
+            "raw_hex": "ffffffffffffffffffff020c01ffff0000000000650c0608008064640000000000804500ffffffffffffffffffffffff",
+            "target_action_id": 3173,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 2,
+            "input_id": 12,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              6,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              69
+            ]
+          },
+          {
+            "row_index": 2,
+            "raw_hex": "ffffffffffffffffffff000c01ffff0000000000650c0608008064640000000046004b00ffffffffffffffffffffffff",
+            "target_action_id": 3173,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 12,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              6,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              70,
+              75
+            ]
+          },
+          {
+            "row_index": 3,
+            "raw_hex": "ffffffffffffffffffff020001ffff00000000005c0c0608008064640000000000804500ffffffffffffffffffffffff",
+            "target_action_id": 3164,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 2,
+            "input_id": 0,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              6,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              69
+            ]
+          },
+          {
+            "row_index": 4,
+            "raw_hex": "ffffffffffffffffffff000001ffff00000000005c0c0608008064640000000046004b00ffffffffffffffffffffffff",
+            "target_action_id": 3164,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 0,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              6,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              70,
+              75
+            ]
+          },
+          {
+            "row_index": 5,
+            "raw_hex": "ffffffffffffffffffff001a01000100000000006d0c0008008064640000000000804100ffffffffffffffffffffffff",
+            "target_action_id": 3181,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 26,
+            "selectors": [
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              65
+            ]
+          },
+          {
+            "row_index": 6,
+            "raw_hex": "ffffffffffffffffffff001a01000100000000006d0c0008008064640000000042004f00ffffffffffffffffffffffff",
+            "target_action_id": 3181,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 26,
+            "selectors": [
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              66,
+              79
+            ]
+          },
+          {
+            "row_index": 7,
+            "raw_hex": "ffffffffffffffffffff001a01010100000000006e0c0008008064640000000000804100ffffffffffffffffffffffff",
+            "target_action_id": 3182,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 26,
+            "selectors": [
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              65
+            ]
+          },
+          {
+            "row_index": 8,
+            "raw_hex": "ffffffffffffffffffff001a01010100000000006e0c0008008064640000000042004f00ffffffffffffffffffffffff",
+            "target_action_id": 3182,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 26,
+            "selectors": [
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              66,
+              79
+            ]
+          },
+          {
+            "row_index": 9,
+            "raw_hex": "ffffffffffffffffffff001a01ffff00000000006f0c0008008064640000000000804100ffffffffffffffffffffffff",
+            "target_action_id": 3183,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 26,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              65
+            ]
+          },
+          {
+            "row_index": 10,
+            "raw_hex": "ffffffffffffffffffff001a01ffff00000000006f0c0008008064640000000042004f00ffffffffffffffffffffffff",
+            "target_action_id": 3183,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 26,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              66,
+              79
+            ]
+          },
+          {
+            "row_index": 11,
+            "raw_hex": "ffffffffffffffffffff001b0100010000000000700c0008008064640000000000804100ffffffffffffffffffffffff",
+            "target_action_id": 3184,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 27,
+            "selectors": [
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              65
+            ]
+          },
+          {
+            "row_index": 12,
+            "raw_hex": "ffffffffffffffffffff001b0100010000000000700c0008008064640000000042004f00ffffffffffffffffffffffff",
+            "target_action_id": 3184,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 27,
+            "selectors": [
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              66,
+              79
+            ]
+          },
+          {
+            "row_index": 13,
+            "raw_hex": "ffffffffffffffffffff001b0101010000000000710c0008008064640000000000804100ffffffffffffffffffffffff",
+            "target_action_id": 3185,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 27,
+            "selectors": [
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              65
+            ]
+          },
+          {
+            "row_index": 14,
+            "raw_hex": "ffffffffffffffffffff001b0101010000000000710c0008008064640000000042004f00ffffffffffffffffffffffff",
+            "target_action_id": 3185,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 27,
+            "selectors": [
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              66,
+              79
+            ]
+          },
+          {
+            "row_index": 15,
+            "raw_hex": "ffffffffffffffffffff001b01ffff0000000000720c0008008064640000000000804100ffffffffffffffffffffffff",
+            "target_action_id": 3186,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 27,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              65
+            ]
+          },
+          {
+            "row_index": 16,
+            "raw_hex": "ffffffffffffffffffff001b01ffff0000000000720c0008008064640000000042004f00ffffffffffffffffffffffff",
+            "target_action_id": 3186,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 27,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              66,
+              79
+            ]
+          },
+          {
+            "row_index": 17,
+            "raw_hex": "0100ffffffffffffffff00ffffffff00000000001100000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 17,
+            "kind": "conditional",
+            "conditions": [
+              1,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 18,
+            "raw_hex": "3400ffffffffffffffff00ffffffff0000000000c80c0000ff806464400020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3272,
+            "kind": "conditional",
+            "conditions": [
+              52,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097216,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 19,
+            "raw_hex": "e600ffffffffffffffff00ffffffff0000000000af0c0a00ff806464000020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3247,
+            "kind": "conditional",
+            "conditions": [
+              230,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              10,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097152,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 20,
+            "raw_hex": "9b011800ffffffffffff002601ffff0000000000a906000200806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 1705,
+            "kind": "native_input",
+            "conditions": [
+              411,
+              24,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 38,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              2,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 21,
+            "raw_hex": "01001800ffffffffffff00ffffffff00000000001100000800800000010020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 17,
+            "kind": "conditional",
+            "conditions": [
+              1,
+              24,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              0,
+              0
+            ],
+            "flags": 2097153,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 22,
+            "raw_hex": "4100ffffffffffffffff00ffffffff0000000000c90c0000ff806464000020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3273,
+            "kind": "conditional",
+            "conditions": [
+              65,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097152,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 23,
+            "raw_hex": "5c00ffffffffffffffff001f04020100000000001e00000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 30,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 31,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 24,
+            "raw_hex": "5c00ffffffffffffffff002104020100000000002000000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 32,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 33,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 25,
+            "raw_hex": "5c00ffffffffffffffff002204020100000000002100000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 33,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 34,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 26,
+            "raw_hex": "5c00ffffffffffffffff000201ffff00000000001f00000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 31,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 2,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 27,
+            "raw_hex": "5c004700ffffffffffff000500ffff00000000001900000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 25,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              71,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 5,
+            "selectors": [
+              0,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          }
+        ]
+      },
+      "observations": 4,
+      "evidence": [
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 192,
+          "t": 5.997399
+        },
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 297,
+          "t": 8.428712
+        },
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 519,
+          "t": 14.742835
+        },
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 1080,
+          "t": 26.182292
+        }
+      ]
+    },
+    {
+      "id": "boss-1/action:00000C61:motion:1210:timing:1210",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3169,
+        "observed_word0_u16": 3169,
+        "motion_id": 1210,
+        "timing_id": 1210,
+        "timing_override": -1,
+        "flags": 407633920,
+        "ki_cost": 15,
+        "recovery_frame": 52,
+        "cancel_frame": -1,
+        "ki_pulse_percent": 0,
+        "transition_rows_total": 14,
+        "transition_rows_omitted": 0,
+        "transition_links": [
+          {
+            "row_index": 0,
+            "raw_hex": "ffffffffffffffffffff01ffffffff00000000000000000800806464040000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 0,
+            "kind": "animation_end",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 1,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 4,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 1,
+            "raw_hex": "ffffffffffffffffffff020301ffff0000000000620c0608008064640000000000801d00ffffffffffffffffffffffff",
+            "target_action_id": 3170,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 2,
+            "input_id": 3,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              6,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              29
+            ]
+          },
+          {
+            "row_index": 2,
+            "raw_hex": "ffffffffffffffffffff000301ffff0000000000620c060800806464000000001e002d00ffffffffffffffffffffffff",
+            "target_action_id": 3170,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 3,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              6,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              30,
+              45
+            ]
+          },
+          {
+            "row_index": 3,
+            "raw_hex": "0100ffffffffffffffff00ffffffff00000000001100000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 17,
+            "kind": "conditional",
+            "conditions": [
+              1,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 4,
+            "raw_hex": "3400ffffffffffffffff00ffffffff0000000000c80c0000ff806464400020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3272,
+            "kind": "conditional",
+            "conditions": [
+              52,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097216,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 5,
+            "raw_hex": "e600ffffffffffffffff00ffffffff0000000000af0c0a00ff806464000020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3247,
+            "kind": "conditional",
+            "conditions": [
+              230,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              10,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097152,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 6,
+            "raw_hex": "9b011800ffffffffffff002601ffff0000000000a906000200806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 1705,
+            "kind": "native_input",
+            "conditions": [
+              411,
+              24,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 38,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              2,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 7,
+            "raw_hex": "01001800ffffffffffff00ffffffff00000000001100000800800000010020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 17,
+            "kind": "conditional",
+            "conditions": [
+              1,
+              24,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              0,
+              0
+            ],
+            "flags": 2097153,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 8,
+            "raw_hex": "4100ffffffffffffffff00ffffffff0000000000c90c0000ff806464000020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3273,
+            "kind": "conditional",
+            "conditions": [
+              65,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097152,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 9,
+            "raw_hex": "5c00ffffffffffffffff001f04020100000000001e00000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 30,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 31,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 10,
+            "raw_hex": "5c00ffffffffffffffff002104020100000000002000000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 32,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 33,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 11,
+            "raw_hex": "5c00ffffffffffffffff002204020100000000002100000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 33,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 34,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 12,
+            "raw_hex": "5c00ffffffffffffffff000201ffff00000000001f00000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 31,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 2,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 13,
+            "raw_hex": "5c004700ffffffffffff000500ffff00000000001900000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 25,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              71,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 5,
+            "selectors": [
+              0,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          }
+        ]
+      },
+      "observations": 2,
+      "evidence": [
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 733,
+          "t": 18.92374
+        },
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 925,
+          "t": 22.861794
+        }
+      ]
+    },
+    {
+      "id": "boss-1/action:00000C62:motion:1211:timing:1211",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3170,
+        "observed_word0_u16": 3170,
+        "motion_id": 1211,
+        "timing_id": 1211,
+        "timing_override": -1,
+        "flags": 407633920,
+        "ki_cost": 15,
+        "recovery_frame": 37,
+        "cancel_frame": -1,
+        "ki_pulse_percent": 0,
+        "transition_rows_total": 14,
+        "transition_rows_omitted": 0,
+        "transition_links": [
+          {
+            "row_index": 0,
+            "raw_hex": "ffffffffffffffffffff01ffffffff00000000000000000800806464040000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 0,
+            "kind": "animation_end",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 1,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 4,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 1,
+            "raw_hex": "ffffffffffffffffffff020301ffff0000000000630c0608008064640000000000801800ffffffffffffffffffffffff",
+            "target_action_id": 3171,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 2,
+            "input_id": 3,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              6,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              24
+            ]
+          },
+          {
+            "row_index": 2,
+            "raw_hex": "ffffffffffffffffffff000301ffff0000000000630c0608008064640000000019002800ffffffffffffffffffffffff",
+            "target_action_id": 3171,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 3,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              6,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              25,
+              40
+            ]
+          },
+          {
+            "row_index": 3,
+            "raw_hex": "0100ffffffffffffffff00ffffffff00000000001100000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 17,
+            "kind": "conditional",
+            "conditions": [
+              1,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 4,
+            "raw_hex": "3400ffffffffffffffff00ffffffff0000000000c80c0000ff806464400020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3272,
+            "kind": "conditional",
+            "conditions": [
+              52,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097216,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 5,
+            "raw_hex": "e600ffffffffffffffff00ffffffff0000000000af0c0a00ff806464000020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3247,
+            "kind": "conditional",
+            "conditions": [
+              230,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              10,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097152,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 6,
+            "raw_hex": "9b011800ffffffffffff002601ffff0000000000a906000200806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 1705,
+            "kind": "native_input",
+            "conditions": [
+              411,
+              24,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 38,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              2,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 7,
+            "raw_hex": "01001800ffffffffffff00ffffffff00000000001100000800800000010020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 17,
+            "kind": "conditional",
+            "conditions": [
+              1,
+              24,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              0,
+              0
+            ],
+            "flags": 2097153,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 8,
+            "raw_hex": "4100ffffffffffffffff00ffffffff0000000000c90c0000ff806464000020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3273,
+            "kind": "conditional",
+            "conditions": [
+              65,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097152,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 9,
+            "raw_hex": "5c00ffffffffffffffff001f04020100000000001e00000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 30,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 31,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 10,
+            "raw_hex": "5c00ffffffffffffffff002104020100000000002000000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 32,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 33,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 11,
+            "raw_hex": "5c00ffffffffffffffff002204020100000000002100000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 33,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 34,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 12,
+            "raw_hex": "5c00ffffffffffffffff000201ffff00000000001f00000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 31,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 2,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 13,
+            "raw_hex": "5c004700ffffffffffff000500ffff00000000001900000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 25,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              71,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 5,
+            "selectors": [
+              0,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          }
+        ]
+      },
+      "observations": 2,
+      "evidence": [
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 761,
+          "t": 19.468231
+        },
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 950,
+          "t": 23.394797
+        }
+      ]
+    },
+    {
+      "id": "boss-1/action:00000C63:motion:1212:timing:1212",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3171,
+        "observed_word0_u16": 3171,
+        "motion_id": 1212,
+        "timing_id": 1212,
+        "timing_override": -1,
+        "flags": 407633920,
+        "ki_cost": 15,
+        "recovery_frame": 67,
+        "cancel_frame": -1,
+        "ki_pulse_percent": 0,
+        "transition_rows_total": 16,
+        "transition_rows_omitted": 0,
+        "transition_links": [
+          {
+            "row_index": 0,
+            "raw_hex": "ffffffffffffffffffff01ffffffff00000000000000000800806464040000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 0,
+            "kind": "animation_end",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 1,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 4,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 1,
+            "raw_hex": "ffffffffffffffffffff020001ffff00000000005b0c0608008064640000000000803100ffffffffffffffffffffffff",
+            "target_action_id": 3163,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 2,
+            "input_id": 0,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              6,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              49
+            ]
+          },
+          {
+            "row_index": 2,
+            "raw_hex": "ffffffffffffffffffff000001ffff00000000005b0c0608008064640000000032003c00ffffffffffffffffffffffff",
+            "target_action_id": 3163,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 0,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              6,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              50,
+              60
+            ]
+          },
+          {
+            "row_index": 3,
+            "raw_hex": "ffffffffffffffffffff020e01ffff0000000000690c0008008064640000000000804a00ffffffffffffffffffffffff",
+            "target_action_id": 3177,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 2,
+            "input_id": 14,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              74
+            ]
+          },
+          {
+            "row_index": 4,
+            "raw_hex": "ffffffffffffffffffff000e01ffff0000000000690c000800806464000000004b006300ffffffffffffffffffffffff",
+            "target_action_id": 3177,
+            "kind": "native_input",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 14,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              75,
+              99
+            ]
+          },
+          {
+            "row_index": 5,
+            "raw_hex": "0100ffffffffffffffff00ffffffff00000000001100000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 17,
+            "kind": "conditional",
+            "conditions": [
+              1,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 6,
+            "raw_hex": "3400ffffffffffffffff00ffffffff0000000000c80c0000ff806464400020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3272,
+            "kind": "conditional",
+            "conditions": [
+              52,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097216,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 7,
+            "raw_hex": "e600ffffffffffffffff00ffffffff0000000000af0c0a00ff806464000020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3247,
+            "kind": "conditional",
+            "conditions": [
+              230,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              10,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097152,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 8,
+            "raw_hex": "9b011800ffffffffffff002601ffff0000000000a906000200806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 1705,
+            "kind": "native_input",
+            "conditions": [
+              411,
+              24,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 38,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              2,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 9,
+            "raw_hex": "01001800ffffffffffff00ffffffff00000000001100000800800000010020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 17,
+            "kind": "conditional",
+            "conditions": [
+              1,
+              24,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              0,
+              0
+            ],
+            "flags": 2097153,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 10,
+            "raw_hex": "4100ffffffffffffffff00ffffffff0000000000c90c0000ff806464000020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3273,
+            "kind": "conditional",
+            "conditions": [
+              65,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097152,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 11,
+            "raw_hex": "5c00ffffffffffffffff001f04020100000000001e00000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 30,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 31,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 12,
+            "raw_hex": "5c00ffffffffffffffff002104020100000000002000000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 32,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 33,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 13,
+            "raw_hex": "5c00ffffffffffffffff002204020100000000002100000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 33,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 34,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 14,
+            "raw_hex": "5c00ffffffffffffffff000201ffff00000000001f00000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 31,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 2,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 15,
+            "raw_hex": "5c004700ffffffffffff000500ffff00000000001900000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 25,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              71,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 5,
+            "selectors": [
+              0,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          }
+        ]
+      },
+      "observations": 2,
+      "evidence": [
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 776,
+          "t": 19.782684
+        },
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 967,
+          "t": 23.711994
+        }
+      ]
+    },
+    {
+      "id": "boss-1/action:00000C69:motion:1310:timing:1310",
+      "actor_label": "boss-1",
+      "role": "boss_candidate",
+      "source": {
+        "action_id": 3177,
+        "observed_word0_u16": 3177,
+        "motion_id": 1310,
+        "timing_id": 1310,
+        "timing_override": -1,
+        "flags": 1498152960,
+        "ki_cost": 15,
+        "recovery_frame": -1,
+        "cancel_frame": -1,
+        "ki_pulse_percent": 0,
+        "transition_rows_total": 13,
+        "transition_rows_omitted": 0,
+        "transition_links": [
+          {
+            "row_index": 0,
+            "raw_hex": "ffffffffffffffffffff01ffffffff00000000000000000800806464040000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 0,
+            "kind": "animation_end",
+            "conditions": [
+              65535,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 1,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 4,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 1,
+            "raw_hex": "1600ffffffffffffffff00ffffffff00000000006103000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 865,
+            "kind": "paired_contact",
+            "conditions": [
+              22,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 2,
+            "raw_hex": "0100ffffffffffffffff00ffffffff00000000001100000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 17,
+            "kind": "conditional",
+            "conditions": [
+              1,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 3,
+            "raw_hex": "3400ffffffffffffffff00ffffffff0000000000c80c0000ff806464400020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3272,
+            "kind": "conditional",
+            "conditions": [
+              52,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097216,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 4,
+            "raw_hex": "e600ffffffffffffffff00ffffffff0000000000af0c0a00ff806464000020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3247,
+            "kind": "conditional",
+            "conditions": [
+              230,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              10,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097152,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 5,
+            "raw_hex": "9b011800ffffffffffff002601ffff0000000000a906000200806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 1705,
+            "kind": "native_input",
+            "conditions": [
+              411,
+              24,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 38,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              2,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 6,
+            "raw_hex": "01001800ffffffffffff00ffffffff00000000001100000800800000010020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 17,
+            "kind": "conditional",
+            "conditions": [
+              1,
+              24,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              0,
+              0
+            ],
+            "flags": 2097153,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 7,
+            "raw_hex": "4100ffffffffffffffff00ffffffff0000000000c90c0000ff806464000020000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 3273,
+            "kind": "conditional",
+            "conditions": [
+              65,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 255,
+            "selectors": [
+              255,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              0,
+              255,
+              128,
+              100,
+              100
+            ],
+            "flags": 2097152,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 8,
+            "raw_hex": "5c00ffffffffffffffff001f04020100000000001e00000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 30,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 31,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 9,
+            "raw_hex": "5c00ffffffffffffffff002104020100000000002000000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 32,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 33,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 10,
+            "raw_hex": "5c00ffffffffffffffff002204020100000000002100000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 33,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 34,
+            "selectors": [
+              4,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 11,
+            "raw_hex": "5c00ffffffffffffffff000201ffff00000000001f00000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 31,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              65535,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 2,
+            "selectors": [
+              1,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          },
+          {
+            "row_index": 12,
+            "raw_hex": "5c004700ffffffffffff000500ffff00000000001900000800806464000000000080ff7fffffffffffffffffffffffff",
+            "target_action_id": 25,
+            "kind": "native_input",
+            "conditions": [
+              92,
+              71,
+              65535,
+              65535,
+              65535
+            ],
+            "mode": 0,
+            "input_id": 5,
+            "selectors": [
+              0,
+              255,
+              255,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "target_options": [
+              0,
+              8,
+              0,
+              128,
+              100,
+              100
+            ],
+            "flags": 0,
+            "window_frames": [
+              -32768,
+              32767
+            ]
+          }
+        ]
+      },
+      "observations": 2,
+      "evidence": [
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 834,
+          "t": 20.93122
+        },
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 1040,
+          "t": 24.867719
+        }
+      ]
+    }
+  ],
+  "observed_successors": [
+    {
+      "actor_label": "boss-1",
+      "from": "boss-1/action:00000C61:motion:1210:timing:1210",
+      "to": "boss-1/action:00000C62:motion:1211:timing:1211",
+      "count": 2,
+      "evidence": [
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 761,
+          "t": 19.468231
+        },
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 950,
+          "t": 23.394797
+        }
+      ],
+      "relationship": "sampled_temporal_order"
+    },
+    {
+      "actor_label": "boss-1",
+      "from": "boss-1/action:00000C62:motion:1211:timing:1211",
+      "to": "boss-1/action:00000C63:motion:1212:timing:1212",
+      "count": 2,
+      "evidence": [
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 776,
+          "t": 19.782684
+        },
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 967,
+          "t": 23.711994
+        }
+      ],
+      "relationship": "sampled_temporal_order"
+    },
+    {
+      "actor_label": "boss-1",
+      "from": "boss-1/action:00000C63:motion:1212:timing:1212",
+      "to": "boss-1/action:00000C69:motion:1310:timing:1310",
+      "count": 2,
+      "evidence": [
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 834,
+          "t": 20.93122
+        },
+        {
+          "path": "captures/okatsu-original/events.jsonl",
+          "line": 1040,
+          "t": 24.867719
+        }
+      ],
+      "relationship": "sampled_temporal_order"
+    }
+  ],
+  "strings": [
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C64:motion:1220:timing:1220"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C64:motion:1220:timing:1220"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C64:motion:1220:timing:1220"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C61:motion:1210:timing:1210",
+        "boss-1/action:00000C62:motion:1211:timing:1211",
+        "boss-1/action:00000C63:motion:1212:timing:1212",
+        "boss-1/action:00000C69:motion:1310:timing:1310"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C61:motion:1210:timing:1210",
+        "boss-1/action:00000C62:motion:1211:timing:1211",
+        "boss-1/action:00000C63:motion:1212:timing:1212",
+        "boss-1/action:00000C69:motion:1310:timing:1310"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    },
+    {
+      "actor_label": "boss-1",
+      "actions": [
+        "boss-1/action:00000C64:motion:1220:timing:1220"
+      ],
+      "break_reason": "sword_scope_boundary",
+      "relationship": "observed_not_confirmed"
+    }
+  ],
+  "unclassified_observations": [],
+  "limitations": [
+    "Sword-only derived evidence. Excluded actions break sequence continuity. Observed order is not proof of a combo."
+  ]
+}

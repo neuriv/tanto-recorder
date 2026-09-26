@@ -1,0 +1,45 @@
+[
+  {
+    "name": "Katana string A",
+    "actions": [
+      3007,
+      3171,
+      3172,
+      3173,
+      3174
+    ],
+    "full_sequence_observations": 1,
+    "weapon_assignment": "inferred"
+  },
+  {
+    "name": "Katana string B",
+    "actions": [
+      3175,
+      3176,
+      3177,
+      3178
+    ],
+    "weapon_assignment": "inferred",
+    "status": "Four inferred sword actions; original five-action family crossed an excluded non-sword action."
+  },
+  {
+    "name": "Katana string C",
+    "actions": [
+      3008,
+      3180,
+      3181
+    ],
+    "full_sequence_observations": 4,
+    "weapon_assignment": "inferred"
+  },
+  {
+    "name": "Katana string D",
+    "actions": [
+      3182,
+      3183,
+      3184
+    ],
+    "full_sequence_observations": 3,
+    "weapon_assignment": "inferred"
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "kind": "encounter_reconstruction",
+  "boss_id": "maria",
+  "boss_name": "Maria",
+  "source": {
+    "path": "captures/maria-original/take-0001/events.jsonl",
+    "sha256": "5d3da458b75b404e06cb2973606cd5ad50db792c874ec3c9cca01e5ec31a13a6"
+  },
+  "complete": false,
+  "issues": [],
+  "actions": [],
+  "observed_successors": [],
+  "strings": [],
+  "unclassified_observations": [],
+  "limitations": [
+    "Sword-only derived evidence. Excluded actions break sequence continuity. Observed order is not proof of a combo."
+  ]
+}
