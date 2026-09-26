@@ -475,7 +475,7 @@ def discover_encounter(game, stop_requested=lambda: (
 
 
 def record_encounter(boss_id, outdir, stop_file=None, signature=None, stop_event=None,
-                     retry_seconds=3.0, status_callback=None, backend=None):
+                     retry_seconds=3.0, status_callback=None, backend=None, boss_name=None):
     # Keep an encounter recording alive across process and actor replacement.
     # Lock its folder, preserve numbered takes and reconstruct after interruptions.
     # Surface programming errors instead of retrying them as missing gameplay.
@@ -511,7 +511,7 @@ def record_encounter(boss_id, outdir, stop_file=None, signature=None, stop_event
     try:
         manifest_path = outdir / 'encounter.json'
         manifest = {'schema_version': 1, 'boss_id': boss_id, 'signature': signature,
-                    'boss_name': BOSSES[boss_id]['name'] if boss_id in BOSSES else boss_id.replace('_',' ').title(),
+                    'boss_name': boss_name or (BOSSES[boss_id]['name'] if boss_id in BOSSES else boss_id.replace('_',' ').title()),
                     'recording_id': uuid.uuid4().hex, 'created_at': time.time(),
                     'mode': 'external_read_only', 'identity_basis': 'source action/motion fingerprint' if signature else 'unassigned encounter context'}
         if manifest_path.exists():
@@ -562,7 +562,7 @@ def record_encounter(boss_id, outdir, stop_file=None, signature=None, stop_event
                                    'Sampling unassigned encounter actors; boss identity needs a configured signature',
                             actor_identified=boss is not None)
                     final = backend['record'](game, cfg, take, 30 if boss is None else 86400, 10, player, boss, 128,
-                        stop_requested=stopped, session_context={'boss_id': boss_id, 'recording_id': manifest['recording_id'],
+                        stop_requested=stopped, session_context={'boss_id': boss_id, 'boss_name':manifest.get('boss_name',boss_id), 'recording_id': manifest['recording_id'],
                                                                'identity_basis': manifest['identity_basis']})
                     index = reconstruct_encounter(outdir)
                     publish('recovering', takes=len(index['segments']), detail=final.get('stop_reason'))

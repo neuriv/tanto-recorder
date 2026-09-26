@@ -56,6 +56,7 @@ def session_summary(folder):
         sequences.append(dict(identities=[json.loads(key) for key in keys], count=count, native_links=links,
             confidence='repeated_order_with_native_links' if all(links) else 'repeated_temporal_order'))
     return dict(schema_version=1, kind='recording_summary', boss_id=manifest['boss_id'],
+                boss_name=manifest.get('boss_name',manifest['boss_id']),
                 recording_id=manifest['recording_id'], actions=list(counts.values()), takes=takes,
                 repeated_sequences=sequences,
                 annotations=load_annotations(folder), review_status='pending',
@@ -87,17 +88,28 @@ def export_capture(folder, destination):
         raise ValueError('No recorded data is available to export.')
     if (folder/'labels.jsonl').exists():
         files['labels.jsonl'] = (folder/'labels.jsonl').read_bytes()
-    summary = session_summary(folder)
-    files['Summary.json'] = json.dumps(summary, indent=2, allow_nan=False).encode('utf8')
-    files['Descriptions.csv'] = descriptions_csv(manifest['boss_id'], summary['annotations'])
     export = dict(schema_version=1, kind='tanto_recording', boss_id=manifest['boss_id'],
+                  boss_name=manifest.get('boss_name',manifest['boss_id']),
                   recording_id=manifest['recording_id'], created_at=manifest['created_at'], files=[])
     destination.parent.mkdir(parents=True, exist_ok=True)
-    with zipfile.ZipFile(destination, 'x', compression=zipfile.ZIP_DEFLATED) as archive:
-        for name, data in files.items():
-            archive.writestr(name, data)
-            export['files'].append(dict(path=name, sha256=hashlib.sha256(data).hexdigest(), size=len(data)))
-        archive.writestr('manifest.json', json.dumps(export, indent=2, allow_nan=False))
+    # Derive reports from the exact exported bytes, even if another UI edits labels.
+    # Publish only a fully closed archive; failed writes leave no shareable ZIP.
+    with tempfile.TemporaryDirectory(prefix='.tanto-export-',dir=destination.parent) as temporary:
+        snapshot=Path(temporary)
+        for name,data in files.items():
+            path=snapshot/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
+        (snapshot/'encounter.json').write_text(json.dumps(manifest),encoding='utf8')
+        summary=session_summary(snapshot)
+        files['Summary.json']=json.dumps(summary,indent=2,allow_nan=False).encode('utf8')
+        files['Descriptions.csv']=descriptions_csv(export['boss_name'],summary['annotations'])
+        archive_path=snapshot/'share.zip'
+        with zipfile.ZipFile(archive_path,'x',compression=zipfile.ZIP_DEFLATED) as archive:
+            for name,data in files.items():
+                archive.writestr(name,data)
+                export['files'].append(dict(path=name,sha256=hashlib.sha256(data).hexdigest(),size=len(data)))
+            archive.writestr('manifest.json',json.dumps(export,indent=2,allow_nan=False))
+        # Windows rename refuses to overwrite an existing destination.
+        archive_path.rename(destination)
     return destination
 
 
@@ -117,10 +129,14 @@ def intake_bundle(bundle, destination):
         if any(not allowed.fullmatch(name) for name in names) or 'manifest.json' not in names:
             raise ValueError('Bundle contains an unsupported path or lacks its manifest')
         manifest = json.loads(archive.read('manifest.json'))
-        if manifest.get('kind') != 'tanto_recording' or manifest.get('schema_version') != 1:
+        if not isinstance(manifest,dict) or manifest.get('kind') != 'tanto_recording' or manifest.get('schema_version') != 1:
             raise ValueError('Unsupported recording bundle')
-        boss = validate_boss_id(manifest['boss_id'])
+        boss = validate_boss_id(manifest.get('boss_id'))
         entries = manifest.get('files', [])
+        if not isinstance(entries,list) or any(not isinstance(item,dict) or
+                not isinstance(item.get('path'),str) or not isinstance(item.get('sha256'),str) or
+                type(item.get('size')) is not int or item['size']<0 for item in entries):
+            raise ValueError('Invalid manifest file entries')
         listed = [item['path'] for item in entries]
         # Legacy exports did not hash Descriptions.csv; new exports hash every derived file too.
         if len(listed) != len(set(listed)) or set(listed) - (set(names)-{'manifest.json'}) or set(names)-set(listed)-{'manifest.json', 'Descriptions.csv'}:
@@ -136,12 +152,17 @@ def intake_bundle(bundle, destination):
         raise ValueError('Bundle contains no raw takes')
     labels = parse_annotations(content.get('labels.jsonl', b'').decode('utf8'))
     # Validate timestamps before staging; corrupt event lines remain reportable capture gaps.
-    durations = {}
+    durations, context_conflicts = {}, []
     for name,data in raw.items():
         times = []
         for line in data.decode('utf8', errors='replace').splitlines():
             try:
-                value = sampled_time(json.loads(line))
+                event=json.loads(line)
+                context=event.get('encounter_context') if isinstance(event,dict) else None
+                if isinstance(context,dict) and context.get('boss_id',boss)!=boss:
+                    context_conflicts.append(dict(kind='capture_context',take=name.split('/')[0],
+                        recorded_boss_id=context['boss_id'],submitted_boss_id=boss))
+                value = sampled_time(event)
                 if value is not None:
                     times.append(value)
             except (ValueError, AttributeError):
@@ -164,7 +185,8 @@ def intake_bundle(bundle, destination):
     hashes = {name: hashlib.sha256(data).hexdigest() for name,data in raw.items()}
     known = {take['sha256'] for report in previous for take in report['takes']}
     report = dict(schema_version=1, bundle_sha256=digest, boss_id=boss, recording_id=manifest.get('recording_id'),
-                  review_status='pending', curated_changes=False, takes=[], annotations=labels, conflicts=[])
+                  boss_name=manifest.get('boss_name',boss),
+                  review_status='pending', curated_changes=False, takes=[], annotations=labels, conflicts=context_conflicts)
     for name,data in raw.items():
         sha = hashes[name]
         blob = destination/'captures'/f'{sha}.jsonl'

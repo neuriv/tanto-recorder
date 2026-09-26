@@ -3,5 +3,5 @@
   "kind": "recorder",
   "name": "TantoRecorder",
   "engine_repository": "https://github.com/neuriv/tanto-engine.git",
-  "engine_commit": "42c999a872b08888b496f3fa52a8d0be78a3ee3d"
+  "engine_commit": "040b7572b4741fe90b867a9220578b1f8a751d0c"
 }
