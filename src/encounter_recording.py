@@ -6,6 +6,7 @@
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -195,6 +196,7 @@ def reconstruct_capture(source, boss_id, destination=None):
             trusted[state_number] = cache[signature] = decoded
 
     actions, successors, strings, unclassified, labels, current, identities = {}, {}, [], [], {}, {}, {}
+    gaps = []
     generation = 0
     started = ended = False
     def evidence(number, event):
@@ -241,6 +243,9 @@ def reconstruct_capture(source, boss_id, destination=None):
         if kind == 'end':
             ended = True
         if kind in GAP_EVENTS or kind == 'corrupt_record':
+            if kind not in ('session', 'end'):
+                gaps.append(dict(kind=kind, evidence=evidence(number, event),
+                                 **{key:event[key] for key in ('start_t','duration_ms') if key in event}))
             if event.get('object') in labels:
                 close(labels[event['object']], kind)
             else:
@@ -274,21 +279,25 @@ def reconstruct_capture(source, boss_id, destination=None):
         qualified = label + '/' + key
         row = actions.setdefault(qualified, {'id': qualified, 'actor_label': label,
             'role': event.get('role', 'unassigned'), 'source': identity, 'observations': 0,
-            'observed_entries': 0, 'censored_observations': 0, 'evidence': []})
+            'observed_entries': 0, 'unverified_reentries': 0, 'censored_observations': 0, 'evidence': []})
         row['observations'] += 1
         if len(row['evidence']) < 32:
             row['evidence'].append(evidence(number, event))
         previous = current.get(label)
         if previous and event.get('t', 0) < previous['end_t']:
+            gaps.append(dict(kind='timestamp_regression', evidence=evidence(number, event)))
             close(label, 'timestamp_regression')
             previous = None
         serial = (event.get('current'), event.get('counter'))
         if previous is None:
             row['censored_observations'] += 1
-        elif previous['serial'] != serial:
+        elif previous['actions'][-1] != qualified:
             row['observed_entries'] += 1
-        if previous and previous['actions'][-1] == qualified and previous['serial'] == serial:
+        elif previous['serial'] != serial:
+            row['unverified_reentries'] += 1
+        if previous and previous['actions'][-1] == qualified:
             previous['end_t'] = event.get('t', 0)
+            previous['serial'] = serial
             continue
         if previous:
             pair = (previous['actions'][-1], qualified)
@@ -306,13 +315,21 @@ def reconstruct_capture(source, boss_id, destination=None):
         current[label]['end_t'] = event.get('t', 0)
         current[label]['serial'] = serial
     close_all('end_of_file')
+    for edge in successors.values():
+        target = actions[edge['to']]['source']['action_id']
+        edge['native_links'] = [link for link in actions[edge['from']]['source'].get('transition_links', [])
+                                if target is not None and link['target_action_id'] == target]
+        edge['confidence'] = ('native_supported_order' if edge['native_links'] else
+                              'repeated_temporal_order' if edge['count'] > 1 else 'temporal_order_only')
     result = {'schema_version': 1, 'kind': 'encounter_reconstruction', 'boss_id': boss_id,
               'boss_name': BOSSES[boss_id]['name'] if boss_id in BOSSES else boss_id.replace('_',' ').title(),
               'source': {'path': str(source), 'sha256': digest.hexdigest()}, 'complete': started and ended and not issues,
               'issues': issues, 'actions': list(actions.values()), 'observed_successors': list(successors.values()),
-              'strings': strings, 'unclassified_observations': unclassified,
+              'strings': strings, 'gaps': gaps, 'unclassified_observations': unclassified,
               'limitations': ['Sampled wall time is not frame data. Brief states can be missed.',
                               'Temporal strings are not verified combos or cancel windows.',
+                              'Counter or pointer changes alone are unverified re-entries, not move occurrences.',
+                              'Native links retain conditions; sampled order does not prove those conditions were satisfied.',
                               'Unassigned actors belong to encounter context only; their boss identity is unproven.']}
     if destination is not None:
         atomic_json(destination, result)
@@ -573,32 +590,110 @@ def record_encounter(boss_id, outdir, stop_file=None, signature=None, stop_event
     return status
 
 
-def annotate_recent(folder, description):
-    # Anchor a user description to the latest persisted take, without controlling the game.
-    # Read a bounded tail and ignore an unfinished final JSONL record.
-    # Retain notice time separately: a label is not an exact animation boundary.
-    folder = Path(folder)
-    manifest = json.loads((folder/'encounter.json').read_text(encoding='utf8'))
-    takes = sorted(folder.glob('take-*/events.jsonl'))
-    if not takes or not description.strip():
-        raise ValueError('A recorded take and a description are required')
-    path = takes[-1]
+def sampled_time(event):
+    if isinstance(event, dict) and isinstance(event.get('kind'), str):
+        value = event.get('t')
+        if type(value) in (int, float) and 0 <= value < float('inf'):
+            return value
+    return None
+
+
+def latest_sample_time(path):
+    # Ignore an unfinished final record while the recorder is still writing.
     with path.open('rb') as stream:
         stream.seek(0,2)
         start = max(0,stream.tell()-65536)
         stream.seek(start)
         if start: stream.readline()
-        lines = stream.read().split(b'\n')[:-1]
-    events = [json.loads(line) for line in lines if line.strip()]
-    times = [e['t'] for e in events if 't' in e]
+        lines = stream.read().split(b'\n')
+    times = []
+    for line in lines:
+        try:
+            value = sampled_time(json.loads(line))
+            if value is not None:
+                times.append(value)
+        except (ValueError, AttributeError):
+            continue
     if not times:
         raise ValueError('No complete sampled timestamp is available yet')
-    label = dict(kind='user_label', boss_id=manifest['boss_id'], take=path.parent.name,
-                 label=description.strip(), last_recorded_t=times[-1], noted_wall_time=time.time(),
-                 basis='User description of recent sequence; timing and string boundaries unverified')
-    with (folder/'labels.jsonl').open('a',encoding='utf8') as stream:
-        stream.write(json.dumps(label,ensure_ascii=True)+'\n')
+    return max(times)
+
+
+def parse_annotations(text):
+    labels = {}
+    for number, line in enumerate(text.splitlines(), 1):
+        if not line.strip():
+            continue
+        label = json.loads(line)
+        if not isinstance(label, dict) or not isinstance(label.get('label'), str):
+            raise ValueError(f'Invalid annotation on line {number}')
+        label.setdefault('label_id', f'legacy-{number}')
+        label.setdefault('revision', 1)
+        label.setdefault('start_t', label.get('last_recorded_t'))
+        label.setdefault('end_t', label.get('last_recorded_t'))
+        label.setdefault('markers', [])
+        if not isinstance(label['label_id'], str) or not label['label_id'] or type(label['revision']) is not int:
+            raise ValueError(f'Invalid annotation revision on line {number}')
+        previous = labels.get(label['label_id'])
+        if label['revision'] != (previous['revision'] + 1 if previous else 1):
+            raise ValueError(f'Invalid annotation revision on line {number}')
+        labels[label['label_id']] = label
+    return list(labels.values())
+
+
+def load_annotations(folder):
+    path = Path(folder)/'labels.jsonl'
+    return parse_annotations(path.read_text(encoding='utf8')) if path.exists() else []
+
+
+def validate_annotation(label, takes):
+    take = label.get('take')
+    if not isinstance(take, str) or not re.fullmatch(r'take-[0-9]+', take) or take not in takes:
+        raise ValueError('Choose an existing recorded take')
+    start, end = label.get('start_t'), label.get('end_t')
+    if any(type(value) not in (int, float) or not math.isfinite(value) for value in (start, end)) or not 0 <= start <= end <= takes[take]:
+        raise ValueError('Boundaries must satisfy 0 <= start <= end <= the take duration')
+    markers = label.get('markers', [])
+    if not isinstance(markers, (list, tuple)) or any(marker not in ('repeat', 'unsure', 'interrupted') for marker in markers):
+        raise ValueError('Markers must be repeat, unsure or interrupted')
+
+
+def save_annotation(folder, description, take, start_t, end_t, markers=(), label_id=None):
+    folder = Path(folder)
+    manifest = json.loads((folder/'encounter.json').read_text(encoding='utf8'))
+    if not isinstance(description, str) or not description.strip():
+        raise ValueError('A description is required')
+    labels = {label['label_id']: label for label in load_annotations(folder)}
+    if label_id is not None and label_id not in labels:
+        raise ValueError('Annotation to edit was not found')
+    label = dict(kind='user_label', boss_id=manifest['boss_id'], take=take,
+                 label_id=label_id or uuid.uuid4().hex, revision=labels[label_id]['revision'] + 1 if label_id else 1,
+                 label=description.strip(), start_t=start_t, end_t=end_t, markers=list(markers),
+                 last_recorded_t=end_t, noted_wall_time=time.time(),
+                 basis='User-selected sampled interval; exact animation boundaries unverified')
+    # Validate the name before using it as a path component.
+    validate_annotation(label, {path.parent.name: float('inf') for path in folder.glob('take-*/events.jsonl')})
+    validate_annotation(label, {take: latest_sample_time(folder/take/'events.jsonl')})
+    path = folder/'labels.jsonl'
+    history = path.read_text(encoding='utf8') if path.exists() else ''
+    temporary = path.with_name(path.name+'.'+uuid.uuid4().hex+'.tmp')
+    try:
+        with temporary.open('x', encoding='utf8') as stream:
+            stream.write(history + ('\n' if history and not history.endswith('\n') else '') + json.dumps(label, ensure_ascii=True)+'\n')
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
     return label
+
+
+def annotate_recent(folder, description):
+    takes = sorted(Path(folder).glob('take-*/events.jsonl'))
+    if not takes:
+        raise ValueError('A recorded take and a description are required')
+    sampled = latest_sample_time(takes[-1])
+    return save_annotation(folder, description, takes[-1].parent.name, sampled, sampled)
 
 
 def main(argv=None):

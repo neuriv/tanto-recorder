@@ -187,6 +187,7 @@
       ],
       "observed_entries": 49,
       "censored_observations": 3,
+      "unverified_reentries": 0,
       "state_samples": 52,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -206,6 +207,7 @@
       ],
       "observed_entries": 49,
       "censored_observations": 3,
+      "unverified_reentries": 0,
       "state_samples": 52,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -225,6 +227,7 @@
       ],
       "observed_entries": 34,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 34,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -244,6 +247,7 @@
       ],
       "observed_entries": 23,
       "censored_observations": 1,
+      "unverified_reentries": 0,
       "state_samples": 24,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -263,6 +267,7 @@
       ],
       "observed_entries": 22,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 22,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -282,6 +287,7 @@
       ],
       "observed_entries": 21,
       "censored_observations": 3,
+      "unverified_reentries": 0,
       "state_samples": 24,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -301,6 +307,7 @@
       ],
       "observed_entries": 21,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 21,
       "captures": [
         "captures/jin-izuna/events.jsonl",
@@ -319,6 +326,7 @@
       ],
       "observed_entries": 20,
       "censored_observations": 1,
+      "unverified_reentries": 0,
       "state_samples": 21,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -339,6 +347,7 @@
       ],
       "observed_entries": 16,
       "censored_observations": 36,
+      "unverified_reentries": 0,
       "state_samples": 52,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -358,6 +367,7 @@
       ],
       "observed_entries": 16,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 16,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -376,6 +386,7 @@
       ],
       "observed_entries": 15,
       "censored_observations": 1,
+      "unverified_reentries": 0,
       "state_samples": 16,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -394,6 +405,7 @@
       ],
       "observed_entries": 14,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 14,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -413,6 +425,7 @@
       ],
       "observed_entries": 14,
       "censored_observations": 2,
+      "unverified_reentries": 0,
       "state_samples": 16,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -432,6 +445,7 @@
       ],
       "observed_entries": 13,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 13,
       "captures": [
         "captures/jin-izuna/events.jsonl",
@@ -448,27 +462,10 @@
       ],
       "observed_entries": 13,
       "censored_observations": 15,
+      "unverified_reentries": 0,
       "state_samples": 28,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
-        "captures/jin-izuna/events.jsonl",
-        "captures/jin-original/take-0002/events.jsonl",
-        "captures/jin-aerial/take-0002/events.jsonl",
-        "captures/jin-retry/events.jsonl"
-      ]
-    },
-    {
-      "boss_id": "jin_hayabusa",
-      "action_id": 3008,
-      "motion_id": 2300,
-      "timing_id": 2300,
-      "names": [
-        "Heavy sword string C"
-      ],
-      "observed_entries": 11,
-      "censored_observations": 13,
-      "state_samples": 24,
-      "captures": [
         "captures/jin-izuna/events.jsonl",
         "captures/jin-original/take-0002/events.jsonl",
         "captures/jin-aerial/take-0002/events.jsonl",
@@ -485,12 +482,32 @@
       ],
       "observed_entries": 10,
       "censored_observations": 17,
+      "unverified_reentries": 0,
       "state_samples": 27,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
         "captures/jin-izuna/events.jsonl",
         "captures/jin-original/take-0002/events.jsonl",
         "captures/jin-slam/take-0001/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3008,
+      "motion_id": 2300,
+      "timing_id": 2300,
+      "names": [
+        "Heavy sword string C"
+      ],
+      "observed_entries": 10,
+      "censored_observations": 13,
+      "unverified_reentries": 1,
+      "state_samples": 24,
+      "captures": [
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
         "captures/jin-retry/events.jsonl"
       ]
     },
@@ -504,31 +521,13 @@
       ],
       "observed_entries": 10,
       "censored_observations": 2,
+      "unverified_reentries": 0,
       "state_samples": 12,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
         "captures/jin-izuna/events.jsonl",
         "captures/jin-original/take-0002/events.jsonl",
         "captures/jin-slam/take-0001/events.jsonl",
-        "captures/jin-retry/events.jsonl"
-      ]
-    },
-    {
-      "boss_id": "jin_hayabusa",
-      "action_id": 3175,
-      "motion_id": 2200,
-      "timing_id": 2200,
-      "names": [
-        "Sword string B, four recorded strikes (inferred)"
-      ],
-      "observed_entries": 10,
-      "censored_observations": 9,
-      "state_samples": 19,
-      "captures": [
-        "captures/jin-aerial/take-0001/events.jsonl",
-        "captures/jin-izuna/events.jsonl",
-        "captures/jin-original/take-0002/events.jsonl",
-        "captures/jin-aerial/take-0002/events.jsonl",
         "captures/jin-retry/events.jsonl"
       ]
     },
@@ -542,7 +541,28 @@
       ],
       "observed_entries": 10,
       "censored_observations": 1,
+      "unverified_reentries": 0,
       "state_samples": 11,
+      "captures": [
+        "captures/jin-aerial/take-0001/events.jsonl",
+        "captures/jin-izuna/events.jsonl",
+        "captures/jin-original/take-0002/events.jsonl",
+        "captures/jin-aerial/take-0002/events.jsonl",
+        "captures/jin-retry/events.jsonl"
+      ]
+    },
+    {
+      "boss_id": "jin_hayabusa",
+      "action_id": 3175,
+      "motion_id": 2200,
+      "timing_id": 2200,
+      "names": [
+        "Sword string B, four recorded strikes (inferred)"
+      ],
+      "observed_entries": 9,
+      "censored_observations": 9,
+      "unverified_reentries": 1,
+      "state_samples": 19,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
         "captures/jin-izuna/events.jsonl",
@@ -561,6 +581,7 @@
       ],
       "observed_entries": 7,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 7,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -578,6 +599,7 @@
       ],
       "observed_entries": 7,
       "censored_observations": 9,
+      "unverified_reentries": 0,
       "state_samples": 16,
       "captures": [
         "captures/jin-aerial/take-0001/events.jsonl",
@@ -596,6 +618,7 @@
       ],
       "observed_entries": 3,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 3,
       "captures": [
         "captures/jin-slam/take-0001/events.jsonl",
@@ -613,6 +636,7 @@
       ],
       "observed_entries": 3,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 3,
       "captures": [
         "captures/jin-slam/take-0001/events.jsonl",
@@ -630,6 +654,7 @@
       ],
       "observed_entries": 2,
       "censored_observations": 1,
+      "unverified_reentries": 0,
       "state_samples": 3,
       "captures": [
         "captures/jin-slam/take-0001/events.jsonl",
@@ -647,6 +672,7 @@
       ],
       "observed_entries": 1,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 1,
       "captures": [
         "captures/jin-izuna/events.jsonl"
@@ -662,6 +688,7 @@
       ],
       "observed_entries": 1,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 1,
       "captures": [
         "captures/jin-izuna/events.jsonl"
@@ -677,6 +704,7 @@
       ],
       "observed_entries": 0,
       "censored_observations": 1,
+      "unverified_reentries": 0,
       "state_samples": 1,
       "captures": [
         "captures/jin-izuna/events.jsonl"
@@ -693,6 +721,7 @@
       ],
       "observed_entries": 0,
       "censored_observations": 2,
+      "unverified_reentries": 0,
       "state_samples": 2,
       "captures": [
         "captures/jin-izuna/events.jsonl"
@@ -708,6 +737,7 @@
       ],
       "observed_entries": 12,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 12,
       "captures": [
         "captures/okatsu-grab/take-0001/events.jsonl",
@@ -724,6 +754,7 @@
       ],
       "observed_entries": 6,
       "censored_observations": 1,
+      "unverified_reentries": 0,
       "state_samples": 7,
       "captures": [
         "captures/okatsu-grab/take-0001/events.jsonl",
@@ -740,6 +771,7 @@
       ],
       "observed_entries": 6,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 6,
       "captures": [
         "captures/okatsu-grab/take-0001/events.jsonl",
@@ -756,6 +788,7 @@
       ],
       "observed_entries": 5,
       "censored_observations": 2,
+      "unverified_reentries": 0,
       "state_samples": 7,
       "captures": [
         "captures/okatsu-grab/take-0001/events.jsonl",
@@ -772,6 +805,7 @@
       ],
       "observed_entries": 5,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 5,
       "captures": [
         "captures/okatsu-grab/take-0001/events.jsonl",
@@ -788,6 +822,7 @@
       ],
       "observed_entries": 2,
       "censored_observations": 0,
+      "unverified_reentries": 0,
       "state_samples": 2,
       "captures": [
         "captures/okatsu-grab/take-0001/events.jsonl"
@@ -796,7 +831,8 @@
   ],
   "limitations": [
     "Targeted recordings are not unbiased boss move probabilities.",
-    "Entries count descriptor or action-counter changes; first observations after gaps are censored.",
+    "Entries require observed action-identity changes; first observations after gaps are censored.",
+    "Counter or pointer changes alone remain unverified re-entries, not move occurrences.",
     "State samples are not move occurrences. Polling can miss short actions.",
     "Aliases share one source identity; native traces and unassigned actors are excluded.",
     "Human labels preserve notice-time uncertainty and do not prove exact string boundaries."

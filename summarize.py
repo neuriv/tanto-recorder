@@ -52,9 +52,10 @@ def capture_report(index, catalogue):
             accepted += action['observations']
             row = counts.setdefault(key, dict(boss_id=key[0], action_id=key[1], motion_id=key[2],
                 timing_id=key[3], names=known[key], observed_entries=0, censored_observations=0,
-                state_samples=0, captures=[]))
+                unverified_reentries=0, state_samples=0, captures=[]))
             row['observed_entries'] += action['observed_entries']
             row['censored_observations'] += action['censored_observations']
+            row['unverified_reentries'] += action['unverified_reentries']
             row['state_samples'] += action['observations']
             if item['path'] not in row['captures']:
                 row['captures'].append(item['path'])
@@ -63,7 +64,8 @@ def capture_report(index, catalogue):
     return dict(schema_version=1, sources=sources, labels=labels,
         occurrences=sorted(counts.values(),key=lambda r:(r['boss_id'],-r['observed_entries'],r['action_id'])),
         limitations=['Targeted recordings are not unbiased boss move probabilities.',
-                    'Entries count descriptor or action-counter changes; first observations after gaps are censored.',
+                    'Entries require observed action-identity changes; first observations after gaps are censored.',
+                    'Counter or pointer changes alone remain unverified re-entries, not move occurrences.',
                     'State samples are not move occurrences. Polling can miss short actions.',
                     'Aliases share one source identity; native traces and unassigned actors are excluded.',
                     'Human labels preserve notice-time uncertainty and do not prove exact string boundaries.'])
