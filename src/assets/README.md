@@ -1,7 +1,9 @@
-# Recorder wallpaper
+# Recorder assets
 
-`background.png` is original artwork generated with the built-in image-generation tool, then edited at the user's request. It is not an extracted game asset. The application composites it at 30% against ink black and samples the same image behind labels and layout containers; the guide uses 25%. No text-panel masks are drawn over the wallpaper.
+`background.png` is an imagegen edit of the user-supplied `recorder background.png` (William and guardian spirit), not claimed as original artwork. The built-in tool returned **1672 × 941**; the user chose to keep that resolution after a 4K retry returned the same size. The app blends this dim image at 65% against ink black; the guide uses 55%. Labels sample the same wallpaper.
 
-Final editing prompt:
+Final asset prompt (built-in imagegen; first edit selected):
 
-Edit this exact landscape into Japanese character-dither art for a readable desktop app wallpaper. Preserve the samurai silhouette, right torii, red moon, mountains and composition exactly. Build the texture out of a fine uniform grid of tiny monospaced ASCII marks (: . + / | #) mixed with small Japanese kanji/kana glyph shapes. The characters collectively render the original scene, like restrained terminal art/ordered halftone dithering, not lines of prose and not random bright lettering on top. Make the glyph structure clearly visible on close inspection while the original silhouette remains recognizable. Reduce the scene's overall contrast and apparent opacity onto near-black ink so gold UI text can sit directly on it. Deep black, charcoal, muted burgundy and tiny aged-gold details only. No UI, text boxes, panels, borders, readable slogans, or added objects. Keep landscape size.
+> Edit the supplied image for the Tanto Recorder application wallpaper. Preserve the exact scene composition, William kneeling with sword, guardian spirit, rain and background. Output a 4K 3840 x 2160 landscape PNG. Apply fine ordered dithering with subtle ASCII marks and tiny Japanese glyph texture, integrated into shading, not large readable text. Dim the entire image substantially to about 30 percent of original brightness so cream application text can remain readable directly over it. Retain blue-black, muted crimson colors and recognizable scene. No panels, rectangles, labels, UI, logos, extra characters or added objects. The image is a wallpaper, not a screenshot.
+
+`start.wav` and `stop.wav` are generated PCM tones: mono, 44.1 kHz, signed 16-bit, 200 ms, with tapered edges. Start rises 660 to 990 Hz; stop falls 660 to 440 Hz. No external sound assets are used.

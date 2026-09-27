@@ -74,11 +74,11 @@ class InkBackdrop(tk.Canvas):
     def redraw(self,event):
         width,height=event.width,event.height;s=self.scale
         fitted=ImageOps.fit(self.source,(max(1,width),max(1,height)),method=Image.Resampling.BILINEAR)
-        self.background=Image.blend(Image.new('RGB',fitted.size,BG),fitted,.30)
+        self.background=Image.blend(Image.new('RGB',fitted.size,BG),fitted,.65)
         update_image(self.picture,self.background);self.revision+=1
         self.delete('title')
         self.create_text(26*s,17*s,anchor='nw',text='短刀',font=(self.fonts[1],27),fill=ACCENT,tags='title')
-        self.create_text(115*s,23*s,anchor='nw',text='TANTO  /  RECORDER',font=(self.fonts[0],17,'bold'),fill=ACCENT,tags='title')
+        self.create_text(115*s,23*s,anchor='nw',text='tanto recorder',font=(self.fonts[0],17,'bold'),fill=ACCENT,tags='title')
         self.create_text(28*s,69*s,anchor='nw',text='Capture. Describe. Share.',font=(self.fonts[0],10),fill=MUTED,tags='title')
         self.create_text(width-28*s,35*s,anchor='ne',text='Quick guide  /  F1',font=(self.fonts[0],10),fill=ACCENT,tags=('title','guide'))
         self.tag_bind('guide','<Button-1>',lambda event:self.on_guide() if self.on_guide else None)
@@ -216,15 +216,15 @@ class QuickGuide(tk.Toplevel):
         def draw(event):
             size=(max(1,event.width),max(1,event.height))
             fitted=ImageOps.fit(wallpaper.source,size,method=Image.Resampling.BILINEAR)
-            update_image(self.picture,Image.blend(Image.new('RGB',size,BG),fitted,.25))
+            update_image(self.picture,Image.blend(Image.new('RGB',size,BG),fitted,.55))
             canvas.delete('all');canvas.create_image(0,0,anchor='nw',image=self.picture)
             y=26*s
             for text,point,color in [('Your first recording',19,ACCENT),
                     ('1. Enter the boss or enemy name.',11,TEXT),
                     ('2. Press F8 or Start. Wait for Recording before fighting.',11,TEXT),
-                    ('3. Pause Nioh, press F8 to stop, then describe the sequence.',11,TEXT),
-                    ('4. Export ZIP and send it when you are finished.',11,TEXT),
-                    ('Saved in Downloads / Tanto Recordings.\nUnknown enemies stay unverified. Nothing uploads automatically.',10,MUTED)]:
+                    ('3. Pause Nioh, F8 to stop. Type a description; click Save.',11,TEXT),
+                    ('4. F8 adds another take. Export ZIP when finished.',11,TEXT),
+                    ('Saved in Downloads / Tanto Recordings.\nDrafts and the last session reopen automatically. New names stay unverified.',10,MUTED)]:
                 item=canvas.create_text(26*s,y,anchor='nw',text=text,width=max(1,event.width-52*s),
                     fill=color,font=(wallpaper.fonts[0],point,'bold' if point==19 else 'normal'))
                 y=canvas.bbox(item)[3]+19*s

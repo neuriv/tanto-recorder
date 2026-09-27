@@ -1,51 +1,44 @@
 [
-  {
-    "id": "okatsu",
-    "name": "Okatsu",
-    "weapon": "sword",
-    "capture_signature": [
-      {
-        "action_id": 3172,
-        "motion_id": 1220
-      },
-      {
-        "action_id": 3174,
-        "motion_id": 1230
-      }
-    ]
-  },
-  {
-    "id": "jin_hayabusa",
-    "name": "Jin Hayabusa",
-    "weapon": "sword",
-    "capture_signature": [
-      {
-        "action_id": 3171,
-        "motion_id": 2110
-      },
-      {
-        "action_id": 3193,
-        "motion_id": 5014
-      }
-    ]
-  },
-  {
-    "id": "maria",
-    "name": "Maria",
-    "weapon": "sword",
-    "capture_signature": [
-      {
-        "action_id": 3182,
-        "motion_id": 1001
-      },
-      {
-        "action_id": 3193,
-        "motion_id": 1100
-      },
-      {
-        "action_id": 912,
-        "motion_id": 1101
-      }
-    ]
-  }
+  {"id": "okatsu", "name": "Okatsu", "weapon": "sword", "capture_signature": [{"action_id": 3172, "motion_id": 1220}, {"action_id": 3174, "motion_id": 1230}]},
+  {"id": "jin_hayabusa", "name": "Jin Hayabusa", "weapon": "sword", "capture_signature": [{"action_id": 3171, "motion_id": 2110}, {"action_id": 3193, "motion_id": 5014}]},
+  {"id": "maria", "name": "Maria", "weapon": "sword", "capture_signature": [{"action_id": 3182, "motion_id": 1001}, {"action_id": 3193, "motion_id": 1100}, {"action_id": 912, "motion_id": 1101}]},
+  {"id": "encounter_35a92fb2d6c8d4d7", "name": "Derrick the Executioner"},
+  {"id": "encounter_433abefc05861472", "name": "Onryoki"},
+  {"id": "encounter_7d22e3c51b96b3b5", "name": "Hino-enma"},
+  {"id": "encounter_265bc4b65bd1fd39", "name": "Nue"},
+  {"id": "encounter_101e10eccebdd61b", "name": "Tachibana Muneshige"},
+  {"id": "encounter_0437642e6fd74201", "name": "Great Centipede"},
+  {"id": "encounter_64ab4893329b69b1", "name": "Umi-bozu"},
+  {"id": "encounter_b9a73d525610551a", "name": "Joro-gumo"},
+  {"id": "encounter_8eff4d96b2b82d33", "name": "Yuki-onna"},
+  {"id": "encounter_b9184c91871fa3ef", "name": "Ii Naomasa"},
+  {"id": "encounter_4118857b5cadb2da", "name": "White Tiger"},
+  {"id": "encounter_0f633dbbc3d3cd28", "name": "Hattori Hanzo"},
+  {"id": "encounter_afae55619e38e13c", "name": "Giant Toad"},
+  {"id": "encounter_b0b8a7374bf74586", "name": "Ogress"},
+  {"id": "encounter_dbe81e03fc35fff9", "name": "Honda Tadakatsu"},
+  {"id": "encounter_94b1dc5ef60db88d", "name": "Saika Magoichi"},
+  {"id": "encounter_e2ebac3b48b7f887", "name": "Otani Yoshitsugu"},
+  {"id": "encounter_ba646a6db5a09cdb", "name": "Shima Sakon"},
+  {"id": "encounter_7233c0bc5e7adac7", "name": "Gasha-dokuro"},
+  {"id": "encounter_d350a1ee25372f54", "name": "Ishida Mitsunari"},
+  {"id": "encounter_cdee4bda900bfc84", "name": "Obsidian Samurai"},
+  {"id": "encounter_b184b55e1a3d5aff", "name": "Oda Nobunaga"},
+  {"id": "encounter_0c0583c88b2d238c", "name": "Edward Kelley"},
+  {"id": "encounter_8a8331b185dfb33b", "name": "Yamata-no-Orochi"},
+  {"id": "encounter_daa03e6fd6165450", "name": "Hundred Eyes"},
+  {"id": "encounter_c66436431194d040", "name": "Sakata Kintoki"},
+  {"id": "encounter_cf57734047fe5199", "name": "Ashikaga Yoshiteru"},
+  {"id": "encounter_59984d51da608ca5", "name": "Shisenin Kosen"},
+  {"id": "encounter_98d2b595cf17d8a0", "name": "Marume Nagayoshi"},
+  {"id": "encounter_f08e4154ff320707", "name": "Hozoin Inei"},
+  {"id": "encounter_cee4b5642bd8b17c", "name": "Yagyu Sekishusai"},
+  {"id": "encounter_4d5ae0d20fb3de82", "name": "Date Shigezane"},
+  {"id": "encounter_954c646bfec88a27", "name": "Katakura Shigenaga"},
+  {"id": "encounter_c73115872e9cd7f8", "name": "Date Masamune"},
+  {"id": "encounter_5b2934abb434ce19", "name": "Sarutobi Sasuke"},
+  {"id": "encounter_f8c6942d84911614", "name": "Sanada Yukimura"},
+  {"id": "encounter_02c580df8a9782e0", "name": "Onmoraki"},
+  {"id": "encounter_4255754eeb2e9128", "name": "Toyotomi Hideyori"},
+  {"id": "encounter_45f9926925635f48", "name": "Nine-Tailed Fox"}
 ]
