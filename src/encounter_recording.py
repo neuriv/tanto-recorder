@@ -23,7 +23,7 @@ BOSSES = {boss['id']: boss for boss in json.loads((ROOT/'data/bosses.json').read
 DEFAULT_SIGNATURES = {key: boss['capture_signature'] for key,boss in BOSSES.items() if 'capture_signature' in boss}
 PLAYER_SIGNATURE = [{'action_id': 0xC64, 'motion_id': 2033}]
 GAP_EVENTS = {'object_unreadable', 'snapshot_race', 'tracked_actor_changed',
-              'rediscovery_required', 'sampling_gap', 'session', 'end'}
+              'rediscovery_required', 'sampling_gap', 'session', 'end', 'gap'}
 
 
 def atomic_json(path, value):
@@ -163,7 +163,7 @@ def reconstruct_capture(source, boss_id, destination=None):
                 last_state.pop(obj, None)
             else:
                 last_state.clear()
-            if kind in ('session', 'tracked_actor_changed', 'object_unreadable', 'corrupt_record'):
+            if kind in ('session', 'gap', 'tracked_actor_changed', 'object_unreadable', 'corrupt_record'):
                 cache.clear()
         if kind == 'action_state':
             descriptor = event.get('descriptor') or {}
@@ -242,6 +242,11 @@ def reconstruct_capture(source, boss_id, destination=None):
             generation += 1
         if kind == 'end':
             ended = True
+        if kind == 'gap':
+            # The action-first worker marks process exit and Stop without inventing a new actor identity.
+            # Increment the generation so reused addresses after a retry cannot inherit earlier actions.
+            # Raw take IDs and timestamps remain untouched for description matching.
+            generation += 1
         if kind in GAP_EVENTS or kind == 'corrupt_record':
             if kind not in ('session', 'end'):
                 gaps.append(dict(kind=kind, evidence=evidence(number, event),
