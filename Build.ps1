@@ -1,5 +1,7 @@
 param([string]$EngineRoot = (Join-Path $PSScriptRoot '..\tanto-engine'), [string]$PythonRuntime = 'python', [switch]$OneDir)
 $ErrorActionPreference = 'Stop'
+& $PythonRuntime -c "import PIL"
+if ($LASTEXITCODE -ne 0) { throw 'Install Recorder requirements.txt in the build Python environment first.' }
 $EngineRoot = (Resolve-Path -LiteralPath $EngineRoot).Path
 $manifest = Get-Content (Join-Path $PSScriptRoot 'product.json') -Raw | ConvertFrom-Json
 $revision = git -C $EngineRoot rev-parse HEAD

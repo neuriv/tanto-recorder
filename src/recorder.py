@@ -14,7 +14,7 @@ from tkinter import filedialog, messagebox, ttk
 from encounter_recording import BOSSES, atomic_json, latest_sample_time, load_annotations, record_encounter, save_annotation
 from recording_bundle import export_capture, intake_bundle
 from recording_hotkey import GlobalHotkey, HOTKEYS
-from recorder_theme import BG, SURFACE, INPUT, TEXT, MUTED, ACCENT, InkBackdrop, theme
+from recorder_theme import BG, SURFACE, INPUT, TEXT, MUTED, ACCENT, InkBackdrop, SequenceList, QuickGuide, theme
 from windows_paths import downloads_dir
 
 
@@ -38,33 +38,36 @@ class Recorder:
         try: settings=json.loads(self.settings_path.read_text(encoding='utf8'))
         except (OSError,ValueError): settings={}
         if not isinstance(settings,dict): settings={}
+        self.tutorial_seen=bool(settings.get('tutorial_seen',False));self.guide=None
         fonts=theme(root);root.title('Tanto Recorder')
         self.recordings=downloads_dir()/'Tanto Recordings'
         self.scale=max(1,float(root.tk.call('tk','scaling'))/(96/72))
         root.geometry(f'{round(960*self.scale)}x{round(740*self.scale)}')
         root.minsize(round(680*self.scale),round(650*self.scale))
         self.backdrop=InkBackdrop(root,self.scale,fonts)
+        self.backdrop.on_guide=self.show_guide
+        root.bind('<F1>',lambda event:self.show_guide())
         panel=ttk.Frame(self.backdrop)
         self.backdrop.panel=self.backdrop.create_window(24,106,anchor='nw',window=panel)
         panel.columnconfigure(0,weight=1);panel.rowconfigure(7,weight=1)
         form=ttk.Frame(panel);form.grid(row=2,column=0,sticky='ew');form.columnconfigure(0,weight=1)
-        ttk.Label(form,text='Boss or enemy name · required').grid(row=0,column=0,sticky='w')
-        ttk.Label(form,text='Global start / stop key').grid(row=0,column=1,sticky='w',padx=(16,0))
+        self.backdrop.label(form,text='Boss or enemy name · required').grid(row=0,column=0,sticky='w')
+        self.backdrop.label(form,text='Global start / stop key').grid(row=0,column=1,sticky='w',padx=(16,0))
         self.boss=tk.StringVar();self.selector=ttk.Combobox(form,textvariable=self.boss,values=[b['name'] for b in BOSSES.values()])
         self.selector.grid(row=1,column=0,sticky='ew',pady=6)
         self.key=tk.StringVar(value=settings.get('hotkey') if settings.get('hotkey') in HOTKEYS else 'F8')
         hotkey=ttk.Combobox(form,textvariable=self.key,values=list(HOTKEYS),state='readonly',width=18)
         hotkey.grid(row=1,column=1,sticky='ew',padx=(16,0),pady=6);hotkey.bind('<<ComboboxSelected>>',self.configure_hotkey)
         self.hotkey_status=tk.StringVar(value='Hotkey off. Use Start / Stop below.')
-        self.hotkey_label=ttk.Label(form,textvariable=self.hotkey_status,style='Muted.TLabel',wraplength=610)
+        self.hotkey_label=self.backdrop.label(form,textvariable=self.hotkey_status,style='Muted.TLabel',wraplength=610)
         self.hotkey_label.grid(row=2,column=0,columnspan=2,sticky='ew',pady=(0,14))
-        card=ttk.Frame(panel,style='Card.TFrame',padding=16);card.grid(row=3,column=0,sticky='ew');card.columnconfigure(1,weight=1)
+        card=ttk.Frame(panel,style='Card.TFrame');card.grid(row=3,column=0,sticky='ew',pady=14);card.columnconfigure(1,weight=1)
         self.pulse=tk.Canvas(card,width=28,height=28,background=SURFACE,highlightthickness=0)
         self.pulse.grid(row=0,column=0,rowspan=2,padx=(0,12));self.dot=self.pulse.create_oval(8,8,20,20,fill=MUTED,outline='')
         self.headline=tk.StringVar(value='Ready when you are')
-        ttk.Label(card,textvariable=self.headline,style='Card.TLabel',font=('Segoe UI',14,'bold')).grid(row=0,column=1,sticky='w')
+        self.backdrop.label(card,textvariable=self.headline,style='Card.TLabel',font=('Segoe UI',14,'bold')).grid(row=0,column=1,sticky='w')
         self.status=tk.StringVar(value='Enter the boss name, then start before fighting.')
-        self.status_label=ttk.Label(card,textvariable=self.status,style='Card.TLabel',wraplength=550)
+        self.status_label=self.backdrop.label(card,textvariable=self.status,style='Card.TLabel',wraplength=550)
         self.status_label.grid(row=1,column=1,sticky='ew',pady=(4,0))
         controls=ttk.Frame(panel);controls.grid(row=4,column=0,sticky='ew',pady=14)
         self.primary=ttk.Button(controls,text='Start recording',style='Primary.TButton',command=self.toggle)
@@ -72,26 +75,30 @@ class Recorder:
         self.describe_button=ttk.Button(controls,text='Describe sequence',command=self.describe)
         self.describe_button.pack(side='left',padx=8)
         self.reduced=tk.BooleanVar(value=bool(settings.get('reduced_motion',False)))
-        ttk.Checkbutton(controls,text='Reduce motion',variable=self.reduced,command=self.save_settings).pack(side='right')
+        motion_label=self.backdrop.label(controls,text='Reduce motion',style='Muted.TLabel')
+        motion_label.pack(side='right',padx=(4,0))
+        motion_label.bind('<Button-1>',lambda event:(self.reduced.set(not self.reduced.get()),self.save_settings()))
+        ttk.Checkbutton(controls,variable=self.reduced,command=self.save_settings).pack(side='right')
         self.session_name=tk.StringVar(value='No session open')
-        self.session_label=ttk.Label(panel,textvariable=self.session_name,style='Muted.TLabel',wraplength=610)
+        self.session_label=self.backdrop.label(panel,textvariable=self.session_name,style='Muted.TLabel',wraplength=610)
         self.session_label.grid(row=5,column=0,sticky='ew',pady=(0,8))
         tools=ttk.Frame(panel);tools.grid(row=6,column=0,sticky='ew',pady=(0,8))
         self.idle_buttons=[]
         for title,command in [('New session',self.new_session),('Open session',self.open_session),('Export ZIP',self.export)]:
             button=ttk.Button(tools,text=title,command=command);button.pack(side='left',padx=(0,6));self.idle_buttons.append(button)
         table=ttk.Frame(panel);table.grid(row=7,column=0,sticky='nsew');table.columnconfigure(0,weight=1);table.rowconfigure(0,weight=1)
-        self.labels=ttk.Treeview(table,columns=('take','interval','description'),show='headings',height=6)
-        for key,title,width,stretch in [('take','Take',95,False),('interval','Seconds',130,False),('description','Description / markers',320,True)]:
-            self.labels.heading(key,text=title);self.labels.column(key,width=round(width*self.scale),minwidth=round(80*self.scale),stretch=stretch)
+        self.labels=SequenceList(table,self.backdrop)
         self.labels.grid(row=0,column=0,sticky='nsew')
         scroll=ttk.Scrollbar(table,orient='vertical',command=self.labels.yview);scroll.grid(row=0,column=1,sticky='ns')
-        self.labels.configure(yscrollcommand=scroll.set);self.labels.bind('<Double-1>',lambda event:self.edit_selected())
-        self.edit_button=ttk.Button(panel,text='Edit selected description',command=self.edit_selected)
-        self.edit_button.grid(row=8,column=0,sticky='w',pady=8)
-        help_text='Pause Nioh yourself after the sequence, stop recording, then describe it. Unknown enemies are captured as unverified actors. Nothing is uploaded automatically.'
-        self.help_label=ttk.Label(panel,text=help_text,style='Muted.TLabel',wraplength=610)
-        self.help_label.grid(row=9,column=0,sticky='ew')
+        def position_scroll(first,last):
+            scroll.set(first,last)
+            if first<=0 and last>=1:scroll.grid_remove()
+            else:scroll.grid()
+        self.labels.configure(yscrollcommand=position_scroll);self.labels.bind('<Double-1>',lambda event:self.edit_selected())
+        self.labels.bind('<Return>',lambda event:self.edit_selected())
+        help_text='Pause Nioh, stop recording, then describe the sequence. Export when finished.'
+        self.help_label=self.backdrop.label(panel,text=help_text,style='Muted.TLabel',wraplength=610)
+        self.help_label.grid(row=9,column=0,sticky='ew',pady=(10,0))
         panel.bind('<Configure>',lambda event:self.resize_text(event.width))
         root.protocol('WM_DELETE_WINDOW',self.close)
         if enable_hotkey: self.configure_hotkey(persist=False)
@@ -105,8 +112,15 @@ class Recorder:
         return self.thread is not None and self.thread.is_alive()
 
     def save_settings(self):
-        try: atomic_json(self.settings_path,dict(hotkey=self.key.get(),reduced_motion=self.reduced.get()))
+        try: atomic_json(self.settings_path,dict(hotkey=self.key.get(),reduced_motion=self.reduced.get(),tutorial_seen=self.tutorial_seen))
         except OSError as error: self.hotkey_status.set('Settings could not be saved: '+str(error))
+
+    def show_guide(self):
+        if self.closing:return
+        if self.guide and self.guide.winfo_exists():self.guide.lift();return
+        def done():
+            self.tutorial_seen=True;self.save_settings();self.guide.destroy();self.guide=None
+        self.guide=QuickGuide(self.root,self.backdrop,done)
 
     def configure_hotkey(self,event=None,persist=True):
         self.hotkey_generation+=1;generation=self.hotkey_generation
@@ -256,7 +270,7 @@ class Recorder:
         self.primary.configure(text='Stop recording' if busy else 'Resume recording' if self.folder else 'Start recording',
             state='disabled' if self.operation=='export' or (busy and self.stop.is_set()) else 'normal')
         for button in self.idle_buttons: button.configure(state='disabled' if busy else 'normal')
-        for button in (self.describe_button,self.edit_button): button.configure(state='normal' if self.folder and self.operation!='export' else 'disabled')
+        for button in (self.describe_button,): button.configure(state='normal' if self.folder and self.operation!='export' else 'disabled')
         radius=6+(2*math.sin(time.monotonic()*4) if busy and not self.reduced.get() else 0)
         self.pulse.coords(self.dot,14-radius,14-radius,14+radius,14+radius)
         self.pulse.itemconfigure(self.dot,fill=ACCENT if busy else MUTED)
@@ -267,6 +281,7 @@ class Recorder:
         if self.hotkey: self.hotkey.close();self.hotkey=None
         if self.busy(): self.root.after(150,self.close);return
         if self.after_id: self.root.after_cancel(self.after_id)
+        self.root.update_idletasks()
         self.root.destroy()
 
 
@@ -279,8 +294,20 @@ def main(argv=None):
     if args.intake:
         print(json.dumps(intake_bundle(args.intake,args.intake_dir),indent=2));return 0
     root=tk.Tk()
-    if args.ui_smoke: root.withdraw()
-    app=Recorder(root,enable_hotkey=not args.ui_smoke)
+    errors=[]
     if args.ui_smoke:
-        args.ui_smoke.write_text(json.dumps(dict(passed=True,game_access=False)));root.after(200,app.close)
+        root.attributes('-alpha',0)
+        root.report_callback_exception=lambda kind,error,trace:errors.append(str(error))
+    app=Recorder(root,enable_hotkey=not args.ui_smoke,
+                 settings_path=args.ui_smoke.parent/'recorder-smoke-settings.json' if args.ui_smoke else None)
+    if not args.ui_smoke and not app.tutorial_seen:root.after(100,app.show_guide)
+    if args.ui_smoke:
+        app.backdrop.on_guide()
+        app.guide.attributes('-alpha',0)
+        def finish():
+            rendered=app.backdrop.picture.width()==app.backdrop.winfo_width()
+            args.ui_smoke.write_text(json.dumps(dict(passed=not errors and rendered and app.guide.picture.width()>1,game_access=False,
+                local_guide=app.guide.winfo_exists()==1,wallpaper_rendered=rendered,errors=errors)))
+            app.close()
+        root.after(500,finish)
     root.mainloop();return 0
