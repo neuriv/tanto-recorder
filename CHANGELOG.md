@@ -1,5 +1,10 @@
 # Release notes
 
+## 0.3.0-alpha.2
+
+- Dim the wallpaper further and brighten text, labels and placeholders.
+- Remove the static footer disclaimer and section/field divider lines.
+
 ## 0.3.0-alpha.1
 
 - Replace the Python window with Electron, TypeScript and CSS: cleaner text, subtle wallpaper motion and lightweight controls.
