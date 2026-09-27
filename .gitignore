@@ -6,3 +6,4 @@ runtime/
 node_modules/
 desktop-dist/
 desktop-worker/
+local-artifacts/
