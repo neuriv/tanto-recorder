@@ -2,7 +2,7 @@
 
 ## 0.2.0-alpha.3
 
-Source prepared; not packaged. Further tests and packaging paused at the user's request.
+Packaged as an untested prerelease for the user's external tester. Automated suites and packaged UI smoke execution were explicitly skipped at the user's request; receipts record this exception rather than borrowing older results.
 
 - Settings adds remembered 0–100% volume for both recording cues, including mute, with Test start / Test stop buttons. Volume changes stop the current cue and apply to the next sound. Preview buttons are disabled while recording or exporting.
 - Lower levels attenuate temporary PCM copies; packaged sounds, game audio and Windows mixer settings remain unchanged. Cached copies are removed on volume changes and shutdown.
