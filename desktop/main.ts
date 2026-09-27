@@ -10,6 +10,8 @@ import type { Health, Session, Settings, View, Take } from './types';
 
 const root = path.resolve(__dirname, '..');
 const smoke = process.argv.includes('--ui-smoke');
+const automated = process.argv.includes('--record-seconds');
+const captureReport = option('--capture-report');
 const stateRoot = process.env.TANTO_STATE_ROOT || path.join(process.env.LOCALAPPDATA || app.getPath('userData'), 'Tanto', 'Recorder');
 const settingsFile = path.join(stateRoot, 'settings.json');
 const version = readJSON(path.join(root, 'product.json')).version;
@@ -30,6 +32,36 @@ let lastHeartbeat = 0;
 let cueStarted = false;
 let errorText = '';
 let health: Health = { state: 'idle', detail: 'Name the encounter. Start before the move; stop just after it.', actions: 0, bytes: 0, last_t: 0, tail: [] };
+
+function option(name: string): string | undefined {
+  // Read explicit automation arguments without involving a shell or simulated keys.
+  // Leave a missing value undefined so the caller can reject an incomplete command.
+  // Normal launches keep using saved settings and the interactive controls.
+  const index = process.argv.indexOf(name);
+  const value = index < 0 ? undefined : process.argv[index + 1];
+  return value?.startsWith('--') ? undefined : value;
+}
+
+async function timedCapture(): Promise<void> {
+  // Exercise the ordinary application's Start/Stop path for a bounded live capture.
+  // Wait for worker closure and disk sync before publishing counts and the session path.
+  // Use a new session, preserve earlier recordings, and fail visibly on zero IDs or an early exit.
+  const seconds = Number(option('--record-seconds')), boss = option('--boss');
+  if (!Number.isFinite(seconds) || seconds < 1 || seconds > 300 || !boss || !captureReport)
+    throw Error('Use --record-seconds 1–300 --boss "name" --capture-report "path.json".');
+  ({ folder, session } = createSession(settings.recordings_directory, boss));
+  settings.boss_draft = boss;
+  const started = Date.now();
+  toggle(boss);
+  const stopTimer = setTimeout(() => { if (worker) toggle(boss); }, seconds * 1000);
+  const timeout = setTimeout(() => { worker?.kill(); }, (seconds + 10) * 1000);
+  try { await workerDone; }
+  finally { clearTimeout(stopTimer); clearTimeout(timeout); }
+  const elapsed = (Date.now() - started) / 1000;
+  const passed = health.state === 'stopped' && health.actions > 0 && elapsed >= seconds;
+  atomicJSON(captureReport, { passed, version, packaged: app.isPackaged, elapsed, folder, health });
+  closing = true; app.exit(passed ? 0 : 1);
+}
 
 function view(): View {
   // Send only UI data across the context-isolated bridge.
@@ -144,7 +176,8 @@ function toggle(boss: string): void {
   stopPending = cueStarted = false; errorText = '';
   health = { state: 'waiting', detail: 'Waiting for actual action IDs. Do not treat this as a recorded move yet.', actions: 0, bytes: 0, last_t: 0, tail: [] };
   const executable = app.isPackaged ? path.join(process.resourcesPath, 'worker', 'TantoCapture.exe') : process.env.TANTO_PYTHON || 'python';
-  const args = [...(app.isPackaged ? [] : ['-u', '-B', path.join(root, 'launch.py')]), '--journal', path.join(folder!, 'events.jsonl'), '--take', take.id];
+  const args = [...(app.isPackaged ? [] : ['-u', '-B', path.join(root, 'launch.py')]), '--journal', path.join(folder!, 'events.jsonl'), '--take', take.id,
+    '--discovery-cache', path.join(stateRoot, 'discovery.json')];
   const child = worker = spawn(executable, args, { windowsHide: true, stdio: 'pipe', cwd: app.isPackaged ? path.dirname(executable) : root });
   lastHeartbeat = Date.now();
   const lines = createInterface({ input: child.stdout });
@@ -337,9 +370,10 @@ async function createWindow(): Promise<void> {
   const width = Math.min(1080, area.width), height = Math.min(820, area.height);
   window = new BrowserWindow({ title: `Tanto Recorder · ${version}`, width, height,
     x: Math.round(area.x + (area.width - width) / 2), y: Math.round(area.y + (area.height - height) / 2),
-    minWidth: 680, minHeight: 600, backgroundColor: '#111619', autoHideMenuBar: true,
+    minWidth: 680, minHeight: 600, backgroundColor: '#111619', autoHideMenuBar: true, show: !automated && !smoke,
     webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true,
-      nodeIntegration: false, sandbox: true, autoplayPolicy: 'no-user-gesture-required' } });
+      nodeIntegration: false, sandbox: true, backgroundThrottling: !automated && !smoke,
+      autoplayPolicy: 'no-user-gesture-required' } });
   Menu.setApplicationMenu(null);
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   window.webContents.on('will-navigate', event => event.preventDefault());
@@ -385,6 +419,10 @@ else app.whenReady().then(async () => {
     try { return await command(name, value); } catch (error) { failure(error); throw error; }
   });
   await createWindow();
+  if (automated) {
+    if (startupError) throw startupError;
+    await timedCapture(); return;
+  }
   if (!smoke && settings.hotkey !== 'Off' && !globalShortcut.register(settings.hotkey, shortcut)) failure('Saved shortcut is unavailable. Choose another in Settings.');
   if (startupError) failure(startupError);
   setInterval(() => {
@@ -395,7 +433,15 @@ else app.whenReady().then(async () => {
       health = { ...health, state: 'stalled', detail: 'The worker is not responding to Stop. Force stop may lose the unfinished checkpoint; earlier synced IDs remain.' }; broadcast();
     } else if (worker && Date.now() - lastHeartbeat > 8000 && health.state !== 'error') failure('Capture health has stopped updating. Stop and restart this take; earlier saved IDs remain.');
   }, 2000).unref();
-}).catch(error => { dialog.showErrorBox('Tanto Recorder could not open', String(error)); app.quit(); });
+}).catch(error => {
+  // Automated runs report startup failures to their caller without covering the game with a dialog.
+  // Interactive launches keep the visible error explaining why Recorder could not open.
+  // A failed run exits nonzero and never reports a successful recording.
+  if (automated) {
+    if (captureReport) atomicJSON(captureReport, { passed: false, error: String(error) });
+    console.error(String(error)); app.exit(1);
+  } else { dialog.showErrorBox('Tanto Recorder could not open', String(error)); app.quit(); }
+});
 app.on('second-instance', () => { if (window) { window.restore(); window.focus(); } });
 app.on('will-quit', () => globalShortcut.unregisterAll());
 app.on('window-all-closed', () => app.quit());

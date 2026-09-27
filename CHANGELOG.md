@@ -1,5 +1,14 @@
 # Release notes
 
+## 0.3.0-alpha.3
+
+- Start capturing IDs as soon as a valid action node is found, while discovery continues.
+- Revalidate cached nodes for faster later takes; keep scan errors visible in the journal.
+- Recheck nearby actor pools during discovery and refresh metadata when reused actors reset.
+- Add timed recording through the normal Start/Stop path, with a saved result report.
+
+Local source captures up to two minutes retained IDs across user-reported deaths and pause/resume, then stopped cleanly. Exact death/pause classification, exhaustive move coverage, extended-session durability and another-PC acceptance remain unverified.
+
 ## 0.3.0-alpha.2
 
 - Dim the wallpaper further and brighten text, labels and placeholders.

@@ -1,7 +1,7 @@
 {
   "name": "tanto-recorder",
   "productName": "Tanto Recorder",
-  "version": "0.3.0-alpha.2",
+  "version": "0.3.0-alpha.3",
   "private": true,
   "description": "Read-only Nioh action recorder",
   "author": "neuriv",

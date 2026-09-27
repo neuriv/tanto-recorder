@@ -6,7 +6,7 @@ Recorder observes Nioh; it never sends game input, injects hooks, writes game me
 
 `launch.py` starts `src/action_capture.py`. It reuses Engine's researched process/build checks and read-only discovery. It writes a coherent full action ID before requesting optional motion/transition metadata. Missing fingerprints and controllers cannot prevent capture. The user's boss name never assigns actor identity.
 
-Discovery uses a separate read-only handle while known actors keep sampling. A vanished actor becomes a gap; others continue. The metadata cache holds at most 8,192 entries and UI memory retains twelve observations. Sampling targets 10 ms and records long gaps; brief actions can still be missed.
+Discovery streams validated nodes from a separate read-only handle before the heap scan finishes. A cache bound to the game's process birth/build speeds later takes. Nearby pools are rechecked during scanning, so rebuilt actors need not wait for the whole heap. Owner changes, unreadable actors and restarted counters invalidate that actor's metadata. Counter resets are recorded without assuming their cause. Metadata stays bounded at 8,192 entries and the UI retains twelve observations. Sampling targets 10 ms and records long gaps; brief actions can still be missed.
 
 The worker appends the journal independently of renderer IPC. Flush and fsync run at approximately one-second health checkpoints and Stop; displayed counts advance only after successful sync. Abrupt termination may lose the unfinished checkpoint. Disk errors end capture visibly. An OS byte lock excludes another writer without a lock sidecar.
 
@@ -25,3 +25,5 @@ Preferences live under `%LOCALAPPDATA%/Tanto/Recorder`; the default library is i
 The original wallpaper moves through a slow CSS transform instead of a large GIF; reduced motion disables animation. Five tutorial pages remain available through Quick guide/F1. What's new displays the shipped changelog with the same image in its banner; it does not fetch or install updates.
 
 The release gate bundles only `action_capture`, `boss_probe` discovery/metadata and `nioh_memory` in the worker; Electron carries assets once. Recorder's EXE excludes Tk, controller reading, gameplay DLLs, historical captures and offline intake. The npm lock pins desktop dependencies. Engine's two entrypoints remain under `Test-Offline.ps1`; packaged `--ui-smoke` disables game access and uses temporary settings. Gameplay and another-PC acceptance remain separate.
+
+For a bounded live check, launch with `--record-seconds 15 --boss "Jin Hayabusa" --capture-report "report.json"`. This uses normal Start/Stop, creates a fresh session, waits for the worker to sync, writes its saved counts and exits. Zero IDs, startup failure or premature exit fail the check. Timed and UI checks keep the window hidden; the script sends no game input.
