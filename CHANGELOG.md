@@ -1,5 +1,13 @@
 # Release notes
 
+## 0.2.0-alpha.6
+
+- Restore the full tutorial across six short pages: library setup, recording, descriptions, editing, exports, shortcuts and sounds.
+- Show the updated tutorial once after upgrading. Quick guide, its header link and F1 always reopen it.
+- Remove opaque section and tutorial backgrounds. Brighter serif text with subtle shadows sits directly over the unchanged wallpaper; inputs and buttons retain restrained surfaces.
+
+Focused checks cover every tutorial page at default/minimum sizes, navigation, reopening and completion persistence. Packaged startup checks all six pages. Broad suites remain skipped; live-game and another-PC acceptance remain pending.
+
 ## 0.2.0-alpha.5
 
 - Remove glass, blur and beveled image controls. Use solid dark panels, warm text and bundled Source Serif 4 Small Text.

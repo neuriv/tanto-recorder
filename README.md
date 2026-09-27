@@ -6,7 +6,7 @@ A worker samples game state into session/take files. Tk handles the interface, a
 
 Sessions default to `%LOCALAPPDATA%/Tanto/Recorder/Recordings`. Settings can reuse another library. Export packages selected sessions into a ZIP under `Downloads/tanto-zips`, preserving each take, description history and file hashes.
 
-Start and Stop play bundled WAVs at a remembered volume. Lower levels scale temporary PCM copies; zero mutes. Solid dark panels and bundled Source Serif text sit over the unchanged wallpaper; the compact Guide fits the default window.
+Start and Stop play bundled WAVs at a remembered volume. Lower levels scale temporary PCM copies; zero mutes. Bright Source Serif text sits directly over the wallpaper. Quick guide / F1 opens the full six-page tutorial, which also appears once after upgrading.
 
 Boss names provide context; only Okatsu, Jin and Maria have identification fingerprints. Recorded moves require developer review before use in a mod. Recorder does not change moves or control Nioh.
 

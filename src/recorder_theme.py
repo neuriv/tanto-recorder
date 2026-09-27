@@ -8,7 +8,15 @@ import tkinter as tk
 from tkinter import font as tkfont, ttk
 from PIL import Image, ImageOps
 
-BG='#0c0b0b'; SURFACE='#191619'; INPUT='#292329'; TEXT='#f5ead8'; MUTED='#c6bba9'; ACCENT='#e9c58c'
+BG='#0c0b0b'; SURFACE='#191619'; INPUT='#292329'; TEXT='#fff3df'; MUTED='#e0d2bd'; ACCENT='#f2ce92'
+
+
+def ink_text(canvas,x,y,**options):
+    # Separate lettering from the wallpaper with a small shadow instead of a text panel.
+    # Reuse font, wrapping and tags so shadow and foreground move or disappear together.
+    # Return the foreground item for normal Canvas measurement and event handling.
+    canvas.create_text(x+1,y+1,**dict(options,fill='#030303'))
+    return canvas.create_text(x,y,**options)
 
 
 def pixels(image):
@@ -36,7 +44,7 @@ def load_fonts():
 
 
 def theme(root):
-    # Use compact serif type and flat dark surfaces with one warm accent color.
+    # Use compact serif type with brighter text and restrained backgrounds for actual controls.
     # Prefer the bundled Small Text face; native control layouts retain their fields, arrows and focus behavior.
     # Font registration is private to this process, so a standalone EXE needs no font installation.
     load_fonts()
@@ -60,8 +68,8 @@ def theme(root):
     style.configure('TCheckbutton',background=BG,indicatorbackground=INPUT)
     style.configure('Horizontal.TScale',background=ACCENT,troughcolor=INPUT)
     style.map('TCheckbutton',background=[('active',BG)])
-    style.configure('Card.TFrame',background=SURFACE)
-    style.configure('Card.TLabel',background=SURFACE,foreground=TEXT)
+    style.configure('Card.TFrame',background=BG)
+    style.configure('Card.TLabel',background=BG,foreground=TEXT)
     style.configure('Muted.TLabel',foreground=MUTED)
     style.configure('Vertical.TScrollbar',background=INPUT,troughcolor=BG,arrowcolor=MUTED,
                     bordercolor=BG,lightcolor=INPUT,darkcolor=INPUT,arrowsize=10)
@@ -120,10 +128,10 @@ class InkBackdrop(tk.Canvas):
         self.background=Image.blend(Image.new('RGB',fitted.size,BG),fitted,.65)
         update_image(self.picture,self.background);self.revision+=1
         self.delete('title')
-        self.create_text(26*s,17*s,anchor='nw',text='短刀',font=('Yu Mincho',27),fill=ACCENT,tags='title')
-        self.create_text(115*s,23*s,anchor='nw',text='tanto recorder',font=(self.fonts[1],17,'bold'),fill=TEXT,tags='title')
-        self.create_text(28*s,69*s,anchor='nw',text='Capture. Describe. Share.',font=(self.fonts[0],10),fill=MUTED,tags='title')
-        self.create_text(width-28*s,35*s,anchor='ne',text='Guide  /  F1',font=(self.fonts[0],10),fill=ACCENT,tags=('title','guide'))
+        ink_text(self,26*s,17*s,anchor='nw',text='短刀',font=('Yu Mincho',27),fill=ACCENT,tags='title')
+        ink_text(self,115*s,23*s,anchor='nw',text='tanto recorder',font=(self.fonts[1],17,'bold'),fill=TEXT,tags='title')
+        ink_text(self,28*s,69*s,anchor='nw',text='Capture. Describe. Share.',font=(self.fonts[0],10),fill=MUTED,tags='title')
+        ink_text(self,width-28*s,35*s,anchor='ne',text='Quick guide  /  F1',font=(self.fonts[0],10),fill=ACCENT,tags=('title','guide'))
         self.tag_bind('guide','<Button-1>',lambda event: (
             # Make the header's Guide text act like the Guide tab.
             # Call the assigned application handler only after one has been connected.
@@ -136,14 +144,9 @@ class InkBackdrop(tk.Canvas):
         self.schedule_skin()
 
     def crop(self,widget):
-        # Give a child its enclosing solid panel color or the wallpaper underneath it.
-        # Walk widget parents so nested rows share the panel surface without blurred or offset copies.
+        # Let child text share the exact wallpaper beneath it without a visible background box.
+        # Translate window coordinates into the wallpaper canvas before sampling its pixels.
         # Keep a one-pixel minimum for widgets still being laid out.
-        parent=widget
-        while parent is not None and parent is not self:
-            if getattr(parent,'solid_surface',False):
-                return Image.new('RGB',(max(1,widget.winfo_width()),max(1,widget.winfo_height())),SURFACE)
-            parent=parent.master
         x=widget.winfo_rootx()-self.winfo_rootx();y=widget.winfo_rooty()-self.winfo_rooty()
         return self.background.crop((x,y,x+max(1,widget.winfo_width()),y+max(1,widget.winfo_height())))
 
@@ -161,15 +164,14 @@ class InkBackdrop(tk.Canvas):
         return WallpaperLabel(parent,self,**options)
 
     def card(self,parent,**options):
-        # Group related controls on one opaque, dark reading surface.
-        # Mark the parent so nested labels and frames inherit the same color.
-        # Compact padding keeps the original window size useful without any glass rendering.
+        # Group related controls with spacing instead of an opaque panel.
+        # The shared skin pass paints the wallpaper through this otherwise ordinary frame.
+        # Preserve compact padding so removing backgrounds does not shift the controls.
         widget=ttk.Frame(parent,style='Card.TFrame',padding=(round(12*self.scale),round(8*self.scale)),**options)
-        widget.solid_surface=True
         return widget
 
     def skin(self):
-        # Align wallpaper samples and solid panel surfaces underneath their controls.
+        # Align wallpaper samples underneath controls without drawing section backgrounds.
         # Cache geometry and wallpaper revisions so unchanged frames do not keep copying images.
         # Lower frame backgrounds beneath controls and include padding in their painted area.
         self.pending=None
@@ -203,7 +205,7 @@ class InkBackdrop(tk.Canvas):
 
 class WallpaperLabel(tk.Canvas):
     def __init__(self,parent,wallpaper,text='',textvariable=None,font=None,style='',wraplength=0):
-        # Draw readable text on its enclosing solid panel or sampled wallpaper.
+        # Draw readable text directly over the sampled wallpaper with a small shadow.
         # Measure the chosen font and subscribe to an optional Tk text variable.
         # Keep image and trace references alive until widget destruction so updates remain stable.
         self.wallpaper=wallpaper;self.text=text;self.variable=textvariable;self.wrap=wraplength
@@ -213,7 +215,7 @@ class WallpaperLabel(tk.Canvas):
         self.photo=tk.PhotoImage(master=self,width=1,height=1)
         self.metrics=tkfont.Font(self,font=self.typeface)
         value=self.variable.get() if self.variable else self.text
-        self.configure(width=min(wraplength or 10000,self.metrics.measure(value)),height=self.metrics.metrics('linespace'))
+        self.configure(width=min(wraplength or 10000,self.metrics.measure(value)+4),height=self.metrics.metrics('linespace')+3)
         self.bind('<Configure>',lambda event: (
             # Repaint this custom widget after its geometry changes.
             # Its paint method samples the aligned backdrop and redraws current text or rows.
@@ -245,9 +247,9 @@ class WallpaperLabel(tk.Canvas):
         if self.winfo_width()<2:return
         update_image(self.photo,self.wallpaper.crop(self))
         self.delete('all');self.create_image(0,0,anchor='nw',image=self.photo)
-        item=self.create_text(0,0,anchor='nw',text=self.variable.get() if self.variable else self.text,
-            fill=self.color,font=self.typeface,width=max(1,min(self.wrap or 10000,self.winfo_width())))
-        bounds=self.bbox(item);height=max(self.metrics.metrics('linespace'),bounds[3] if bounds else 1)
+        item=ink_text(self,2,1,anchor='nw',text=self.variable.get() if self.variable else self.text,
+            fill=self.color,font=self.typeface,width=max(1,min(self.wrap or 10000,self.winfo_width())-4),tags='content')
+        bounds=self.bbox(item);height=max(self.metrics.metrics('linespace')+3,bounds[3]+2 if bounds else 1)
         if int(self.cget('height'))!=height:super().configure(height=height)
 
 
@@ -346,7 +348,7 @@ class SequenceList(tk.Canvas):
         if index>=self.first+self.page():self.first=index-self.page()+1
         self.paint()
     def paint(self):
-        # Draw visible saved descriptions on the same solid surface as their panel.
+        # Draw visible saved descriptions directly over the wallpaper.
         # Clamp scrolling and shorten previews to fit columns, retaining complete text in the row model.
         # Report visible fractions to the scrollbar; rendering does not rewrite annotation files.
         if self.winfo_width()<2:return
@@ -354,9 +356,9 @@ class SequenceList(tk.Canvas):
         update_image(self.photo,self.wallpaper.crop(self))
         super().delete('all');self.create_image(0,0,anchor='nw',image=self.photo)
         for x,title in ((8,'Take'),(106,'Seconds'),(246,'Description')):
-            self.create_text(x*s,10*s,anchor='nw',text=title,fill=MUTED,font=(self.wallpaper.fonts[0],10))
+            ink_text(self,x*s,10*s,anchor='nw',text=title,fill=MUTED,font=(self.wallpaper.fonts[0],10))
         if not self.rows:
-            self.create_text(8*s,55*s,anchor='nw',text='Your described sequences will appear here.',fill=MUTED,font=(self.wallpaper.fonts[0],10))
+            ink_text(self,8*s,55*s,anchor='nw',text='Your described sequences will appear here.',fill=MUTED,font=(self.wallpaper.fonts[0],10))
         for offset,key in enumerate(tuple(self.rows)[self.first:self.first+page]):
             y=(35+offset*48)*s;values=self.rows[key]
             if key in self.chosen:self.create_line(1,y+3*s,1,y+34*s,fill=ACCENT,width=2)
@@ -365,38 +367,78 @@ class SequenceList(tk.Canvas):
                 text=' '.join(str(value).split());preview=text[:160]
                 while len(preview)>1 and self.metrics.measure(preview+'…')>limit:preview=preview[:-1]
                 if preview!=text:preview+='…'
-                self.create_text(x*s,y+6*s,anchor='nw',text=preview,fill=TEXT if x==246 else MUTED,
+                ink_text(self,x*s,y+6*s,anchor='nw',text=preview,fill=TEXT if x==246 else MUTED,
                                  font=(self.wallpaper.fonts[0],10))
         if self.scroll:self.scroll(self.first/max(1,len(self.rows)),min(1,(self.first+page)/max(1,len(self.rows))))
 
 
 class QuickGuide(ttk.Frame):
     def __init__(self,parent,wallpaper,done,key):
-        # Fit four short recording steps into the original default window.
-        # Keep scrolling available for smaller windows and describe the real shortcut, including Off.
-        # The inline page never grabs input or hides the shared Start/Stop control.
-        super().__init__(parent);self.columnconfigure(0,weight=1);self.rowconfigure(0,weight=1)
-        text=tk.Text(self,wrap='word',background=SURFACE,foreground=TEXT,relief='flat',borderwidth=0,
-            font=(wallpaper.fonts[0],11),padx=8,pady=4,width=1,height=1,cursor='arrow')
-        text.grid(row=0,column=0,sticky='nsew')
-        scroll=ttk.Scrollbar(self,orient='vertical',command=text.yview);scroll.grid(row=0,column=1,sticky='ns')
-        def position_scroll(first,last):
-            # Show scrolling only when a smaller window cannot fit the complete intro.
-            # Convert Tk's fractional strings before checking whether both ends are visible.
-            # Removing the scrollbar preserves its grid settings for later resizes.
-            scroll.set(first,last)
-            if float(first)<=0 and float(last)>=1:scroll.grid_remove()
-            else:scroll.grid()
-        text.configure(yscrollcommand=position_scroll)
-        text.tag_configure('heading',foreground=ACCENT,font=(wallpaper.fonts[1],12,'bold'),spacing1=4,spacing3=2)
+        # Restore the complete tutorial as short pages that fit the compact window.
+        # Draw instructions over the wallpaper and keep navigation separate from recording controls.
+        # The same inline guide is always reachable through its tab, header link or F1.
+        super().__init__(parent);self.columnconfigure(0,weight=1);self.rowconfigure(1,weight=1)
         trigger=f'Press {key} or click Start recording' if key!='Off' else 'Click Start recording'
-        steps=[('01  Name the encounter','Enter the boss or enemy name on Record. Keep one encounter per session.'),
-            ('02  Record, then stop',f'{trigger}. Wait for Recording, then fight. Pause Nioh yourself before stopping.'),
-            ('03  Describe and continue','After Stopped, write what happened and Save or Ctrl+S. Start again to add a take; double-click a saved description to edit.'),
-            ('04  Export and share','Export ZIP opens Explorer. Select saved session folders; share the ZIP from Downloads/tanto-zips.')]
-        for title,body in steps:
-            text.insert('end',title+'\n','heading');text.insert('end',body+'\n')
-        text.insert('end','\nSettings holds your recording folder, hotkey and sound volume. Drafts save automatically. F1 reopens this guide.')
-        text.configure(state='disabled');self.text=text
-        self.done=ttk.Button(self,text='Got it · back to recording',style='Primary.TButton',command=done)
-        self.done.grid(row=1,column=0,sticky='w',pady=(8,0))
+        self.steps=[
+            ('Prepare your library',
+             'Recorder reads move data from Nioh. You control and pause the game yourself.\n\n'
+             'Settings shows your recording folder. New libraries default to local AppData / Tanto / Recorder / Recordings. '
+             'Choose an existing Tanto Recordings folder to keep using it; its sessions stay intact.\n\n'
+             'Use one named encounter per session. A session holds its takes, saved descriptions and unfinished draft.'),
+            ('Name the encounter and start',
+             'On Record, enter the boss or enemy name. Choose a suggestion or type a custom name. '
+             'Only Okatsu, Jin and Maria currently have identification fingerprints; other names are encounter context.\n\n'
+             f'{trigger}. Discovery can take time: wait for Recording before fighting. '
+             'The start sound confirms that sampling has begun, unless muted. Waiting for Nioh is not recording.'),
+            ('Stop and describe the sequence',
+             'After the interesting sequence, pause Nioh yourself. Use Stop or the same recording shortcut. '
+             'Wait for Stopped so the take finishes writing.\n\n'
+             'Describe the weapon, opening motion, strikes and any hits or interruptions. '
+             'Click Save description or press Ctrl+S. The description covers the latest take since the previous description; exact animation frames are not verified.\n\n'
+             'Drafts autosave, but save the description before exporting so it is included.'),
+            ('Continue, reopen and edit',
+             'Start again to add another take to the session. Pending description text is saved against the stopped take first.\n\n'
+             'New session keeps the previous session and draft. Open session restores an older session and its notes; '
+             'the last session also reopens at startup.\n\n'
+             'Double-click a saved description, or select it and press Enter, to revise it. Save keeps the earlier revisions.'),
+            ('Export and share recordings',
+             'Stop recording and save your descriptions, then choose Export ZIP. In Explorer, use Ctrl or Shift to select '
+             'one or more saved session folders. They may contain the same boss or different bosses.\n\n'
+             'The completed ZIP appears in Downloads / tanto-zips. It contains all selected takes and saved description history; '
+             'unsaved drafts stay local.\n\n'
+             'Share that ZIP yourself. Nothing uploads automatically, and the original recordings remain unchanged.'),
+            ('Shortcuts, sounds and help',
+             'In Settings, choose a hotkey preset or Bind a key. Use F2–F11 / F13–F24, or Ctrl / Alt plus a letter or number. '
+             'Escape cancels; conflicts are reported. Off leaves Start / Stop available as buttons.\n\n'
+             'Recording cue volume controls both sounds. Zero mutes them; Test start and Test stop preview them while idle. '
+             'Your folder, shortcut and volume are remembered.\n\n'
+             'Reopen this tutorial through Quick guide or F1 whenever you need it. Start / Stop stays above every page.')]
+        self.page=0;self.heading=tk.StringVar();self.body=tk.StringVar()
+        self.heading_label=wallpaper.label(self,textvariable=self.heading,font=(wallpaper.fonts[1],14,'bold'))
+        self.heading_label.grid(row=0,column=0,sticky='ew',pady=(0,12))
+        self.text=wallpaper.label(self,textvariable=self.body,font=(wallpaper.fonts[0],11),style='Card.TLabel')
+        self.text.grid(row=1,column=0,sticky='nsew')
+        nav=ttk.Frame(self);nav.grid(row=2,column=0,sticky='ew',pady=(12,0));nav.columnconfigure(2,weight=1)
+        self.previous=ttk.Button(nav,text='Previous',command=lambda: (
+            # Move to the preceding tutorial page without leaving the guide.
+            # The shared page setter clamps the index and refreshes navigation state.
+            # No session, description or recording operation is changed.
+            self.show_page(self.page-1)
+        ));self.previous.grid(row=0,column=0,padx=(0,8))
+        self.next=ttk.Button(nav,text='Next',command=lambda: (
+            # Show the next complete group of tutorial instructions.
+            # Keep every page inside the same window instead of adding popups.
+            # The last page disables this button; Back to recording remains available.
+            self.show_page(self.page+1)
+        ));self.next.grid(row=0,column=1)
+        self.done=ttk.Button(nav,text='Back to recording',style='Primary.TButton',command=done)
+        self.done.grid(row=0,column=3);self.show_page(0)
+
+    def show_page(self,index):
+        # Select one full tutorial topic and show its position within the guide.
+        # Clamp navigation at the first/last page and update the bound heading/body variables.
+        # Wallpaper labels remeasure their wrapped text without changing the window size.
+        self.page=max(0,min(len(self.steps)-1,index));title,body=self.steps[self.page]
+        self.heading.set(f'{self.page+1:02d} / {len(self.steps):02d}   {title}');self.body.set(body)
+        self.previous.configure(state='normal' if self.page else 'disabled')
+        self.next.configure(state='normal' if self.page<len(self.steps)-1 else 'disabled')

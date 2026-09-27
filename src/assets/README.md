@@ -1,6 +1,6 @@
 # Recorder assets
 
-`background.png` is the accepted 1672 × 941 dimmed, dithered edit of the user-supplied William/guardian-spirit artwork. Solid dark panels keep text readable. The wallpaper bytes remain unchanged; no glass or blur is applied.
+`background.png` is the accepted 1672 × 941 dimmed, dithered edit of the user-supplied William/guardian-spirit artwork. Bright text and subtle shadows provide contrast without section backgrounds. The wallpaper bytes remain unchanged; no glass or blur is applied.
 
 `start.wav` comes from `t2wxkfk.wav` (5.110 seconds); `stop.wav` comes from `6s3fj0w.wav` (6.041 seconds). Both retain the supplied stereo, 48 kHz, signed 32-bit PCM bytes. The build manifest records their hashes.
 

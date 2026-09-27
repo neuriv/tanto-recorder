@@ -29,9 +29,9 @@ Start saves pending text, creates or resumes a session and launches `record_enco
 
 `src/recording_hotkey.py` translates readable shortcuts into Windows modifier/virtual-key numbers. A dedicated thread owns RegisterHotKey and its message queue. MOD_NOREPEAT suppresses held-key repetition; closing/rebinding unregisters the old key. Listener generations prevent already queued old-key messages from toggling a new session. No key is synthesized for the game.
 
-`src/recorder_theme.py` places solid dark panels over the bundled wallpaper. Nested labels share their panel's color; frame backgrounds include padding so their pixels align. Native control layouts preserve dropdown fields and arrows. Window bounds and local text scaling keep the minimum layout inside the usable desktop; no other application or Windows preference is changed.
+`src/recorder_theme.py` samples the wallpaper under frames and text so section backgrounds disappear. A small text shadow improves edge contrast; inputs and buttons keep their native surfaces. Native layouts preserve dropdown fields and arrows. Window bounds and local text scaling keep controls inside the usable desktop without changing Windows preferences.
 
-Bundled Source Serif 4 Small Text fonts load privately, with installed serif fallbacks. The four-step `QuickGuide` fits the default window and scrolls when necessary. Guide/F1 reopens it; Start/Stop remains above every tab. `SequenceList` shortens previews while keeping complete descriptions. Double-click/Return opens the full text for revision.
+Bundled Source Serif 4 Small Text fonts load privately, with installed serif fallbacks. `QuickGuide` presents six complete topics on short pages; Previous/Next changes their bound text. Tutorial version 3 appears once until acknowledged. Quick guide/F1 reopens it, and Start/Stop remains above every page. `SequenceList` shortens previews while retaining complete descriptions for editing.
 
 ## Files, schemas and packaging
 

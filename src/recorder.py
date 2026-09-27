@@ -52,7 +52,7 @@ class Recorder:
         volume=settings.get('cue_volume',100)
         self.volume=tk.IntVar(value=max(0,min(100,volume)) if type(volume) is int else 100)
         self.volume_text=tk.StringVar(value=f'{self.volume.get()}%' if self.volume.get() else 'Muted')
-        self.tutorial_seen=settings.get('tutorial_version')==2;self.guide=None;self.binding=None
+        self.tutorial_seen=settings.get('tutorial_version')==3;self.guide=None;self.binding=None
         base=Path(os.environ.get('TANTO_PRODUCT_ROOT',Path(__file__).resolve().parents[1]))
         version_file=base/'build-manifest.json' if (base/'build-manifest.json').exists() else base/'product.json'
         version=json.loads(version_file.read_text(encoding='utf8'));version=version.get('product',version).get('version','development')
@@ -72,7 +72,7 @@ class Recorder:
         nav=ttk.Frame(panel);nav.grid(row=0,column=0,sticky='ew',pady=(0,10))
         self.tabs={};self.current_tab='Record'
         for title in ('Record','Settings','Guide'):
-            button=ttk.Button(nav,text=title,style='Tab.TButton',command=lambda name=title: (
+            button=ttk.Button(nav,text='Quick guide' if title=='Guide' else title,style='Tab.TButton',command=lambda name=title: (
                 # Open the tab belonging to this button.
                 # Freeze the current loop title in a default argument so every button does not open the last tab.
                 # The page switch reuses the main window and its shared recording controls.
@@ -256,7 +256,7 @@ class Recorder:
             self.settings_path.parent.mkdir(parents=True,exist_ok=True)
             if self.folder:
                 atomic_json(self.folder/'draft.json',self.draft())
-            atomic_json(self.settings_path,dict(hotkey=self.key.get(),tutorial_seen=self.tutorial_seen,tutorial_version=2 if self.tutorial_seen else 0,
+            atomic_json(self.settings_path,dict(hotkey=self.key.get(),tutorial_seen=self.tutorial_seen,tutorial_version=3 if self.tutorial_seen else 0,
                 recordings_directory=str(self.recordings),cue_volume=self.volume.get(),
                 boss=self.boss.get(),custom_bosses=self.custom_bosses,last_session=str(self.folder) if self.folder else None,draft=self.draft()))
             self.note_status.set('Draft saved' if self.draft()['text'] else 'Write what happened. Ctrl+S saves the sequence.')
@@ -644,12 +644,17 @@ def main(argv=None):
             # Check guide fit, native dropdown parts, bundled type and persistence before reporting success.
             # Close the test window and remove only its temporary fixture; no game or personal recordings are involved.
             rendered=app.backdrop.picture.width()==app.backdrop.winfo_width()
-            guide_fits=app.guide.text.yview()[1]>=.999
+            guide_fits=True
+            for index in range(len(app.guide.steps)):
+                app.guide.show_page(index);root.update_idletasks()
+                bounds=app.guide.text.bbox('content')
+                guide_fits=guide_fits and bounds is not None and bounds[3]<=app.guide.text.winfo_height()
+            app.guide.show_page(0)
             layout=str(ttk.Style(root).layout('TCombobox'))
             dropdown_intact='Combobox.textarea' in layout and 'Combobox.downarrow' in layout
             serif_loaded=app.backdrop.fonts[0]=='Source Serif 4 SmText'
             args.ui_smoke.write_text(json.dumps(dict(passed=not errors and rendered and saved and restored and guide_fits and dropdown_intact and serif_loaded and app.guide.winfo_toplevel() is root,game_access=False,
-                local_guide=app.guide.winfo_exists()==1,guide_fits=guide_fits,dropdown_intact=dropdown_intact,serif_loaded=serif_loaded,
+                local_guide=app.guide.winfo_exists()==1,guide_pages=len(app.guide.steps),guide_fits=guide_fits,dropdown_intact=dropdown_intact,serif_loaded=serif_loaded,
                 wallpaper_rendered=rendered,description_saved=saved,draft_restored=restored,errors=errors)))
             app.close();fixture.cleanup()
         root.after(500,finish)
