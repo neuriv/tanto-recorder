@@ -18,7 +18,7 @@ from tkinter import filedialog, messagebox, ttk
 from encounter_recording import BOSSES, DEFAULT_SIGNATURES, atomic_json, latest_sample_time, load_annotations, record_encounter, save_annotation
 from recording_bundle import export_capture, export_sessions, intake_bundle
 from recording_hotkey import GlobalHotkey, HOTKEYS, parse_hotkey, key_event_name
-from recorder_theme import SURFACE, INPUT, TEXT, MUTED, ACCENT, InkBackdrop, SequenceList, QuickGuide, theme
+from recorder_theme import SURFACE, INPUT, TEXT, MUTED, ACCENT, InkBackdrop, SequenceList, QuickGuide, theme, fit_window
 from windows_paths import downloads_dir, choose_recording_folders
 
 
@@ -53,14 +53,13 @@ class Recorder:
         self.volume=tk.IntVar(value=max(0,min(100,volume)) if type(volume) is int else 100)
         self.volume_text=tk.StringVar(value=f'{self.volume.get()}%' if self.volume.get() else 'Muted')
         self.tutorial_seen=settings.get('tutorial_version')==2;self.guide=None;self.binding=None
-        fonts=theme(root)
         base=Path(os.environ.get('TANTO_PRODUCT_ROOT',Path(__file__).resolve().parents[1]))
         version_file=base/'build-manifest.json' if (base/'build-manifest.json').exists() else base/'product.json'
         version=json.loads(version_file.read_text(encoding='utf8'));version=version.get('product',version).get('version','development')
         root.title('Tanto Recorder · '+version)
         self.recordings=Path(settings.get('recordings_directory') or self.settings_path.parent/'Recordings').resolve()
-        self.scale=max(1,float(root.tk.call('tk','scaling'))/(96/72));s=self.scale
-        root.geometry(f'{round(1060*s)}x{round(850*s)}');root.minsize(round(760*s),round(800*s))
+        self.scale=fit_window(root,max(1,float(root.tk.call('tk','scaling'))/(96/72)));s=self.scale
+        fonts=theme(root)
         self.backdrop=InkBackdrop(root,s,fonts);self.backdrop.on_guide=self.show_guide
         root.bind('<F1>',lambda event: (
             # Route F1 to Recorder's inline Guide tab.
@@ -84,7 +83,7 @@ class Recorder:
         self.pulse=tk.Canvas(card,width=24,height=24,background=SURFACE,highlightthickness=0)
         self.pulse.grid(row=0,column=0,rowspan=2,padx=(0,12));self.dot=self.pulse.create_oval(6,6,18,18,fill=MUTED,outline='')
         self.headline=tk.StringVar(value='Ready when you are')
-        self.backdrop.label(card,textvariable=self.headline,style='Card.TLabel',font=(fonts[1],15,'bold')).grid(row=0,column=1,sticky='w')
+        self.backdrop.label(card,textvariable=self.headline,style='Card.TLabel',font=(fonts[1],14,'bold')).grid(row=0,column=1,sticky='ew')
         self.status=tk.StringVar(value='Enter the boss name, then start before fighting.')
         self.status_label=self.backdrop.label(card,textvariable=self.status,style='Card.TLabel',wraplength=550)
         self.status_label.grid(row=1,column=1,sticky='ew',pady=(4,0))
@@ -107,7 +106,7 @@ class Recorder:
         notes=self.backdrop.card(page);notes.grid(row=2,column=0,sticky='ew',pady=(0,8));notes.columnconfigure(0,weight=1)
         self.backdrop.label(notes,text='Sequence description · autosaved drafts').grid(row=0,column=0,sticky='w')
         self.description=tk.Text(notes,height=3,width=30,wrap='word',background=INPUT,foreground=TEXT,
-            insertbackground=TEXT,font=(fonts[0],13),relief='flat',padx=10,pady=8,undo=True)
+            insertbackground=TEXT,font=(fonts[0],11),relief='flat',padx=10,pady=8,undo=True)
         self.description.grid(row=1,column=0,sticky='ew',pady=5);self.description.bind('<<Modified>>',self.draft_changed)
         self.save_button=ttk.Button(notes,text='Save description',command=self.save_description);self.save_button.grid(row=1,column=1,padx=(10,0))
         self.note_status=tk.StringVar(value='Describe the sequence. Stop before saving.')
@@ -144,14 +143,15 @@ class Recorder:
         self.help_label=self.backdrop.label(page,text='Pause the game yourself. Stop, describe, then export selected sessions.',style='Muted.TLabel',wraplength=610)
         self.help_label.grid(row=4,column=0,sticky='ew',pady=(8,0))
         settings_page=self.pages['Settings'];settings_page.columnconfigure(0,weight=1)
-        self.backdrop.label(settings_page,text='Your recording library',font=(fonts[1],19,'bold')).grid(row=0,column=0,sticky='w',pady=(0,12))
+        self.backdrop.label(settings_page,text='Your recording library',font=(fonts[1],14,'bold')).grid(row=0,column=0,sticky='w',pady=(0,8))
         self.library_path=tk.StringVar(value=str(self.recordings))
         self.library_label=self.backdrop.label(settings_page,textvariable=self.library_path,style='Card.TLabel',wraplength=640)
         self.library_label.grid(row=1,column=0,sticky='ew',pady=(0,12))
         choose=ttk.Button(settings_page,text='Choose recording folder…',command=self.choose_recordings)
         choose.grid(row=2,column=0,sticky='w',pady=(0,14));self.idle_buttons.append(choose)
-        self.backdrop.label(settings_page,text='Choose your old Tanto Recordings folder to keep using it. Existing recordings stay intact. New sessions use this folder; Open session revisits an earlier one.',style='Card.TLabel',wraplength=640).grid(row=3,column=0,sticky='ew',pady=(0,24))
-        self.backdrop.label(settings_page,text='Recording hotkey',font=(fonts[1],19,'bold')).grid(row=4,column=0,sticky='w',pady=(0,12))
+        self.library_help=self.backdrop.label(settings_page,text='Choose an existing library to keep its sessions. New recordings go to this folder.',style='Card.TLabel',wraplength=640)
+        self.library_help.grid(row=3,column=0,sticky='ew',pady=(0,16))
+        self.backdrop.label(settings_page,text='Recording hotkey',font=(fonts[1],14,'bold')).grid(row=4,column=0,sticky='w',pady=(0,8))
         key=settings.get('hotkey','F8')
         try:parse_hotkey(key)
         except (ValueError,AttributeError):key='F8'
@@ -163,8 +163,9 @@ class Recorder:
         self.hotkey_status=tk.StringVar(value='Hotkey off. Use Start / Stop above.')
         self.hotkey_label=self.backdrop.label(settings_page,textvariable=self.hotkey_status,style='Card.TLabel',wraplength=640)
         self.hotkey_label.grid(row=6,column=0,sticky='ew',pady=(0,12))
-        self.backdrop.label(settings_page,text='Choose a preset or press Bind a key, then your keyboard shortcut. Escape cancels. Use a function key or Ctrl / Alt plus a letter or number. F1 opens this guide; Ctrl+S saves a description.',style='Muted.TLabel',wraplength=640).grid(row=7,column=0,sticky='ew')
-        self.backdrop.label(settings_page,text='Recording cue volume · 0% mutes',font=(fonts[1],15,'bold')).grid(row=8,column=0,sticky='w',pady=(18,8))
+        self.hotkey_help=self.backdrop.label(settings_page,text='Bind a function key or Ctrl / Alt + letter or number. Escape cancels; F1 opens Guide; Ctrl+S saves notes.',style='Muted.TLabel',wraplength=640)
+        self.hotkey_help.grid(row=7,column=0,sticky='ew')
+        self.backdrop.label(settings_page,text='Recording cue volume · 0% mutes',font=(fonts[1],12,'bold')).grid(row=8,column=0,sticky='w',pady=(12,8))
         audio=ttk.Frame(settings_page);audio.grid(row=9,column=0,sticky='ew');audio.columnconfigure(0,weight=1)
         self.volume_slider=ttk.Scale(audio,from_=0,to=100,variable=self.volume,command=self.set_volume)
         self.volume_slider.grid(row=0,column=0,sticky='ew',padx=(0,12))
@@ -200,20 +201,20 @@ class Recorder:
         # Rewrap explanatory text when the Recorder window changes size.
         # Reserve room for the fixed Start/Stop control and divide the encounter form into readable columns.
         # Only wrapping changes; recording state and saved descriptions are unaffected by resizing.
-        for label in (self.hotkey_label,self.help_label,self.note_label,self.library_label):label.configure(wraplength=max(240,width-56))
+        for label in (self.hotkey_label,self.help_label,self.note_label,self.library_label,self.library_help,self.hotkey_help):label.configure(wraplength=max(240,width-56))
         self.session_label.configure(wraplength=max(160,(width-80)//2))
         self.status_label.configure(wraplength=max(180,width-300*self.scale))
 
     def show_tab(self,name):
         # Display Record, Settings or the inline tutorial within the same window.
         # Hide the other pages, mark the active tab and rebuild guide text using the current shortcut.
-        # Schedule one glass-background repaint after layout changes rather than opening another window.
+        # Schedule one background repaint after layout changes rather than opening another window.
         for page in self.pages.values():page.grid_remove()
         self.pages[name].grid(row=0,column=0,sticky='nsew');self.current_tab=name
         for title,button in self.tabs.items():button.configure(style='Selected.Tab.TButton' if title==name else 'Tab.TButton')
         if name=='Guide':
             if self.guide:self.guide.destroy()
-            self.guide=QuickGuide(self.pages['Guide'],self.backdrop,self.finish_guide,self.key.get() if self.key.get()!='Off' else 'Start')
+            self.guide=QuickGuide(self.pages['Guide'],self.backdrop,self.finish_guide,self.key.get())
             self.guide.pack(fill='both',expand=True)
         self.backdrop.schedule_skin()
 
@@ -640,11 +641,16 @@ def main(argv=None):
         app.backdrop.on_guide()
         def finish():
             # Finish the isolated UI check after Tk has had time to render.
-            # Write explicit results for wallpaper, inline guide, description persistence and draft restoration.
+            # Check guide fit, native dropdown parts, bundled type and persistence before reporting success.
             # Close the test window and remove only its temporary fixture; no game or personal recordings are involved.
             rendered=app.backdrop.picture.width()==app.backdrop.winfo_width()
-            args.ui_smoke.write_text(json.dumps(dict(passed=not errors and rendered and saved and restored and app.guide.winfo_toplevel() is root,game_access=False,
-                local_guide=app.guide.winfo_exists()==1,wallpaper_rendered=rendered,description_saved=saved,draft_restored=restored,errors=errors)))
+            guide_fits=app.guide.text.yview()[1]>=.999
+            layout=str(ttk.Style(root).layout('TCombobox'))
+            dropdown_intact='Combobox.textarea' in layout and 'Combobox.downarrow' in layout
+            serif_loaded=app.backdrop.fonts[0]=='Source Serif 4 SmText'
+            args.ui_smoke.write_text(json.dumps(dict(passed=not errors and rendered and saved and restored and guide_fits and dropdown_intact and serif_loaded and app.guide.winfo_toplevel() is root,game_access=False,
+                local_guide=app.guide.winfo_exists()==1,guide_fits=guide_fits,dropdown_intact=dropdown_intact,serif_loaded=serif_loaded,
+                wallpaper_rendered=rendered,description_saved=saved,draft_restored=restored,errors=errors)))
             app.close();fixture.cleanup()
         root.after(500,finish)
     root.mainloop();return 0

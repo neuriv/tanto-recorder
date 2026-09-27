@@ -25,13 +25,13 @@ Start saves pending text, creates or resumes a session and launches `record_enco
 
 `src/windows_paths.py` asks Windows for redirected Downloads and uses Explorer's COM folder picker for multi-selection. COM is Windows' interface-based object API: a GUID identifies an interface, a vtable slot selects its method, HRESULT reports success/failure, and acquired objects/path strings must be released. Picker cancellation returns an empty selection. Exports always go to Downloads/tanto-zips independently of the recording-library path.
 
-## Keys and the glass interface
+## Keys and the interface
 
 `src/recording_hotkey.py` translates readable shortcuts into Windows modifier/virtual-key numbers. A dedicated thread owns RegisterHotKey and its message queue. MOD_NOREPEAT suppresses held-key repetition; closing/rebinding unregisters the old key. Listener generations prevent already queued old-key messages from toggling a new session. No key is synthesized for the game.
 
-`src/recorder_theme.py` draws from the bundled wallpaper only. Glass panels soften and tint their interiors, magnify a narrow edge and add a rounded highlight. Labels crop the same composed background so their edges align. Geometry/revision caches avoid repainting unchanged surfaces. This is a Pillow/Tk approximation informed by PyGlass, not desktop capture or a native Apple compositor.
+`src/recorder_theme.py` places solid dark panels over the bundled wallpaper. Nested labels share their panel's color; frame backgrounds include padding so their pixels align. Native control layouts preserve dropdown fields and arrows. Window bounds and local text scaling keep the minimum layout inside the usable desktop; no other application or Windows preference is changed.
 
-Bundled Inter fonts are registered privately in the process, with installed-font fallbacks. `QuickGuide` is an ordinary child frame with scrollable text, not a popup. It can be reopened through Guide/F1; Start/Stop lives above every tab. `SequenceList` stores complete descriptions but clips its visual previews to columns. Double-click/Return opens the full selected annotation for revision.
+Bundled Source Serif 4 Small Text fonts load privately, with installed serif fallbacks. The four-step `QuickGuide` fits the default window and scrolls when necessary. Guide/F1 reopens it; Start/Stop remains above every tab. `SequenceList` shortens previews while keeping complete descriptions. Double-click/Return opens the full text for revision.
 
 ## Files, schemas and packaging
 

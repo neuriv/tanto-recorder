@@ -6,30 +6,9 @@ import os
 from pathlib import Path
 import tkinter as tk
 from tkinter import font as tkfont, ttk
-from PIL import Image, ImageDraw, ImageOps, ImageFilter
+from PIL import Image, ImageOps
 
-BG='#0c0b0b'; SURFACE='#211e21'; INPUT='#272327'; TEXT='#faf4ea'; MUTED='#cec5b9'; ACCENT='#f0cf92'
-
-
-def glass(image,scale=1):
-    # Make a readable glass-like panel using only the supplied wallpaper pixels.
-    # Blur and tint the interior, magnify a narrow rim, and paint a lit rounded bevel.
-    # This is a lightweight optical approximation; it never samples the desktop or game screen.
-    """Frosted wallpaper, a magnified rim and a lit bevel; no screen capture."""
-    w,h=image.size;r=min(round(20*scale),w//2,h//2);edge=max(1,round(6*scale))
-    mask=Image.new('L',image.size);draw=ImageDraw.Draw(mask)
-    draw.rounded_rectangle((0,0,w-1,h-1),r,fill=255)
-    rim=mask.copy();ImageDraw.Draw(rim).rounded_rectangle((edge,edge,w-edge-1,h-edge-1),max(0,r-edge),fill=0)
-    warped=image.resize((w+edge*2,h+edge*2),Image.Resampling.BILINEAR).crop((edge,edge,w+edge,h+edge))
-    material=Image.composite(warped,image.filter(ImageFilter.GaussianBlur(5*scale)),rim)
-    material=Image.blend(material,Image.new('RGB',image.size,SURFACE),.68).convert('RGBA')
-    sheen=Image.new('RGBA',image.size);draw=ImageDraw.Draw(sheen)
-    for y in range(h):draw.line((0,y,w,y),fill=(255,239,211,round(17*(1-y/max(1,h-1)))))
-    material=Image.alpha_composite(material,sheen).convert('RGB');draw=ImageDraw.Draw(material)
-    draw.rounded_rectangle((0,0,w-1,h-1),r,outline='#766c64',width=max(1,round(scale)))
-    draw.rounded_rectangle((2,2,w-3,h-3),max(0,r-2),outline='#383337')
-    if w>2*r:draw.line((r,1,w-r,1),fill='#b1a18a',width=max(1,round(scale)))
-    return Image.composite(material,image,mask)
+BG='#0c0b0b'; SURFACE='#191619'; INPUT='#292329'; TEXT='#f5ead8'; MUTED='#c6bba9'; ACCENT='#e9c58c'
 
 
 def pixels(image):
@@ -48,7 +27,7 @@ def update_image(photo,image):
 
 @lru_cache(maxsize=1)
 def load_fonts():
-    # Make the bundled Inter fonts available only to this Recorder process.
+    # Make the bundled Source Serif fonts available only to this Recorder process.
     # AddFontResourceExW with FR_PRIVATE avoids installing fonts into the user's Windows font collection.
     # Cache the load so repeated windows/tests do not repeatedly register the same font resources.
     assets=Path(__file__).resolve().parent/'assets/fonts'
@@ -57,66 +36,70 @@ def load_fonts():
 
 
 def theme(root):
-    # Configure larger type, dark inputs and beveled controls consistently across Recorder.
-    # Prefer bundled Inter, retain installed-font fallbacks, and keep Tk references to generated button images.
-    # The style layer changes presentation only; ordinary Tk controls keep their keyboard behavior.
+    # Use compact serif type and flat dark surfaces with one warm accent color.
+    # Prefer the bundled Small Text face; native control layouts retain their fields, arrows and focus behavior.
+    # Font registration is private to this process, so a standalone EXE needs no font installation.
     load_fonts()
     families=set(tkfont.families(root))
-    body=next((name for name in ('Inter','Segoe UI Variable Text','Segoe UI','Arial') if name in families),'Arial')
-    title=next((name for name in ('Inter SemiBold','Inter','Segoe UI') if name in families),body)
+    body=next((name for name in ('Source Serif 4 SmText','Georgia','Cambria') if name in families),'Times New Roman')
+    title=next((name for name in ('Source Serif 4 SmText Semibold','Source Serif 4 SmText') if name in families),body)
     root.configure(background=BG)
     style=ttk.Style(root);style.theme_use('clam')
-    style.configure('.',background=BG,foreground=TEXT,font=(body,12),borderwidth=0,
+    style.configure('.',background=BG,foreground=TEXT,font=(body,10),borderwidth=0,
                     bordercolor=INPUT,lightcolor=INPUT,darkcolor=INPUT)
     style.configure('TLabel',foreground=ACCENT)
-    style.configure('TButton',background=BG,padding=(14,8),focusthickness=1,focuscolor=ACCENT)
-    style.map('TButton',foreground=[('disabled',MUTED),('active',TEXT)],background=[('disabled',BG),('active',BG)])
-    style.configure('Primary.TButton',foreground='#ffe8bc',font=(title,12,'bold'))
-    style.configure('Tab.TButton',padding=(24,10))
-    style.configure('Selected.Tab.TButton',foreground=ACCENT,font=(title,12,'bold'),padding=(24,10))
+    style.configure('TButton',background=INPUT,padding=(12,6),focusthickness=1,focuscolor=ACCENT,relief='flat')
+    style.map('TButton',foreground=[('disabled',MUTED),('active',TEXT)],background=[('disabled',SURFACE),('active','#42312b')])
+    style.configure('Primary.TButton',foreground=TEXT,background='#5c322b',font=(title,10,'bold'))
+    style.map('Primary.TButton',background=[('disabled',SURFACE),('active','#754137')])
+    style.configure('Tab.TButton',padding=(16,6),width=12)
+    style.configure('Selected.Tab.TButton',foreground=ACCENT,background='#42312b',font=(title,10,'bold'),padding=(16,6))
     style.configure('TEntry',fieldbackground=INPUT,insertcolor=TEXT,padding=8)
     style.configure('TCombobox',fieldbackground=INPUT,arrowcolor=ACCENT,padding=8)
     style.map('TCombobox',fieldbackground=[('readonly',INPUT)],selectbackground=[('readonly',INPUT)],selectforeground=[('readonly',TEXT)])
     style.configure('TCheckbutton',background=BG,indicatorbackground=INPUT)
     style.configure('Horizontal.TScale',background=ACCENT,troughcolor=INPUT)
     style.map('TCheckbutton',background=[('active',BG)])
-    style.configure('Card.TFrame',background=BG)
-    style.configure('Card.TLabel',background=BG,foreground=TEXT)
+    style.configure('Card.TFrame',background=SURFACE)
+    style.configure('Card.TLabel',background=SURFACE,foreground=TEXT)
     style.configure('Muted.TLabel',foreground=MUTED)
     style.configure('Vertical.TScrollbar',background=INPUT,troughcolor=BG,arrowcolor=MUTED,
                     bordercolor=BG,lightcolor=INPUT,darkcolor=INPUT,arrowsize=10)
     root.option_add('*TCombobox*Listbox.background',INPUT)
     root.option_add('*TCombobox*Listbox.foreground',TEXT)
     root.option_add('*TCombobox*Listbox.selectBackground','#673030')
-    root.rounded_images=[]
-    for name,primary in (('TButton',False),('Primary.TButton',True),('Tab.TButton',False),('Selected.Tab.TButton',True),('TEntry',False),('TCombobox',False)):
-        images=[]
-        for color in (('#62342e' if primary else '#343035'),'#201d20','#96513e','#51464a'):
-            tile=Image.new('RGBA',(48,48));draw=ImageDraw.Draw(tile)
-            draw.rounded_rectangle((1,1,46,46),radius=16,fill=color,outline='#887b69')
-            draw.rounded_rectangle((3,3,44,44),radius=14,outline='#44383b')
-            draw.line((16,2,32,2),fill='#c0ac89',width=1)
-            data=io.BytesIO();tile.save(data,format='PNG');images.append(tk.PhotoImage(master=root,data=data.getvalue()))
-        root.rounded_images.extend(images)
-        children=style.layout(name)[0][1].get('children',[])
-        element='Rounded'+name+'.surface'
-        style.element_create(element,'image',images[0],('disabled',images[1]),('pressed',images[2]),('active',images[3]),border=16,sticky='nsew')
-        style.layout(name,[(element,dict(sticky='nsew',**({'children':children} if children else {})))])
     return body,title
+
+
+def fit_window(root,scale):
+    # Start with the original 960 by 740 layout and keep it inside the usable Windows desktop.
+    # Reserve titlebar space; cap this app's text scaling only if its minimum layout would not fit.
+    # This reads display bounds only; it never moves, captures or controls another application's window.
+    from ctypes import wintypes
+    area=wintypes.RECT()
+    if not C.windll.user32.SystemParametersInfoW(48,0,C.byref(area),0):
+        area.right=root.winfo_screenwidth();area.bottom=root.winfo_screenheight()
+    available_width=area.right-area.left-24;available_height=area.bottom-area.top-60
+    fitted=min(scale,available_width/680,available_height/650)
+    if fitted<scale:root.tk.call('tk','scaling',fitted*(96/72))
+    scale=fitted
+    width=min(round(960*scale),available_width)
+    height=min(round(740*scale),available_height)
+    root.geometry(f'{width}x{height}+{area.left+(area.right-area.left-width)//2}+{area.top+max(0,(area.bottom-area.top-height-40)//2)}')
+    root.minsize(min(round(680*scale),width),min(round(650*scale),height))
+    return scale
 
 
 class InkBackdrop(tk.Canvas):
     def __init__(self,root,scale,fonts):
         # Create the wallpaper canvas shared by panels, labels and saved-sequence rows.
         # Load the packaged/source asset through the product-root contract and retain the original pixels.
-        # Track resize/repaint state locally so the glass treatment never needs desktop capture.
+        # Track resize/repaint state locally; no effect needs desktop or game capture.
         super().__init__(root,background=BG,highlightthickness=0)
         self.scale=scale;self.fonts=fonts;self.panel=None;self.pending=None;self.skins={};self.revision=0;self.on_guide=None
-        self.glass_widgets=[];self.composition=None;self.paint_revision=0
         base=Path(os.environ.get('TANTO_PRODUCT_ROOT',Path(__file__).resolve().parents[1]))
         with Image.open(base/'src/assets/background.png') as image: self.source=image.convert('RGB')
         self.background=Image.new('RGB',(1,1),BG);self.picture=tk.PhotoImage(master=root,width=1,height=1)
-        self.wallpaper=self.background
         self.create_image(0,0,anchor='nw',image=self.picture,tags='wallpaper')
         self.pack(fill='both',expand=True);self.bind('<Configure>',self.redraw)
         self.bind('<Destroy>',self.dispose,add='+')
@@ -134,14 +117,13 @@ class InkBackdrop(tk.Canvas):
         # Schedule panel repainting after Tk has settled widget geometry so every crop uses matching coordinates.
         width,height=event.width,event.height;s=self.scale
         fitted=ImageOps.fit(self.source,(max(1,width),max(1,height)),method=Image.Resampling.BILINEAR)
-        self.wallpaper=Image.blend(Image.new('RGB',fitted.size,BG),fitted,.65)
-        self.background=self.wallpaper.copy()
+        self.background=Image.blend(Image.new('RGB',fitted.size,BG),fitted,.65)
         update_image(self.picture,self.background);self.revision+=1
         self.delete('title')
-        self.create_text(26*s,17*s,anchor='nw',text='短刀',font=('Yu Mincho',30),fill=ACCENT,tags='title')
-        self.create_text(115*s,21*s,anchor='nw',text='tanto recorder',font=(self.fonts[1],24,'bold'),fill=TEXT,tags='title')
-        self.create_text(118*s,60*s,anchor='nw',text='Capture. Describe. Share.',font=(self.fonts[0],12),fill=MUTED,tags='title')
-        self.create_text(width-28*s,35*s,anchor='ne',text='Guide  /  F1',font=(self.fonts[0],12),fill=ACCENT,tags=('title','guide'))
+        self.create_text(26*s,17*s,anchor='nw',text='短刀',font=('Yu Mincho',27),fill=ACCENT,tags='title')
+        self.create_text(115*s,23*s,anchor='nw',text='tanto recorder',font=(self.fonts[1],17,'bold'),fill=TEXT,tags='title')
+        self.create_text(28*s,69*s,anchor='nw',text='Capture. Describe. Share.',font=(self.fonts[0],10),fill=MUTED,tags='title')
+        self.create_text(width-28*s,35*s,anchor='ne',text='Guide  /  F1',font=(self.fonts[0],10),fill=ACCENT,tags=('title','guide'))
         self.tag_bind('guide','<Button-1>',lambda event: (
             # Make the header's Guide text act like the Guide tab.
             # Call the assigned application handler only after one has been connected.
@@ -154,9 +136,14 @@ class InkBackdrop(tk.Canvas):
         self.schedule_skin()
 
     def crop(self,widget):
-        # Return the background pixels directly underneath a child widget.
-        # Translate root-window coordinates into wallpaper-canvas coordinates before cropping.
-        # A minimum one-pixel image supports widgets that are still being laid out.
+        # Give a child its enclosing solid panel color or the wallpaper underneath it.
+        # Walk widget parents so nested rows share the panel surface without blurred or offset copies.
+        # Keep a one-pixel minimum for widgets still being laid out.
+        parent=widget
+        while parent is not None and parent is not self:
+            if getattr(parent,'solid_surface',False):
+                return Image.new('RGB',(max(1,widget.winfo_width()),max(1,widget.winfo_height())),SURFACE)
+            parent=parent.master
         x=widget.winfo_rootx()-self.winfo_rootx();y=widget.winfo_rooty()-self.winfo_rooty()
         return self.background.crop((x,y,x+max(1,widget.winfo_width()),y+max(1,widget.winfo_height())))
 
@@ -174,26 +161,19 @@ class InkBackdrop(tk.Canvas):
         return WallpaperLabel(parent,self,**options)
 
     def card(self,parent,**options):
-        # Create a padded content panel and register its rectangle for glass rendering.
-        # The frame handles layout; the backdrop paints the frosted surface beneath its children.
-        # Track geometry changes so rounded panel edges follow resizes and tab switches.
-        widget=ttk.Frame(parent,padding=(round(18*self.scale),round(12*self.scale)),**options)
-        self.glass_widgets.append(widget);widget.bind('<Configure>',self.schedule_skin,add='+')
+        # Group related controls on one opaque, dark reading surface.
+        # Mark the parent so nested labels and frames inherit the same color.
+        # Compact padding keeps the original window size useful without any glass rendering.
+        widget=ttk.Frame(parent,style='Card.TFrame',padding=(round(12*self.scale),round(8*self.scale)),**options)
+        widget.solid_surface=True
         return widget
 
     def skin(self):
-        # Compose visible glass panels, then give each widget the pixels beneath it.
-        # Cache the wallpaper revision and panel geometry to avoid recomputing an unchanged composition.
-        # Custom painters draw their own text; ordinary frames receive a lowered image that cannot cover controls.
+        # Align wallpaper samples and solid panel surfaces underneath their controls.
+        # Cache geometry and wallpaper revisions so unchanged frames do not keep copying images.
+        # Lower frame backgrounds beneath controls and include padding in their painted area.
         self.pending=None
-        boxes=[(widget.winfo_rootx()-self.winfo_rootx(),widget.winfo_rooty()-self.winfo_rooty(),
-                widget.winfo_width(),widget.winfo_height()) for widget in self.glass_widgets if widget.winfo_ismapped()]
-        composition=(self.revision,tuple(boxes))
-        if composition!=self.composition:
-            self.background=self.wallpaper.copy()
-            for x,y,w,h in boxes:
-                if w>40 and h>40:self.background.paste(glass(self.background.crop((x,y,x+w,y+h)),self.scale),(x,y))
-            update_image(self.picture,self.background);self.composition=composition;self.paint_revision+=1
+        self.skins={widget:record for widget,record in self.skins.items() if widget.winfo_exists()}
         def visit(parent):
             # Walk the backdrop's widget tree in parent-before-child order.
             # Yield each descendant once so nested frames and their text can receive aligned samples.
@@ -205,7 +185,7 @@ class InkBackdrop(tk.Canvas):
             if hasattr(widget,'paint'): widget.paint();continue
             kind=widget.winfo_class()
             if kind not in ('TFrame','Canvas') or widget.winfo_width()<2 or widget.winfo_height()<2:continue
-            box=(widget.winfo_rootx(),widget.winfo_rooty(),widget.winfo_width(),widget.winfo_height(),self.paint_revision)
+            box=(widget.winfo_rootx(),widget.winfo_rooty(),widget.winfo_width(),widget.winfo_height(),self.revision)
             record=self.skins.get(widget)
             if record and record['box']==box:continue
             if record is None:
@@ -214,7 +194,8 @@ class InkBackdrop(tk.Canvas):
                     item=widget.create_image(0,0,anchor='nw',image=image);widget.tag_lower(item)
                 else:
                     background=tk.Label(widget,image=image,borderwidth=0,highlightthickness=0,padx=0,pady=0,anchor='nw')
-                    background.place(x=0,y=0,relwidth=1,relheight=1);background.lower()
+                    # Include frame padding in the image area so its sampled pixels start at the real panel origin.
+                    background.place(x=0,y=0,relwidth=1,relheight=1,bordermode='outside');background.lower()
                 record=self.skins[widget]=dict(image=image)
                 widget.bind('<Configure>',self.schedule_skin,add='+')
             update_image(record['image'],self.crop(widget));record['box']=box
@@ -222,11 +203,11 @@ class InkBackdrop(tk.Canvas):
 
 class WallpaperLabel(tk.Canvas):
     def __init__(self,parent,wallpaper,text='',textvariable=None,font=None,style='',wraplength=0):
-        # Draw readable text over the same pixels as its enclosing glass panel.
+        # Draw readable text on its enclosing solid panel or sampled wallpaper.
         # Measure the chosen font and subscribe to an optional Tk text variable.
         # Keep image and trace references alive until widget destruction so updates remain stable.
         self.wallpaper=wallpaper;self.text=text;self.variable=textvariable;self.wrap=wraplength
-        self.typeface=font or (wallpaper.fonts[0],12)
+        self.typeface=font or (wallpaper.fonts[0],10)
         self.color=MUTED if style=='Muted.TLabel' else TEXT if style=='Card.TLabel' else ACCENT
         super().__init__(parent,background=BG,highlightthickness=0,height=22,width=1)
         self.photo=tk.PhotoImage(master=self,width=1,height=1)
@@ -278,7 +259,7 @@ class SequenceList(tk.Canvas):
         # Connect mouse, arrow and wheel input locally; no events are sent to Nioh.
         super().__init__(parent,background=BG,highlightthickness=0,takefocus=True,height=190)
         self.wallpaper=wallpaper;self.rows={};self.chosen=();self.first=0;self.scroll=None;self.photo=tk.PhotoImage(master=self,width=1,height=1)
-        self.metrics=tkfont.Font(self,font=(wallpaper.fonts[0],12))
+        self.metrics=tkfont.Font(self,font=(wallpaper.fonts[0],10))
         self.bind('<Configure>',lambda event: (
             # Repaint this custom widget after its geometry changes.
             # Its paint method samples the aligned backdrop and redraws current text or rows.
@@ -365,7 +346,7 @@ class SequenceList(tk.Canvas):
         if index>=self.first+self.page():self.first=index-self.page()+1
         self.paint()
     def paint(self):
-        # Draw visible saved descriptions over their glass-panel background.
+        # Draw visible saved descriptions on the same solid surface as their panel.
         # Clamp scrolling and shorten previews to fit columns, retaining complete text in the row model.
         # Report visible fractions to the scrollbar; rendering does not rewrite annotation files.
         if self.winfo_width()<2:return
@@ -373,9 +354,9 @@ class SequenceList(tk.Canvas):
         update_image(self.photo,self.wallpaper.crop(self))
         super().delete('all');self.create_image(0,0,anchor='nw',image=self.photo)
         for x,title in ((8,'Take'),(106,'Seconds'),(246,'Description')):
-            self.create_text(x*s,10*s,anchor='nw',text=title,fill=MUTED,font=(self.wallpaper.fonts[0],11))
+            self.create_text(x*s,10*s,anchor='nw',text=title,fill=MUTED,font=(self.wallpaper.fonts[0],10))
         if not self.rows:
-            self.create_text(8*s,55*s,anchor='nw',text='Your described sequences will appear here.',fill=MUTED,font=(self.wallpaper.fonts[0],12))
+            self.create_text(8*s,55*s,anchor='nw',text='Your described sequences will appear here.',fill=MUTED,font=(self.wallpaper.fonts[0],10))
         for offset,key in enumerate(tuple(self.rows)[self.first:self.first+page]):
             y=(35+offset*48)*s;values=self.rows[key]
             if key in self.chosen:self.create_line(1,y+3*s,1,y+34*s,fill=ACCENT,width=2)
@@ -385,31 +366,37 @@ class SequenceList(tk.Canvas):
                 while len(preview)>1 and self.metrics.measure(preview+'…')>limit:preview=preview[:-1]
                 if preview!=text:preview+='…'
                 self.create_text(x*s,y+6*s,anchor='nw',text=preview,fill=TEXT if x==246 else MUTED,
-                                 font=(self.wallpaper.fonts[0],12))
+                                 font=(self.wallpaper.fonts[0],10))
         if self.scroll:self.scroll(self.first/max(1,len(self.rows)),min(1,(self.first+page)/max(1,len(self.rows))))
 
 
 class QuickGuide(ttk.Frame):
     def __init__(self,parent,wallpaper,done,key):
-        # Build the tutorial as a scrollable page inside Recorder.
-        # Describe library reuse, the current shortcut, notes and collection export using larger readable text.
-        # The page owns no popup or input grab, so the shared Start/Stop controls remain available.
+        # Fit four short recording steps into the original default window.
+        # Keep scrolling available for smaller windows and describe the real shortcut, including Off.
+        # The inline page never grabs input or hides the shared Start/Stop control.
         super().__init__(parent);self.columnconfigure(0,weight=1);self.rowconfigure(0,weight=1)
-        text=tk.Text(self,wrap='word',background=INPUT,foreground=TEXT,relief='flat',borderwidth=0,
-            font=(wallpaper.fonts[0],13),padx=18,pady=14,width=1,height=1,cursor='arrow')
+        text=tk.Text(self,wrap='word',background=SURFACE,foreground=TEXT,relief='flat',borderwidth=0,
+            font=(wallpaper.fonts[0],11),padx=8,pady=4,width=1,height=1,cursor='arrow')
         text.grid(row=0,column=0,sticky='nsew')
         scroll=ttk.Scrollbar(self,orient='vertical',command=text.yview);scroll.grid(row=0,column=1,sticky='ns')
-        text.configure(yscrollcommand=scroll.set)
-        text.tag_configure('heading',foreground=ACCENT,font=(wallpaper.fonts[1],15,'bold'),spacing1=12,spacing3=6)
-        steps=[('Your first recording','Recordings default to your local AppData / Tanto / Recorder / Recordings folder. Settings can choose another library, including an old Tanto Recordings folder.'),
-            ('01  Name the encounter','On Record, enter a boss or enemy name. One encounter per session. Names alone do not verify an actor.'),
-            ('02  Start, then fight',f'Press {key} or Start recording. Wait for Recording before fighting; the start sound confirms it unless muted. Settings has your keyboard shortcut, cue volume and Test buttons.'),
-            ('03  Stop and describe','Pause Nioh yourself, then use the same key or Stop. Wait for Stopped; the stop sound confirms it unless muted. Describe the sequence; Save or Ctrl+S.'),
-            ('04  Continue or revisit','Resume adds takes. New session preserves the old one. Open session restores notes; double-click a saved description to edit it. Drafts save automatically.'),
-            ('05  Select and share','Export ZIP opens Explorer. Ctrl / Shift-select session folders from any bosses. The complete ZIP appears in Downloads / tanto-zips. Share it yourself; nothing uploads.'),
-            ('Always available','Return here with the Guide tab or F1. Start / Stop stays above every tab. Recording observes game memory; it does not control the game or capture its screen.')]
+        def position_scroll(first,last):
+            # Show scrolling only when a smaller window cannot fit the complete intro.
+            # Convert Tk's fractional strings before checking whether both ends are visible.
+            # Removing the scrollbar preserves its grid settings for later resizes.
+            scroll.set(first,last)
+            if float(first)<=0 and float(last)>=1:scroll.grid_remove()
+            else:scroll.grid()
+        text.configure(yscrollcommand=position_scroll)
+        text.tag_configure('heading',foreground=ACCENT,font=(wallpaper.fonts[1],12,'bold'),spacing1=4,spacing3=2)
+        trigger=f'Press {key} or click Start recording' if key!='Off' else 'Click Start recording'
+        steps=[('01  Name the encounter','Enter the boss or enemy name on Record. Keep one encounter per session.'),
+            ('02  Record, then stop',f'{trigger}. Wait for Recording, then fight. Pause Nioh yourself before stopping.'),
+            ('03  Describe and continue','After Stopped, write what happened and Save or Ctrl+S. Start again to add a take; double-click a saved description to edit.'),
+            ('04  Export and share','Export ZIP opens Explorer. Select saved session folders; share the ZIP from Downloads/tanto-zips.')]
         for title,body in steps:
-            text.insert('end',title+'\n','heading');text.insert('end',body+'\n\n')
+            text.insert('end',title+'\n','heading');text.insert('end',body+'\n')
+        text.insert('end','\nSettings holds your recording folder, hotkey and sound volume. Drafts save automatically. F1 reopens this guide.')
         text.configure(state='disabled');self.text=text
         self.done=ttk.Button(self,text='Got it · back to recording',style='Primary.TButton',command=done)
-        self.done.grid(row=1,column=0,sticky='w',pady=(14,0))
+        self.done.grid(row=1,column=0,sticky='w',pady=(8,0))

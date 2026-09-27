@@ -1,5 +1,13 @@
 # Release notes
 
+## 0.2.0-alpha.5
+
+- Remove glass, blur and beveled image controls. Use solid dark panels, warm text and bundled Source Serif 4 Small Text.
+- Restore compact 960×740 sizing, capped to the usable desktop. Correct panel alignment and preserve native dropdown text fields and arrows.
+- Shorten the inline intro to four steps; fit the complete guide at default sizes and describe disabled hotkeys correctly. Settings text wraps with the window.
+
+Focused layout checks cover 100%, 150% and 200% text scaling. Packaged startup checks guide fit, dropdown structure and font loading; broad offline suites remain skipped. Live-game and another-PC acceptance remain pending.
+
 ## 0.2.0-alpha.4
 
 - Fix startup: reserve the volume label's width in its layout instead of passing an unsupported widget argument.
