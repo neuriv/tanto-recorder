@@ -243,8 +243,9 @@ class Recorder:
             self.note_status.set('Save failed: '+str(error));return False
 
     def cue(self,kind):
-        # Play Recorder's short local start or stop tone.
+        # Play the user's supplied local start or stop recording sound.
         # Use asynchronous WAV playback so audio cannot stall capture or the Tk event loop.
+        # A Stop sound replaces any unfinished Start sound instead of waiting for it to finish.
         # This does not trigger game audio, controller vibration or any input to Nioh.
         base=Path(os.environ.get('TANTO_PRODUCT_ROOT',Path(__file__).resolve().parents[1]))
         try:winsound.PlaySound(str(base/'src/assets'/f'{kind}.wav'),winsound.SND_FILENAME|winsound.SND_ASYNC|winsound.SND_NODEFAULT)

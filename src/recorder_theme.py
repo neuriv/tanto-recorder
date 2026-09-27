@@ -402,8 +402,8 @@ class QuickGuide(ttk.Frame):
         text.tag_configure('heading',foreground=ACCENT,font=(wallpaper.fonts[1],15,'bold'),spacing1=12,spacing3=6)
         steps=[('Your first recording','Choose a library in Settings. An existing Tanto Recordings folder works; its sessions stay intact.'),
             ('01  Name the encounter','On Record, enter a boss or enemy name. One encounter per session. Names alone do not verify an actor.'),
-            ('02  Start, then fight',f'Press {key} or Start recording. Wait for Recording and the rising tone before fighting. Change the keyboard shortcut in Settings.'),
-            ('03  Stop and describe','Pause Nioh yourself, then use the same key or Stop. Wait for Stopped and the falling tone. Describe the sequence; Save or Ctrl+S.'),
+            ('02  Start, then fight',f'Press {key} or Start recording. Wait for Recording and the start sound before fighting. Change the keyboard shortcut in Settings.'),
+            ('03  Stop and describe','Pause Nioh yourself, then use the same key or Stop. Wait for Stopped and the stop sound. Describe the sequence; Save or Ctrl+S.'),
             ('04  Continue or revisit','Resume adds takes. New session preserves the old one. Open session restores notes; double-click a saved description to edit it. Drafts save automatically.'),
             ('05  Select and share','Export ZIP opens Explorer. Ctrl / Shift-select session folders from any bosses. The complete ZIP appears in Downloads / tanto-zips. Share it yourself; nothing uploads.'),
             ('Always available','Return here with the Guide tab or F1. Start / Stop stays above every tab. Recording observes game memory; it does not control the game or capture its screen.')]

@@ -1,8 +1,13 @@
 # Release notes
 
-## Unreleased
+## 0.2.0-alpha.2
 
-Player-readable function/callback comments, mechanistic explanations and a code guide; Engine source pin refreshed after its review. Recorder's executable Python logic, evidence schemas and assets are unchanged. The published 0.2.0-alpha.1 EXE, tag and receipts remain immutable; a future compilation requires a new version.
+- Start recording plays the supplied `t2wxkfk.wav`; Stop plays `6s3fj0w.wav`. Both files are bundled without trimming or conversion. Playback remains asynchronous, and Stop replaces any unfinished Start sound.
+- Updated the guide and asset documentation to describe the new sounds.
+- Strengthened one focused ZIP round-trip test: three sessions across two bosses, duplicate folder names, two takes per session, description revisions, archive integrity, exact raw bytes, repeated intake and untouched originals.
+- Player-readable function/callback comments, mechanistic explanations and a code guide; Engine source pin refreshed after its review. Recorder still excludes gameplay hooks and memory-writing modules.
+
+The release gate requires both offline suites and the packaged UI smoke check; results are recorded in `release.json` and `ui-smoke.json`. Audible playback, live-game and another-PC acceptance remain pending. The published 0.2.0-alpha.1 EXE, tag and receipts remain immutable.
 
 ## 0.2.0-alpha.1
 

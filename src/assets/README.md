@@ -6,7 +6,12 @@ Final asset prompt (built-in imagegen; first edit selected):
 
 > Edit the supplied image for the Tanto Recorder application wallpaper. Preserve the exact scene composition, William kneeling with sword, guardian spirit, rain and background. Output a 4K 3840 x 2160 landscape PNG. Apply fine ordered dithering with subtle ASCII marks and tiny Japanese glyph texture, integrated into shading, not large readable text. Dim the entire image substantially to about 30 percent of original brightness so cream application text can remain readable directly over it. Retain blue-black, muted crimson colors and recognizable scene. No panels, rectangles, labels, UI, logos, extra characters or added objects. The image is a wallpaper, not a screenshot.
 
-`start.wav` and `stop.wav` are generated PCM tones: mono, 44.1 kHz, signed 16-bit, 200 ms, with tapered edges. Start rises 660 to 990 Hz; stop falls 660 to 440 Hz. No external sound assets are used.
+`start.wav` is the user-supplied `t2wxkfk.wav` (5.110 seconds); `stop.wav` is the user-supplied `6s3fj0w.wav` (6.041 seconds). Both are unmodified stereo, 48 kHz, signed 32-bit PCM WAV files. Playback is asynchronous; a new cue interrupts the previous cue. These sounds belong to Recorder's interface, not Nioh's game audio.
+
+Source SHA-256 fingerprints (identical to the bundled files):
+
+- Start: `c3f96b54638f57ebb5b29b524feed1db47ab4767a071cdc84fd4ee3afc63a9cd`
+- Stop: `7fc636695de0104b1503215449a9a507b08a07737b77d15e0dabdf860fe76f69`
 
 
 `fonts/Inter-Regular.ttf` and `Inter-SemiBold.ttf` come from [Inter 4.1](https://github.com/rsms/inter/releases/tag/v4.1). Their SIL Open Font License accompanies them as `fonts/LICENSE.txt`. Fonts load privately with AddFontResourceExW; they are not installed system-wide.

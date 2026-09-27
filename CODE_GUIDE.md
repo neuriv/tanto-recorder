@@ -17,7 +17,7 @@ Keep 3–5 direct opening comments per function/callback: player-facing purpose,
 
 `launch.py` selects source or packaged paths and exposes only the read-only Engine subset. `src/recorder.py` owns the window and user workflow. Tk's thread changes widgets; capture/export threads publish messages into a queue. `poll` consumes those messages and rejects stale session or hotkey-generation events.
 
-Start saves pending text, creates or resumes a session and launches `record_encounter`. Stop sets a cooperative event; the worker finishes writing before the UI permits another operation. The rising tone requires a confirmed sampling state, not merely successful discovery. Close waits for recording/export completion and keeps the window open if saving the draft fails.
+Start saves pending text, creates or resumes a session and launches `record_encounter`. Stop sets a cooperative event; the worker finishes writing before the UI permits another operation. The start sound requires a confirmed sampling state, not merely successful discovery. Close waits for recording/export completion and keeps the window open if saving the draft fails.
 
 `src/encounter_recording.py` owns discovery, take allocation, reconstruction and annotation history. It locks a session against competing writers, retains previous take files and reacquires changed actors. Reconstruction counts observed identity changes, preserves uncertain repeats and breaks sequences at gaps. `latest_sample_time` inspects the final 64 KiB of a take to bound a note; these sampled times are not exact animation-frame certification.
 
