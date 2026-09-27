@@ -6,6 +6,7 @@ import { spawn, spawnSync, ChildProcessWithoutNullStreams } from 'node:child_pro
 import { createInterface } from 'node:readline';
 import { atomicJSON, createSession, readJSON, readSession } from './storage';
 import { exportSessions, sessionFolders } from './export';
+import { workerHealth, finishedHealth } from './capture-state';
 import type { Health, Session, Settings, View, Take } from './types';
 
 const root = path.resolve(__dirname, '..');
@@ -204,11 +205,12 @@ function toggle(boss: string): void {
   const take: Take = { id: crypto.randomUUID(), started_at: Date.now() / 1000, actions: 0, last_t: 0, state: 'waiting' };
   session.takes.push(take); save();
   stopPending = cueStarted = false; errorText = '';
-  health = { state: 'waiting', detail: 'Waiting for actual action IDs. Do not treat this as a recorded move yet.', actions: 0, bytes: 0, last_t: 0, tail: [] };
+  health = { state: 'starting', detail: 'Starting capture. Wait for saved action IDs.', actions: 0, bytes: 0, last_t: 0, tail: [] };
   const args = [...(app.isPackaged ? [] : ['-u', '-B', path.join(root, 'launch.py')]), '--journal', path.join(folder!, 'events.jsonl'), '--take', take.id,
     '--discovery-cache', path.join(stateRoot, 'discovery.json')];
   const child = worker = spawn(executable, args, { windowsHide: true, stdio: 'pipe', cwd: app.isPackaged ? path.dirname(executable) : root });
   let launchError = '';
+  let terminal: Health | null = null;
   diagnostic('worker_start', { executable, folder, take: take.id, boss: session.boss_name });
   lastHeartbeat = Date.now();
   const lines = createInterface({ input: child.stdout });
@@ -220,7 +222,9 @@ function toggle(boss: string): void {
       const message = JSON.parse(line) as Health;
       if (!['waiting', 'recording', 'stopped', 'error'].includes(message.state) || !Number.isFinite(message.actions)) throw Error('Invalid capture health message');
       if (message.state !== health.state) diagnostic('worker_state', { state: message.state, detail: message.detail, actions: message.actions });
-      lastHeartbeat = Date.now(); health = message;
+      lastHeartbeat = Date.now();
+      if (terminal?.state !== 'error' && (message.state === 'stopped' || message.state === 'error')) terminal = message;
+      health = workerHealth(message, stopPending || message.state === 'stopped');
       Object.assign(take, { actions: message.actions, last_t: message.last_t, state: message.state });
       if (message.state === 'recording' && message.actions > 0 && !cueStarted) {
         cueStarted = true; window.webContents.send('cue', 'start');
@@ -236,8 +240,8 @@ function toggle(boss: string): void {
     // Preserve error/zero-ID outcomes; never replace them with an unconditional success.
     // Earlier checkpoints remain recoverable even when the worker exits abnormally.
     worker = null; stopPending = false; take.ended_at = Date.now() / 1000;
-    take.state = code === 0 ? 'stopped' : 'interrupted';
-    if (code !== 0) health = { ...health, state: 'error', detail: `Capture interrupted. ${health.actions ? 'Earlier synced IDs remain. ' : ''}${launchError || errorText.trim().split(/\r?\n/).at(-1) || `Worker exit ${code}`}` };
+    health = finishedHealth(health, code, terminal, launchError || errorText.trim().split(/\r?\n/).at(-1) || '');
+    take.state = health.state === 'stopped' ? 'stopped' : 'interrupted';
     diagnostic('worker_exit', { code, take: take.id, actions: health.actions, launchError, stderr: errorText });
     if (cueStarted && !window.isDestroyed()) window.webContents.send('cue', 'stop');
     try { save(); } catch (error) { failure(error); }
@@ -273,7 +277,7 @@ async function command(name: string, value: any): Promise<View> {
       const old = value.id ? session.annotations.find(note => note.id === value.id) : undefined;
       if (value.id && !old) throw Error('That saved description no longer exists.');
       const take = session.takes.at(-1);
-      const note = { id: old?.id || crypto.randomUUID(), text, take: old?.take || take?.id || '',
+      const note = { id: old?.id || crypto.randomUUID(), text, take: old?.take ?? take?.id ?? '',
         end_t: old?.end_t ?? take?.last_t ?? 0, updated_at: Date.now() / 1000 };
       if (old) Object.assign(old, note); else session.annotations.push(note);
       session.draft = { text: '' }; save(); break;
@@ -299,7 +303,7 @@ async function command(name: string, value: any): Promise<View> {
       if (value.hotkey !== undefined) setHotkey(String(value.hotkey));
       settings.cue_volume = Math.round(volume); settings.motion = value.motion !== false; save(); break;
     }
-    case 'guide-read': settings.tutorial_version = 4; save(); break;
+    case 'guide-read': settings.tutorial_version = 5; save(); break;
     case 'changelog-read': settings.changelog_seen = version; save(); break;
     case 'export': {
       requireIdle(); save();
@@ -368,7 +372,7 @@ async function smokeCheck(report: string): Promise<void> {
         if (width === 960) fs.writeFileSync(path.join(directory, `ui-${page}.png`), (await window.webContents.capturePage()).toPNG());
       }
     }
-    for (let index = 1; index < 5; index++) {
+    for (let index = 1; index < await window.webContents.executeJavaScript(`document.querySelectorAll("#guide-dots button").length`); index++) {
       await window.webContents.executeJavaScript(`document.getElementById('guide-next').click()`);
       checks[`guide-${index + 1}`] = await window.webContents.executeJavaScript(`({horizontal:document.documentElement.scrollWidth<=innerWidth,vertical:document.documentElement.scrollHeight<=innerHeight})`);
     }

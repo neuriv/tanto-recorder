@@ -1,4 +1,5 @@
 import type { View } from './types';
+import { coverage } from './capture-state';
 
 let state: View;
 let page = 'record';
@@ -11,18 +12,9 @@ let noteSaving = false;
 let draftQueue: Promise<unknown> = Promise.resolve();
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const guides = [
-  { title: 'A move, in three steps.', lead: 'Recorder collects action IDs for later review. You play Nioh normally; it never changes the game.',
-    steps: [['Name the encounter', 'Choose a suggested boss or type a custom name. The name labels your session; capture includes every readable actor.'], ['Start before the move', 'Press your recording shortcut or Start. Wait for the saved-ID counter to increase before relying on the recording.'], ['Stop just after the move', 'The last few action IDs are the starting point for matching your description. A short ending is easier to review.']] },
-  { title: 'Know what was saved.', lead: 'A running application is not the same as a working capture. Watch the evidence, not just the timer.',
-    steps: [['Waiting means waiting', 'A waiting or red status has no promise of useful data. Check Nioh is running and the supported game build is in use.'], ['Saved IDs are the signal', 'The counter shows action observations synced to disk. Repeated observations are not necessarily separate hits.'], ['Long sessions are welcome', 'Recording stays in an append-only journal. Loading screens and missing actors are logged as gaps; earlier data remains.']] },
-  { title: 'Put the ending into words.', lead: 'After Stop, describe the movement you wanted. The description stays beside that take and its ending time.',
-    steps: [['Be concrete', 'Describe hit count, direction, movement and follow-up. For example: two slashes, a leap, then an overhead cut.'], ['Add review priority', 'Write Low priority, Mid priority or High priority. Priority orders our review; it is separate from Low, Mid and High stances.'], ['Save and refine', 'Draft text autosaves. Ctrl+S saves a description; select a saved description to edit it. Notes are retained even if no IDs were captured.']] },
-  { title: 'Keep your old recordings.', lead: 'Choose your library, bind a shortcut and adjust cue volume in Settings. Upgrades preserve your recordings.',
-    steps: [['Choose your library', 'Settings → Choose folder can point at an older Tanto Recordings directory. Existing sessions are preserved.'], ['Open or start fresh', 'Open restores a saved session. Each Start adds a take; New prepares a separate encounter without deleting the old one.'], ['Check interruptions', 'On reopening a session, Recorder reads its journal to recover saved counts. A interrupted or empty take needs review, not assumed success.']] },
-  { title: 'One ZIP. Everything selected.', lead: 'Export all the sessions you want to share, including their raw action IDs, boss labels and descriptions.',
-    steps: [['Finish recording first', 'Stop and wait for the final save. Export takes a stable snapshot of the selected sessions.'], ['Select folders in Explorer', 'Choose Export ZIP. Ctrl or Shift selects several folders; Ctrl+A selects all. You can also select the parent library.'], ['Send the ZIP from Downloads', 'The completed .zip goes directly into Downloads. It includes draft-only sessions too, so failed captures do not silently discard your notes.']] }
+  { title: 'Record. Describe. Repeat.', lead: 'Keep one session for this boss. Each Start adds a take.',
+    steps: [['Choose the boss', 'Type or choose a name, then press Enter. Wait for “Selected” before recording.'], ['Record a move', 'Start before the move. Wait for saved IDs, then Stop just after it. Wait for the final save.'], ['Describe and repeat', 'Save a description, then Start the next take in this session. Open restores earlier sessions; Export ZIP shares selected sessions.']] }
 ];
-
 async function call(name: string, value?: unknown): Promise<void> {
   // All effects go through the fixed preload bridge; this page cannot read files or spawn workers.
   // Main-process failures remain readable without injecting strings as HTML.
@@ -45,9 +37,9 @@ function tab(name: string): void {
 function showGuide(): void {
   // Render one compact tutorial page so it fits the ordinary application window.
   // Text nodes keep tutorial content independent of HTML parsing and layout injection.
-  // Five topics retain capture, diagnosis, description, restoration and export instructions.
+  // One page covers choosing a boss, capturing a take and saving descriptions.
   const item = guides[guidePage];
-  $('guide-number').textContent = `QUICK GUIDE · 0${guidePage + 1} / 05`;
+  $('guide-number').textContent = `QUICK GUIDE · ${guidePage + 1} / ${guides.length}`;
   $('guide-title').textContent = item.title; $('guide-lead').textContent = item.lead;
   $('guide-steps').replaceChildren(...item.steps.map(([title, description], index) => {
     // Each numbered step has one short title and a concrete explanation.
@@ -82,7 +74,7 @@ function notes(): void {
     // Selecting one row changes the editor only; Save performs the metadata write.
     const button = document.createElement('button'); button.className = 'note';
     const text = document.createElement('span'), time = document.createElement('small');
-    text.textContent = note.text; time.textContent = note.take ? `${note.end_t.toFixed(1)}s · Edit` : 'Note only · Edit';
+    text.textContent = note.text; time.textContent = note.take ? `Take ${(state.session?.takes.findIndex(take => take.id === note.take) ?? -1) + 1} · ${note.end_t.toFixed(1)}s · Edit` : 'Note only · Edit';
     button.append(text, time); button.onclick = () => { editing = note.id; $<HTMLTextAreaElement>('description').value = note.text; $('draft-state').textContent = '· editing saved description'; $<HTMLTextAreaElement>('description').focus(); }; return button;
   }));
 }
@@ -100,10 +92,11 @@ function render(value: View): void {
   $('key').textContent = state.settings.hotkey;
   $('state').textContent = state.health.state.toUpperCase();
   $('dot').className = `dot ${state.health.state}`;
-  $('headline').textContent = ({ idle: 'Capture the last move.', waiting: 'Waiting for action IDs.', recording: 'Action IDs are being saved.', stopped: state.health.actions ? 'The ending is yours to describe.' : 'No action IDs captured.', stopping: 'Saving the last observations.', error: 'Capture needs attention.', warning: 'Check the recovered session.', exporting: 'Packing your sessions.' } as Record<string, string>)[state.health.state] || 'Ready when you are.';
+  $('headline').textContent = ({ idle: 'Capture the last move.', starting: 'Starting capture.', stalled: 'Capture has not finished.', waiting: 'Waiting for action IDs.', recording: 'Action IDs are being saved.', stopped: state.health.actions ? 'Take saved. Describe it or start the next.' : 'No action IDs captured.', stopping: 'Saving the last observations.', error: 'Capture needs attention.', warning: 'Check the recovered session.', exporting: 'Packing your sessions.' } as Record<string, string>)[state.health.state] || 'Ready when you are.';
   $('detail').textContent = state.health.detail;
+  $('coverage').textContent = coverage(state.health);
   $('count').textContent = state.health.actions.toLocaleString();
-  $('toggle-label').textContent = state.running ? (state.health.state === 'stalled' ? 'Force stop' : state.health.state === 'stopping' ? 'Finishing…' : 'Stop recording') : 'Start recording';
+  $('toggle-label').textContent = state.running ? (state.health.state === 'stalled' ? 'Force stop' : state.health.state === 'stopping' ? 'Finishing…' : 'Stop recording') : state.session?.takes.length ? 'Start next take' : 'Start recording';
   $('capture-symbol').textContent = state.running ? '■' : '●';
   $('toggle').classList.toggle('recording', state.running);
   $<HTMLButtonElement>('toggle').disabled = state.exporting || state.health.state === 'stopping';
@@ -119,7 +112,7 @@ function render(value: View): void {
   if (document.activeElement !== $('volume')) $<HTMLInputElement>('volume').value = String(state.settings.cue_volume);
   if (!binding) $('bind').textContent = state.settings.hotkey;
   $<HTMLInputElement>('motion').checked = state.settings.motion;
-  $('footer-status').textContent = state.exporting ? 'Exporting…' : state.running ? `${Math.floor(state.health.last_t)}s · ${state.health.actors || 0} readable actors` : 'Saved locally';
+  $('footer-status').textContent = state.exporting ? 'Exporting…' : state.running ? `${Math.floor(state.health.last_t)}s · ${state.health.actors || 0} readable actors` : state.health.state === 'error' || state.health.state === 'warning' ? 'Capture needs review · descriptions retained' : state.health.state === 'stopped' ? 'Take saved locally' : 'Ready';
   $('tail').replaceChildren(...state.health.tail.slice(-5).map(item => {
     // Show a bounded tail of observations while the complete journal remains on disk.
     // The actor address is context in the tooltip, not a permanent move identity.
@@ -130,13 +123,14 @@ function render(value: View): void {
   if (!initialized || changedSession) {
     if (document.activeElement !== $('boss')) $<HTMLInputElement>('boss').value = state.settings.boss_draft ?? state.session?.boss_name ?? '';
     if (document.activeElement !== $('description')) $<HTMLTextAreaElement>('description').value = state.session?.draft.text || '';
+    $('boss-state').textContent = state.settings.boss_draft ? 'Selected · ' + state.settings.boss_draft : 'Type a name, then press Enter';
     editing = state.session?.draft.editing_id || null;
     $('draft-state').textContent = editing ? '· edit draft restored' : '· autosaved';
   }
   if (!initialized || JSON.stringify(previous?.session?.annotations) !== JSON.stringify(state.session?.annotations)) notes();
   if (!initialized) {
     $('bosses').replaceChildren(...state.bosses.map(name => { const option = document.createElement('option'); option.value = name; return option; }));
-    if (state.settings.tutorial_version !== 4) tab('guide');
+    if (state.settings.tutorial_version !== 5) tab('guide');
     else if (state.settings.changelog_seen !== state.version) showUpdates();
     initialized = true;
   }
@@ -179,14 +173,18 @@ async function saveNote(): Promise<void> {
 for (const button of document.querySelectorAll<HTMLElement>('[data-tab]')) button.onclick = () => tab(button.dataset.tab!);
 $('toggle').onclick = () => { void draftQueue.then(() => call('toggle', $<HTMLInputElement>('boss').value)); };
 for (const name of ['new', 'open', 'export', 'library']) $(name).onclick = () => { void draftQueue.then(() => call(name)); };
-$('boss').oninput = () => { void call('context', $<HTMLInputElement>('boss').value); };
+$('boss').oninput = () => { $('boss-state').textContent = 'Editing · press Enter to select'; void call('context', $<HTMLInputElement>('boss').value); };
 $('boss').onchange = () => {
   // Commit the encounter once editing finishes, rather than making folders for every keystroke.
   // Preserve queued notes under their original boss before switching to a fresh encounter.
   // Start waits on the same queue, so mouse and shortcut paths receive consistent context.
   const boss = $<HTMLInputElement>('boss').value;
-  draftQueue = draftQueue.then(() => call('context-commit', boss));
+  $('boss-state').textContent = 'Selecting…';
+  draftQueue = draftQueue.then(() => window.recorder.call('context-commit', boss)).then(value => {
+    render(value); $('boss-state').textContent = 'Selected · ' + (value.settings.boss_draft || 'Unnamed encounter');
+  }).catch(error => { $('boss-state').textContent = 'Selection failed · ' + String(error); });
 };
+$('boss').onkeydown = event => { if (event.key === 'Enter') { event.preventDefault(); $('boss').blur(); } };
 $('description').oninput = () => {
   // Queue draft writes in typing order; each acknowledgement follows an atomic disk save.
   // Saved-description edits remain a draft until Ctrl+S updates that selected annotation.

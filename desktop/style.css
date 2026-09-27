@@ -15,3 +15,4 @@ body[data-page="guide"] .status-copy .eyebrow,body[data-page="settings"] .status
 .guide-page>h2{margin:11px 0}.guide-lead{margin-bottom:12px;font-size:13px;line-height:1.55}.guide-step{margin:12px auto}.guide-step p{line-height:1.55}.guide-navigation{margin-top:17px}.guide-footnote{margin-top:12px}
 .settings-page{padding-top:2px}.settings-page .intro{margin:10px auto 15px}.setting-row{padding:14px 0}.setting-row p{line-height:1.45}
 @media(max-height:750px){.guide-page>h2{font-size:28px;margin:9px 0}.guide-step{margin:10px auto}.guide-navigation{margin-top:13px}.guide-footnote{margin-top:9px}body[data-page="guide"] footer,body[data-page="settings"] footer{margin-top:14px}.settings-page .intro{margin-bottom:10px}.setting-row{padding:12px 0}}
+#boss-state{font-size:11px;color:var(--gold)}#coverage{font-size:10px;line-height:1.5;margin:8px 0}#coverage:empty{display:none}

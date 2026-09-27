@@ -6,7 +6,7 @@ Recorder observes Nioh; it never sends game input, injects hooks, writes game me
 
 Changing the boss detaches and preserves the previous session; the next recording or description creates a new one. Typing alone creates no folders. `recorder.log` in the settings directory retains recent startup, shortcut and worker decisions, rotating at 1 MiB to one previous file. It excludes descriptions and individual action IDs.
 
-`launch.py` starts `src/action_capture.py`. It reuses Engine's researched process/build checks and read-only discovery. It writes a coherent full action ID before requesting optional motion/transition metadata. Missing fingerprints and controllers cannot prevent capture. The user's boss name never assigns actor identity.
+`launch.py` starts `src/action_capture.py`. Coherent IDs are journaled before optional work enters bounded queues. A separate process-identity-checked reader captures the full action payload, transition rows, action-bank pointers and matching motion/timing context. Late results join their original take, actor generation, counter and descriptor prefix; stale results cannot overwrite a new observation. Missing fingerprints and controllers cannot prevent capture.
 
 Discovery streams validated nodes from a separate read-only handle before the heap scan finishes. A cache bound to the game's process birth/build speeds later takes. Nearby pools are rechecked during scanning, so rebuilt actors need not wait for the whole heap. Owner changes, unreadable actors and restarted counters invalidate that actor's metadata. Counter resets are recorded without assuming their cause. Metadata stays bounded at 8,192 entries and the UI retains twelve observations. Sampling targets 10 ms and records long gaps; brief actions can still be missed.
 
@@ -24,7 +24,9 @@ Review starts with the final action executions before Stop and matches their ord
 
 Preferences live under `%LOCALAPPDATA%/Tanto/Recorder`; the default library is its `Recordings` subfolder. Existing libraries need no migration or move. Electron owns the bindable shortcut and suspends it during binding. Supplied WAV cues use application-local volume, default 40%; Stop replaces unfinished Start audio. These are sounds, not controller vibration.
 
-The original wallpaper moves through a slow CSS transform instead of a large GIF; reduced motion disables animation. Five tutorial pages remain available through Quick guide/F1. What's new displays the shipped changelog with the same image in its banner; it does not fetch or install updates.
+The original wallpaper moves through a slow CSS transform; reduced motion disables animation. One tutorial page covers selecting a boss, recording a take and repeating within the session. Quick guide/F1 reopens it. What's new displays the shipped changelog with the same image in its banner.
+
+Counter gaps and previous-action pointers expose missed sampling without inventing execution times. Actor generations separate recycled objects after deaths or scene changes. Activity silence has an unknown cause: neither pause nor death is inferred without a verified marker. Final save confirms persistence, not complete visibility into every game event.
 
 The release gate bundles only `action_capture`, `boss_probe` discovery/metadata and `nioh_memory` in the worker; Electron carries assets once. Recorder's EXE excludes Tk, controller reading, gameplay DLLs, historical captures and offline intake. The npm lock pins desktop dependencies. Engine's two entrypoints remain under `Test-Offline.ps1`; packaged `--ui-smoke` disables game access and uses temporary settings. Gameplay and another-PC acceptance remain separate.
 

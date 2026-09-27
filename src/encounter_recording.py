@@ -5,6 +5,7 @@
 # name across every boss. Descriptions and boss names are review context, not proof.
 # Importing this module neither attaches to Nioh nor accesses a controller.
 import argparse
+from collections import OrderedDict
 import hashlib
 import json
 import math
@@ -23,7 +24,8 @@ BOSSES = {boss['id']: boss for boss in json.loads((ROOT/'data/bosses.json').read
 DEFAULT_SIGNATURES = {key: boss['capture_signature'] for key,boss in BOSSES.items() if 'capture_signature' in boss}
 PLAYER_SIGNATURE = [{'action_id': 0xC64, 'motion_id': 2033}]
 GAP_EVENTS = {'object_unreadable', 'snapshot_race', 'tracked_actor_changed',
-              'rediscovery_required', 'sampling_gap', 'session', 'end', 'gap'}
+              'rediscovery_required', 'sampling_gap', 'session', 'end', 'gap',
+              'actor_generation', 'actor_reset', 'counter_gap', 'activity_silence'}
 
 
 def atomic_json(path, value):
@@ -150,12 +152,12 @@ def reconstruct_capture(source, boss_id, destination=None):
             handle.read(1024 * 1024)), b''):
             digest.update(chunk)
     issues = []
-    # Pair metadata only with its immediately preceding, owner-validated state.
-    # Later repeats can reuse it only while the same actor/payload/key remains.
-    # Keys are source line numbers, so a repeated ID cannot borrow another actor's metadata.
+    # New metadata identifies its original snapshot, even after newer samples arrive.
+    # Keep bounded history; old schema rows retain their preceding-state matching.
+    # Generation and full prefix isolate reused addresses and descriptor lifetimes.
     trusted = {}
     last_state = {}
-    cache = {}
+    cache, recent = OrderedDict(), OrderedDict()
     for number, event in capture_events(source, issues):
         kind, obj = event['kind'], event.get('object')
         if kind in GAP_EVENTS or kind == 'corrupt_record':
@@ -163,17 +165,36 @@ def reconstruct_capture(source, boss_id, destination=None):
                 last_state.pop(obj, None)
             else:
                 last_state.clear()
-            if kind in ('session', 'gap', 'tracked_actor_changed', 'object_unreadable', 'corrupt_record'):
+            if kind in ('session', 'gap', 'tracked_actor_changed', 'object_unreadable', 'corrupt_record', 'actor_generation', 'actor_reset'):
                 cache.clear()
+                for reference in list(recent):
+                    if not obj or reference[1] == obj:
+                        recent.pop(reference)
         if kind == 'action_state':
             descriptor = event.get('descriptor') or {}
-            signature = (obj, event.get('owner_like'), event.get('current'),
-                         descriptor.get('payload'), descriptor.get('word0_u16', descriptor.get('word0_hex')))
+            signature = (event.get('take'), obj, event.get('generation'), event.get('owner_like'), event.get('current'),
+                         descriptor.get('payload'), descriptor.get('action_key_u32'),
+                         descriptor.get('word0_u16', descriptor.get('word0_hex')), event.get('descriptor_prefix'))
             last_state[obj] = (number, event, signature)
+            reference = (event.get('take'), obj, event.get('generation'), event.get('t'), event.get('counter'), event.get('descriptor_prefix'))
+            recent[reference] = last_state[obj]
+            if len(recent) > 8192:
+                recent.popitem(last=False)
             if signature in cache:
                 trusted[number] = cache[signature]
-        if kind == 'metadata' and event.get('matches_preceding_state') is True and obj in last_state:
-            state_number, state, signature = last_state[obj]
+        if kind == 'metadata' and event.get('matches_preceding_state') is True:
+            if 'observation_t' in event:
+                reference = (event.get('take'), obj, event.get('generation'), event.get('observation_t'),
+                             event.get('observation_counter'), event.get('observation_signature'))
+                matched = recent.get(reference) if event.get('observation_signature') and 'generation' in event else None
+            else:
+                matched = last_state.get(obj)
+            if matched is None or event.get('payload_stable') is False:
+                continue
+            state_number, state, signature = matched
+            prefix = state.get('descriptor_prefix')
+            if prefix and not event.get('descriptor_bytes', '').startswith(prefix):
+                continue
             if (state.get('current') != event.get('address') or
                     state.get('owner_matches_discovery') is False or
                     (state.get('descriptor') or {}).get('payload') != event.get('payload')):
@@ -192,6 +213,11 @@ def reconstruct_capture(source, boss_id, destination=None):
                 issues.append({'line': number, 'error': 'Metadata action key disagrees with its state'})
                 continue
             trusted[state_number] = cache[signature] = decoded
+            for prior_number, _, prior_signature in recent.values():
+                if prior_signature == signature:
+                    trusted[prior_number] = decoded
+            if len(cache) > 8192:
+                cache.popitem(last=False)
 
     # Hash maps avoid rescanning earlier observations for each sampled state.
     # Sequence wrappers stop at 64 actions; the raw take still preserves their continuous order.
@@ -224,7 +250,7 @@ def reconstruct_capture(source, boss_id, destination=None):
         # End the old sequence on identity changes so two enemies cannot become one apparent combo.
         obj = event.get('object')
         role = event.get('role', 'unassigned')
-        identity = (generation, obj, event.get('owner_like'), role)
+        identity = (generation, obj, event.get('generation'), event.get('owner_like'), role)
         if identity not in identities:
             base = 'boss' if role == 'boss_candidate' else 'player' if role == 'player_candidate' else 'unassigned'
             identities[identity] = base + '-' + str(len(identities) + 1)

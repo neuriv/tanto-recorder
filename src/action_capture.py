@@ -2,6 +2,8 @@
 import argparse
 from collections import deque
 import json
+import hashlib
+import marshal
 import msvcrt
 import os
 from pathlib import Path
@@ -37,6 +39,8 @@ class Journal:
         self.actions = self.bytes = 0
         self.tail = deque(maxlen=12)
         self.last_t = 0.0
+        self.quality = dict(counter_gaps=0, recovered_previous=0, snapshot_races=0,
+                            actor_changes=0, longest_sample_ms=0, dropped_events=0, metadata_failures=0, discovery_complete=False)
 
     def emit(self, kind, **fields):
         # Save the full action ID before optional metadata can fail or become stale.
@@ -84,19 +88,135 @@ def publish(journal, state, detail, **fields):
     journal.sync()
     print(json.dumps(dict(state=state, detail=detail, actions=journal.actions,
                           bytes=journal.bytes, last_t=journal.last_t,
-                          tail=list(journal.tail), **fields)), flush=True)
+                          tail=list(journal.tail), quality=dict(journal.quality), **fields)), flush=True)
 
 
-def sample(game, journal, stop, discover_factory=None, initial=None, notify=publish, cache_path=None):
+def coherent(state):
+    # Only owner, current descriptor and counter define the primary observation.
+    # Transient pending/transition fields must not discard a stable full action ID.
+    # Descriptor bytes are checked separately before writing the observation.
+    return tuple(state.get(key) for key in ('owner_like', 'current', 'counter'))
+
+
+class MetadataReader:
+    """Optional bounded work on a separate read-only process handle; never writes the journal."""
+    def __init__(self, factory, identity):
+        # Bound queued requests and results independently of the journal size.
+        # The optional reader owns its process handle and never writes capture rows.
+        # Only the sampler drains results into the durable journal.
+        self.tasks, self.results = queue.Queue(64), queue.Queue(64)
+        self.closed = threading.Event()
+        self.dropped = 0
+        self.thread = threading.Thread(target=self.run, args=(factory, identity), daemon=True)
+        self.thread.start()
+
+    def run(self, factory, identity):
+        # Reject a reader opened against another process lifetime.
+        # Check actor ownership and descriptor bytes around optional reads.
+        # Return failures as data so the sampler can permit a later execution to retry.
+        from boss_probe import metadata, actor_metadata
+        try:
+            with factory() as reader:
+                if reader.identity != identity:
+                    raise OSError('Game process changed during metadata capture')
+                while not self.closed.is_set():
+                    try:
+                        task = self.tasks.get(timeout=.05)
+                    except queue.Empty:
+                        continue
+                    try:
+                        if hasattr(reader, 'begin_sample'):
+                            reader.begin_sample()
+                        _, before = reader.snapshot(task['actor'])
+                        if before['owner_like'] != task['owner'] or before['counter'] < task['counter']:
+                            raise ValueError('Actor lifetime changed before metadata capture')
+                        if hex(task['descriptor']) not in (before.get('current'), before.get('previous')):
+                            raise ValueError('Descriptor no longer belongs to current/previous state')
+                        detail = metadata(reader, task['descriptor'], 128)
+                        raw = bytes.fromhex(detail['descriptor_bytes'])
+                        if raw[:0x28] != task['prefix'] or detail.get('payload_stable') is False:
+                            raise ValueError('Descriptor identity changed before metadata capture')
+                        detail['actor_context'] = actor_metadata(reader, task['actor'], task['owner'], detail)
+                        _, after = reader.snapshot(task['actor'])
+                        if after['owner_like'] != task['owner'] or after['counter'] < before['counter'] or reader.bytes(task['descriptor'], len(raw)) != raw:
+                            raise ValueError('Actor or descriptor changed during metadata capture')
+                        self.results.put_nowait((task, detail, None))
+                    except queue.Full:
+                        self.dropped += 1
+                    except (OSError, ValueError, struct.error) as error:
+                        try:
+                            self.results.put_nowait((task, None, str(error)))
+                        except queue.Full:
+                            self.dropped += 1
+        except Exception as error:
+            try:
+                self.results.put_nowait((None, None, str(error)))
+            except queue.Full:
+                self.dropped += 1
+
+    def close(self):
+        # Stop accepting optional work without delaying primary capture shutdown.
+        # The daemon can finish its bounded read but cannot write the journal.
+        # Count queued or unfinished requests as dropped optional evidence.
+        self.closed.set()
+        self.thread.join(.1)
+        self.dropped += self.tasks.qsize() + int(self.thread.is_alive())
+
+
+def sample(game, journal, stop, discover_factory=None, initial=None, notify=publish, cache_path=None, metadata_factory=None):
     # Observe every valid action node, without requiring a player or boss fingerprint.
     # Discover on a separate read-only handle while existing candidates continue sampling.
     # Candidate loss is a per-actor gap; optional metadata cannot discard the primary action ID.
-    from boss_probe import descriptor_fields, metadata
-    candidates, last, known = {}, {}, set()
+    candidates, last, known, generations = {}, {}, set(), {}
+    quality = journal.quality
+    quality['discovery_complete'] = False
+    optional = MetadataReader(metadata_factory or discover_factory, game.identity) if metadata_factory or discover_factory else None
+    metadata_drops = 0
+
+    def generation(address, reason):
+        # Separate reused actor addresses from their previous lifetime.
+        # Invalidate cached metadata and ordering before accepting new observations.
+        # The cause remains unknown; owner changes and resets are not death detection.
+        generations[address] = generations.get(address, 0) + 1
+        quality['actor_changes'] += 1
+        last.pop(address, None)
+        known.difference_update(key for key in tuple(known) if key[0] == address)
+        journal.emit('actor_generation', object=hex(address), generation=generations[address], reason=reason, cause='unknown')
+
+    def drain_metadata(limit=2):
+        # Limit optional journal work per sample so current IDs stay first.
+        # Failed requests become retryable only when a later execution is observed.
+        # Count missing metadata separately from persisted action observations.
+        nonlocal metadata_drops
+        if optional is None:
+            return
+        quality['dropped_events'] += optional.dropped - metadata_drops
+        metadata_drops = optional.dropped
+        for _ in range(limit):
+            try:
+                task, detail, error = optional.results.get_nowait()
+            except queue.Empty:
+                break
+            if task is None:
+                quality['metadata_failures'] += 1
+                journal.emit('diagnostic', code='metadata_reader', detail=error)
+                continue
+            address = task['actor']
+            matches = generations.get(address) == task['generation'] and candidates.get(address) == task['owner']
+            if error or not matches:
+                known.discard((task['actor'], task['generation'], task['descriptor'], task['prefix']))
+                quality['metadata_failures'] += 1
+                journal.emit('metadata_unreadable', object=hex(address), generation=task['generation'], detail=error or 'Actor lifetime retired')
+            else:
+                journal.emit('metadata', object=hex(address), role='unassigned', generation=task['generation'],
+                             observation_t=task['observation_t'], observation_counter=task['counter'],
+                             observation_signature=task['prefix'].hex(), matches_preceding_state=True,
+                             consistency='Separate read handle; lifetime and descriptor rechecked; not atomic', **detail)
     results = queue.Queue(maxsize=1)
     scanner = None
     next_scan = last_report = time.monotonic()
-    last_tick = last_valid = time.monotonic()
+    last_tick = last_valid = last_activity = time.monotonic()
+    silence_reported = False
     problem = 'Looking for action nodes; no action IDs saved yet.'
     cached_actors = None
 
@@ -154,119 +274,171 @@ def sample(game, journal, stop, discover_factory=None, initial=None, notify=publ
 
     if initial is not None:
         results.put(initial)
-    while not stop.is_set() and game.alive():
-        tick = time.monotonic()
-        if tick - last_tick > .05:
-            journal.emit('sampling_gap', duration_ms=round((tick - last_tick) * 1000, 2))
-        last_tick = tick
-        # The scanner may replace a queued snapshot between this thread's reads.
-        # Take it atomically; an empty mailbox simply means sampling can continue.
-        # Never let an ordinary progress-update race terminate a recording.
-        try:
-            result = results.get_nowait()
-        except queue.Empty:
-            result = None
-        if result is not None:
-            if isinstance(result, Exception):
-                problem = f'{type(result).__name__}: {result}'
-                journal.emit('diagnostic', code='discovery', detail=problem)
-                next_scan = tick + 2
-            else:
-                for row in result['candidates']:
-                    address = int(row['object'], 0)
-                    if candidates.get(address) != row['owner_like']:
-                        last.pop(address, None)
-                        known = {key for key in known if key[0] != address}
-                    candidates[address] = row['owner_like']
-                complete = result.get('scan_complete', True)
-                journal.emit('discovery' if complete or result.get('cached') else 'discovery_progress',
-                             objects=len(candidates), bytes_scanned=result.get('bytes_scanned', 0),
-                             scan_complete=complete, cached=result.get('cached', False), **game.identity)
-                problem = f"Searching for action nodes: {result.get('bytes_scanned', 0) // 1048576:,} MiB checked."
-                if complete:
-                    next_scan = tick + (15 if candidates else 2)
-                actors = tuple(sorted(candidates.items()))
-                if cache_path and actors and actors != cached_actors:
-                    # Cache is a startup hint bound to process birth/build, never a permanent actor identity.
-                    # Store only addresses/owners; the next take validates their current snapshots and nearby pool.
-                    # A cache write failure cannot discard action evidence or block the active sampler.
-                    cache = Path(cache_path)
-                    temporary = cache.with_suffix('.tmp')
-                    try:
-                        cache.parent.mkdir(parents=True, exist_ok=True)
-                        temporary.write_text(json.dumps(dict(**game.identity, candidates=[
-                            dict(object=hex(address), owner_like=owner) for address, owner in actors])), encoding='utf8')
-                        os.replace(temporary, cache)
-                        cached_actors = actors
-                    except OSError as error:
-                        journal.emit('diagnostic', code='discovery_cache', detail=str(error))
-                        cache_path = None
-        if discover_factory and tick >= next_scan and (scanner is None or not scanner.is_alive()):
-            scanner = threading.Thread(target=scan, daemon=True)
-            scanner.start()
-            next_scan = float('inf')
-        if hasattr(game, 'begin_sample'):
-            game.begin_sample()
-        valid = 0
-        for address, owner in tuple(candidates.items()):
+    try:
+        while not stop.is_set() and game.alive():
+            tick = time.monotonic()
+            quality['longest_sample_ms'] = max(quality['longest_sample_ms'], round((tick - last_tick) * 1000, 2))
+            if tick - last_tick > .05:
+                journal.emit('sampling_gap', duration_ms=round((tick - last_tick) * 1000, 2))
+            last_tick = tick
+            # The scanner may replace a queued snapshot between this thread's reads.
+            # Take it atomically; an empty mailbox simply means sampling can continue.
+            # Never let an ordinary progress-update race terminate a recording.
             try:
-                _, state = game.snapshot(address)
-                if state['owner_like'] != owner:
-                    raise OSError('Action-node owner changed')
-                current = int(state['current'], 0)
-                valid += 1
-                if not current or last.get(address) == state:
-                    continue
-                raw = game.bytes(current, 0xD0)
-                descriptor = descriptor_fields(raw)
-                _, after = game.snapshot(address)
-                if after != state:
-                    journal.emit('snapshot_race', object=hex(address))
-                    continue
-                previous = last.get(address)
-                if previous and state['counter'] < previous['counter']:
-                    # Retry can reuse the same address and owner while restarting the action counter.
-                    # Re-read metadata for this lifetime instead of trusting a prior incarnation's payload.
-                    # Record the observed reset without claiming its cause was necessarily death.
-                    journal.emit('actor_reset', object=hex(address), previous_counter=previous['counter'],
-                                 counter=state['counter'], cause='unverified')
-                    known = {key for key in known if key[0] != address}
-                journal.emit('action_state', object=hex(address), role='unassigned',
-                             owner_matches_discovery=True, descriptor=descriptor, **state)
-                last[address] = state
-                key = (address, owner, current, raw)
-                if key not in known:
+                result = results.get_nowait()
+            except queue.Empty:
+                result = None
+            if result is not None:
+                if isinstance(result, Exception):
+                    problem = f'{type(result).__name__}: {result}'
+                    journal.emit('diagnostic', code='discovery', detail=problem)
+                    next_scan = tick + 2
+                else:
+                    for row in result['candidates']:
+                        address = int(row['object'], 0)
+                        if candidates.get(address) != row['owner_like']:
+                            generation(address, 'discovered' if address not in generations else 'reacquired_or_owner_changed')
+                        candidates[address] = row['owner_like']
+                    complete = result.get('scan_complete', True)
+                    quality['discovery_complete'] = complete
+                    journal.emit('discovery' if complete or result.get('cached') else 'discovery_progress',
+                                 objects=len(candidates), bytes_scanned=result.get('bytes_scanned', 0),
+                                 scan_complete=complete, cached=result.get('cached', False), **game.identity)
+                    problem = f"Searching for action nodes: {result.get('bytes_scanned', 0) // 1048576:,} MiB checked."
+                    if complete:
+                        next_scan = tick + (15 if candidates else 2)
+                    actors = tuple(sorted(candidates.items()))
+                    if cache_path and actors and actors != cached_actors:
+                        # Cache is a startup hint bound to process birth/build, never a permanent actor identity.
+                        # Store only addresses/owners; the next take validates their current snapshots and nearby pool.
+                        # A cache write failure cannot discard action evidence or block the active sampler.
+                        cache = Path(cache_path)
+                        temporary = cache.with_suffix('.tmp')
+                        try:
+                            cache.parent.mkdir(parents=True, exist_ok=True)
+                            temporary.write_text(json.dumps(dict(**game.identity, candidates=[
+                                dict(object=hex(address), owner_like=owner) for address, owner in actors])), encoding='utf8')
+                            os.replace(temporary, cache)
+                            cached_actors = actors
+                        except OSError as error:
+                            journal.emit('diagnostic', code='discovery_cache', detail=str(error))
+                            cache_path = None
+            if discover_factory and tick >= next_scan and (scanner is None or not scanner.is_alive()):
+                scanner = threading.Thread(target=scan, daemon=True)
+                scanner.start()
+                next_scan = float('inf')
+            if hasattr(game, 'begin_sample'):
+                game.begin_sample()
+            valid = 0
+            pending = []
+            for address, owner in tuple(candidates.items()):
+                readable_actor = False
+                try:
+                    _, state = game.snapshot(address)
+                    if state['owner_like'] != owner:
+                        raise OSError('Action-node owner changed')
+                    current = int(state['current'], 0)
+                    valid += 1
+                    readable_actor = True
+                    previous = last.get(address)
+                    if not current or previous and coherent(previous) == coherent(state):
+                        continue
+                    raw = game.bytes(current, 0x28)[:0x28]
+                    key = struct.unpack_from('<I', raw)[0]
+                    descriptor = dict(action_key_u32=key, action_key_hex=f'0x{key:08X}',
+                                      word0_u16=key & 0xFFFF, payload=hex(struct.unpack_from('<Q', raw, 0x20)[0]))
+                    _, after = game.snapshot(address)
+                    if coherent(after) != coherent(state) or game.bytes(current, 0x28)[:0x28] != raw:
+                        quality['snapshot_races'] += 1
+                        journal.emit('snapshot_race', object=hex(address), generation=generations[address])
+                        continue
+                    if previous and state['counter'] < previous['counter']:
+                        journal.emit('actor_reset', object=hex(address), previous_counter=previous['counter'], counter=state['counter'], cause='unverified')
+                        generation(address, 'counter_reset')
+                        previous = None
+                    gap = max(0, state['counter'] - previous['counter'] - 1) if previous else 0
+                    if gap:
+                        quality['counter_gaps'] += gap
+                        journal.emit('counter_gap', object=hex(address), generation=generations[address],
+                                     previous_counter=previous['counter'], counter=state['counter'], unobserved_increments=gap)
+                    journal.emit('action_state', object=hex(address), role='unassigned', generation=generations[address],
+                                 provenance='observed_current', owner_matches_discovery=True, descriptor=descriptor, descriptor_prefix=raw.hex(), **state)
+                    observation_t = journal.last_t
+                    last_activity, silence_reported = tick, False
+                    last[address] = state
+                    pending.append(dict(actor=address, owner=owner, generation=generations[address], descriptor=current,
+                                        counter=state['counter'], prefix=raw, observation_t=observation_t))
+                    # A previous pointer supports only an inferred predecessor, not its execution time.
+                    prior = int(state.get('previous', '0x0'), 0)
+                    if prior and prior != current:
+                        try:
+                            prior_raw = game.bytes(prior, 0x28)[:0x28]
+                            _, final = game.snapshot(address)
+                            if coherent(final) != coherent(state) or final.get('previous') != state.get('previous'):
+                                raise ValueError('Previous action changed while reading')
+                            prior_key = struct.unpack_from('<I', prior_raw)[0]
+                            journal.emit('previous_action', object=hex(address), generation=generations[address], address=hex(prior),
+                                         provenance='inferred_previous_pointer', observed_at=observation_t,
+                                         descriptor=dict(action_key_u32=prior_key, action_key_hex=f'0x{prior_key:08X}'))
+                            if gap and prior != int(previous.get('current', '0x0'), 0):
+                                quality['recovered_previous'] += 1
+                        except (OSError, ValueError, struct.error) as error:
+                            journal.emit('previous_unreadable', object=hex(address), detail=str(error))
+                except JournalError:
+                    raise
+                except (OSError, ValueError, struct.error) as error:
+                    valid -= int(readable_actor)
+                    generation(address, 'unreadable')
+                    candidates.pop(address, None)
+                    journal.emit('object_unreadable', object=hex(address), generation=generations[address], detail=str(error))
+                    next_scan = min(next_scan, tick + 1)
+            # All primary actor reads precede optional work submission and result processing.
+            if optional:
+                for task in pending:
+                    key = (task['actor'], task['generation'], task['descriptor'], task['prefix'])
+                    if key in known:
+                        continue
+                    if len(known) >= 8192:
+                        quality['dropped_events'] += 1
+                        continue
                     try:
-                        detail = metadata(game, current, 128)
-                        _, after = game.snapshot(address)
-                        detail['matches_preceding_state'] = after == state and detail['descriptor_bytes'] == raw.hex()
-                        journal.emit('metadata', object=hex(address), role='unassigned', **detail)
-                        if detail['matches_preceding_state']:
-                            if len(known) >= 8192:
-                                known.clear()
-                            known.add(key)
-                    except JournalError:
-                        raise
-                    except (OSError, ValueError, struct.error) as error:
-                        journal.emit('metadata_unreadable', object=hex(address), detail=str(error))
-            except JournalError:
-                raise
-            except (OSError, ValueError, struct.error) as error:
-                candidates.pop(address, None)
-                last.pop(address, None)
-                known = {key for key in known if key[0] != address}
-                journal.emit('object_unreadable', object=hex(address), detail=str(error))
-                next_scan = min(next_scan, tick + 1)
-        if valid:
-            last_valid = tick
-        if tick - last_report >= 1:
-            healthy = bool(valid and journal.actions)
-            notify(journal, 'recording' if healthy else 'waiting',
-                   f'{valid} action nodes readable. Boss name is your encounter label.' if healthy else problem,
-                   actors=valid, sample_age=round(tick - last_valid, 2))
-            last_report = tick
-        stop.wait(max(0, .01 - (time.monotonic() - tick)))
+                        optional.tasks.put_nowait(task)
+                        known.add(key)
+                    except queue.Full:
+                        quality['dropped_events'] += 1
+            drain_metadata()
+            quality['longest_sample_ms'] = max(quality['longest_sample_ms'], round((time.monotonic() - tick) * 1000, 2))
+            if valid:
+                last_valid = tick
+            if tick - last_activity >= 2 and not silence_reported:
+                journal.emit('activity_silence', duration_s=round(tick - last_activity, 3), cause='unknown', readable_actors=valid)
+                silence_reported = True
+            if tick - last_report >= 1:
+                healthy = bool(valid and journal.actions)
+                notify(journal, 'recording' if healthy else 'waiting',
+                       f'{valid} action nodes readable. Boss name is your encounter label.' if healthy else problem,
+                       actors=valid, sample_age=round(tick - last_valid, 2))
+                last_report = tick
+            stop.wait(max(0, .01 - (time.monotonic() - tick)))
+    finally:
+        if optional:
+            optional.close()
+            drain_metadata(64)
     journal.emit('gap', reason='stop_requested' if stop.is_set() else 'process_exit')
+
+
+def source_stamp():
+    # Record the protocol and Python runtime beside capture evidence.
+    # Hash source when available and function bytecode in frozen workers too.
+    # Fingerprints identify the reader implementation without claiming gameplay coverage.
+    import boss_probe
+    files = (Path(__file__), Path(boss_probe.__file__))
+    return dict(protocol=2, python=sys.version.split()[0],
+                runtime_sha256={function.__qualname__: hashlib.sha256(marshal.dumps(function.__code__)).hexdigest()
+                                for function in (sample, coherent, MetadataReader.run, Journal.emit, Journal.sync,
+                                                 boss_probe.metadata, boss_probe.actor_metadata, boss_probe.resource_match)},
+                sources={file.name: hashlib.sha256(file.read_bytes()).hexdigest() for file in files if file.is_file()},
+                supported_build=boss_probe.BUILD_SHA256)
 
 
 def main():
@@ -292,8 +464,10 @@ def main():
     threading.Thread(target=commands, daemon=True).start()
     journal = Journal(args.journal, args.take)
     try:
-        journal.emit('session', wall_time=time.time(), mode='external_read_only',
-                     identity_basis='all actors; boss name is encounter context', interval_ms=10)
+        journal.emit('session', wall_time=time.time(), mode='external_read_only', source=source_stamp(),
+                     identity_basis='all actors; boss name is encounter context', interval_ms=10,
+                     observability='External polling: death, pause and exact execution times are not inferred from silence or counter resets.',
+                     death_detection='unavailable: no verified HP/death marker', pause_detection='unavailable: no verified pause marker')
         publish(journal, 'waiting', 'Waiting for Nioh and readable action IDs; nothing captured yet.')
         from boss_probe import LiveGame
         from nioh_memory import current_pid
@@ -314,7 +488,7 @@ def main():
                 if fatal:
                     return 2
             stop.wait(2)
-        journal.emit('end', actions=journal.actions)
+        journal.emit('end', actions=journal.actions, quality=dict(journal.quality))
         publish(journal, 'stopped', f'{journal.actions:,} action observations saved.' if journal.actions else
                 'No action IDs were captured. Your description is saved; this take needs recording again.')
         return 0

@@ -19,14 +19,14 @@
     </section>
     <main>
       <section id="record" class="page">
-        <div class="encounter-row"><label class="field boss-field"><span class="eyebrow">BOSS / ENCOUNTER</span><input id="boss" list="bosses" placeholder="Who are you fighting?" maxlength="100" autocomplete="off"><datalist id="bosses"></datalist></label>
+        <div class="encounter-row"><label class="field boss-field"><span class="eyebrow">BOSS / ENCOUNTER</span><input id="boss" list="bosses" placeholder="Who are you fighting?" maxlength="100" autocomplete="off"><datalist id="bosses"></datalist><small id="boss-state" role="status">Type a name, then press Enter</small></label>
           <div class="metrics"><strong id="count">0</strong><span>saved action observations</span></div></div>
-        <div class="session-tools"><span id="session-name">A session keeps your recordings and descriptions together.</span><div><button id="new">New</button><button id="open">Open</button><button id="export">Export ZIP ↗</button></div></div>
+        <div class="session-tools"><span id="session-name">A session keeps your recordings and descriptions together.</span><div><button id="new">New session</button><button id="open">Open</button><button id="export">Export ZIP ↗</button></div></div>
         <div class="description"><label for="description" class="eyebrow">DESCRIBE THE ENDING <span id="draft-state">· autosaved</span></label>
           <textarea id="description" rows="3" maxlength="20000" placeholder="e.g. Two quick slashes, then a jumping overhead cut. High priority."></textarea>
           <div class="description-footer"><span id="description-help">Stop after the move. The last few IDs help match your words.</span><button id="save-note">Save description <kbd>Ctrl S</kbd></button></div></div>
         <div class="evidence-row"><span class="eyebrow">LATEST IDS <span class="muted">· all actors</span></span><div id="tail" aria-label="Latest captured action IDs">IDs appear here only after capture begins.</div></div>
-        <section class="notes"><div class="notes-heading"><span class="eyebrow">SAVED DESCRIPTIONS</span><span id="notes-count">0</span></div><div id="notes"><p class="empty">Record. Describe. Repeat.</p></div></section>
+        <p id="coverage" class="muted" role="status"></p><section class="notes"><div class="notes-heading"><span class="eyebrow">SAVED DESCRIPTIONS</span><span id="notes-count">0</span></div><div id="notes"><p class="empty">Record. Describe. Repeat.</p></div></section>
       </section>
       <section id="settings" class="page hidden settings-page">
         <h2>Make it yours.</h2><p class="intro">Your preferences stay on this computer. Your recordings stay where you choose.</p>

@@ -9,6 +9,7 @@ export interface Session {
 }
 export interface Health {
   state: string; detail: string; actions: number; bytes: number; last_t: number;
+  quality?: { counter_gaps: number; recovered_previous: number; snapshot_races: number; actor_changes: number; longest_sample_ms: number; dropped_events: number; metadata_failures?: number; discovery_complete: boolean };
   actors?: number; sample_age?: number; tail: { t: number; actor: string; id: string }[];
 }
 export interface Settings {
