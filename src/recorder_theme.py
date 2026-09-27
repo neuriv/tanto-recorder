@@ -26,7 +26,7 @@ def theme(root):
     style.configure('.',background=BG,foreground=TEXT,font=(body,10),borderwidth=0,
                     bordercolor=INPUT,lightcolor=INPUT,darkcolor=INPUT)
     style.configure('TLabel',foreground=ACCENT)
-    style.configure('TButton',background=BG,padding=(14,10),focusthickness=0)
+    style.configure('TButton',background=BG,padding=(12,6),focusthickness=0)
     style.map('TButton',foreground=[('disabled',MUTED),('active',TEXT)],background=[('disabled',BG),('active',BG)])
     style.configure('Primary.TButton',foreground='#ffe3ac',font=(body,10,'bold'))
     style.configure('TEntry',fieldbackground=INPUT,insertcolor=TEXT,padding=8)
@@ -83,8 +83,8 @@ class InkBackdrop(tk.Canvas):
         self.create_text(width-28*s,35*s,anchor='ne',text='Quick guide  /  F1',font=(self.fonts[0],10),fill=ACCENT,tags=('title','guide'))
         self.tag_bind('guide','<Button-1>',lambda event:self.on_guide() if self.on_guide else None)
         if self.panel:
-            self.coords(self.panel,24*s,110*s)
-            self.itemconfigure(self.panel,width=max(1,width-48*s),height=max(1,height-130*s))
+            self.coords(self.panel,24*s,96*s)
+            self.itemconfigure(self.panel,width=max(1,width-48*s),height=max(1,height-116*s))
         self.schedule_skin()
 
     def crop(self,widget):
