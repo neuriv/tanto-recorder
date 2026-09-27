@@ -46,3 +46,7 @@ The current model is an encounter (entered name and verified identity when avail
 The next useful abstraction is a **clip**: one user-requested start/stop interval plus a description, containing references to one or more raw takes. Discovery gaps would remain explicit inside a clip instead of forcing contributors to understand take files. A later explicit Armed state could validate actors before a clip starts and optionally retain bounded pre-roll, reducing missed openings; it must visibly distinguish memory observation from writing a recording. Neither multi-take clips nor pre-roll is implemented yet. Boss names remain context, and sampled sequences remain evidence requiring review.
 
 The `--ui-smoke` check exercises rendering, the local guide, real description writes/readback, and draft restoration in a temporary fixture with game access and global hotkeys disabled. It records callback errors instead of reporting success before the event loop has run. Packaging includes `src/assets/background.png`, `start.wav`, and `stop.wav`; source and packaged launches use the same asset path contract.
+
+## Release discipline
+
+Every EXE compilation uses `Build.ps1` and Engine’s shared release gate. Set a new version and corresponding `CHANGELOG.md` entry, commit all three repositories, and pin the exact Engine commit first. Output is immutable `dist/<version>/` with checksums, source hashes, test log and `release.json`. See `../tanto-engine/RELEASES.md`. No build replaces a published version. Offline checks never imply gameplay acceptance.
