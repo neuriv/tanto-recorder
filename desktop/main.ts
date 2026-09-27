@@ -332,7 +332,7 @@ async function createWindow(): Promise<void> {
   // A sandboxed local renderer has no Node APIs, external navigation or permission prompts.
   // Smooth CSS animation is independent of the sampler and pauses with reduced motion.
   const displays = screen.getAllDisplays();
-  const display = process.argv.includes('--second-monitor') ? displays.find(d => d.id !== screen.getPrimaryDisplay().id && Math.round(d.size.height * d.scaleFactor) === 1440) || displays.find(d => d.id !== screen.getPrimaryDisplay().id) || screen.getPrimaryDisplay() : screen.getPrimaryDisplay();
+  const display = process.argv.includes('--second-monitor') || smoke ? displays.find(d => d.id !== screen.getPrimaryDisplay().id && Math.round(d.size.height * d.scaleFactor) === 1440) || displays.find(d => d.id !== screen.getPrimaryDisplay().id) || screen.getPrimaryDisplay() : screen.getPrimaryDisplay();
   const area = display.workArea;
   const width = Math.min(1080, area.width), height = Math.min(820, area.height);
   window = new BrowserWindow({ title: `Tanto Recorder · ${version}`, width, height,
