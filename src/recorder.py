@@ -1,14 +1,17 @@
 """Read-only contributor UI; workers never access Tk or control the game."""
 import argparse
+from array import array
 import hashlib
 import json
 import os
 from pathlib import Path
 import queue
 import threading
+import tempfile
 import time
 import uuid
 import winsound
+import wave
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
@@ -40,12 +43,15 @@ class Recorder:
         # The status and Start/Stop controls sit above every tab so opening the guide does not hide recording control.
         self.root=root;self.thread=None;self.folder=None;self.stop=threading.Event();self.latest={}
         self.events=queue.SimpleQueue();self.operation=None;self.closing=False;self.close_job=None;self.hotkey=None
-        self.draft_job=None;self.editing=None;self.sounded=False
+        self.draft_job=None;self.editing=None;self.sounded=False;self.cue_cache=None
         self.hotkey_generation=0;self.enable_hotkey=enable_hotkey;self.after_id=None
         self.settings_path=settings_path or Path(os.environ.get('LOCALAPPDATA',Path.home()))/'Tanto/Recorder/settings.json'
         try: settings=json.loads(self.settings_path.read_text(encoding='utf8'))
         except (OSError,ValueError): settings={}
         if not isinstance(settings,dict): settings={}
+        volume=settings.get('cue_volume',100)
+        self.volume=tk.IntVar(value=max(0,min(100,volume)) if type(volume) is int else 100)
+        self.volume_text=tk.StringVar(value=f'{self.volume.get()}%' if self.volume.get() else 'Muted')
         self.tutorial_seen=settings.get('tutorial_version')==2;self.guide=None;self.binding=None
         fonts=theme(root)
         base=Path(os.environ.get('TANTO_PRODUCT_ROOT',Path(__file__).resolve().parents[1]))
@@ -158,6 +164,19 @@ class Recorder:
         self.hotkey_label=self.backdrop.label(settings_page,textvariable=self.hotkey_status,style='Card.TLabel',wraplength=640)
         self.hotkey_label.grid(row=6,column=0,sticky='ew',pady=(0,12))
         self.backdrop.label(settings_page,text='Choose a preset or press Bind a key, then your keyboard shortcut. Escape cancels. Use a function key or Ctrl / Alt plus a letter or number. F1 opens this guide; Ctrl+S saves a description.',style='Muted.TLabel',wraplength=640).grid(row=7,column=0,sticky='ew')
+        self.backdrop.label(settings_page,text='Recording cue volume · 0% mutes',font=(fonts[1],15,'bold')).grid(row=8,column=0,sticky='w',pady=(18,8))
+        audio=ttk.Frame(settings_page);audio.grid(row=9,column=0,sticky='ew');audio.columnconfigure(0,weight=1)
+        self.volume_slider=ttk.Scale(audio,from_=0,to=100,variable=self.volume,command=self.set_volume)
+        self.volume_slider.grid(row=0,column=0,sticky='ew',padx=(0,12))
+        self.backdrop.label(audio,textvariable=self.volume_text,width=6).grid(row=0,column=1)
+        for column,kind in enumerate(('start','stop'),2):
+            button=ttk.Button(audio,text=f'Test {kind}',command=lambda name=kind: (
+                # Preview the chosen cue at the saved Recorder volume.
+                # Capture each button's sound name separately so Start and Stop do not share the last loop value.
+                # These buttons are disabled while a recording/export worker is active.
+                self.cue(name)
+            ))
+            button.grid(row=0,column=column,padx=(8,0));self.idle_buttons.append(button)
         panel.bind('<Configure>',lambda event: (
             # Pass the settled panel width to Recorder's text-wrapping rules.
             # Use the Configure event's width rather than polling unrelated screen geometry.
@@ -235,7 +254,7 @@ class Recorder:
             if self.folder:
                 atomic_json(self.folder/'draft.json',self.draft())
             atomic_json(self.settings_path,dict(hotkey=self.key.get(),tutorial_seen=self.tutorial_seen,tutorial_version=2 if self.tutorial_seen else 0,
-                recordings_directory=str(self.recordings),
+                recordings_directory=str(self.recordings),cue_volume=self.volume.get(),
                 boss=self.boss.get(),custom_bosses=self.custom_bosses,last_session=str(self.folder) if self.folder else None,draft=self.draft()))
             self.note_status.set('Draft saved' if self.draft()['text'] else 'Write what happened. Ctrl+S saves the sequence.')
             return True
@@ -243,13 +262,44 @@ class Recorder:
             self.note_status.set('Save failed: '+str(error));return False
 
     def cue(self,kind):
-        # Play the user's supplied local start or stop recording sound.
-        # Use asynchronous WAV playback so audio cannot stall capture or the Tk event loop.
-        # A Stop sound replaces any unfinished Start sound instead of waiting for it to finish.
-        # This does not trigger game audio, controller vibration or any input to Nioh.
+        # Play a supplied recording cue at Recorder's own volume; zero is silent.
+        # Attenuate signed 32-bit PCM samples in a temporary WAV; original files and other apps stay unchanged.
+        # Cache each scaled cue until volume changes, keeping repeated Start/Stop playback asynchronous.
+        # Starting a new cue replaces the previous one; no game audio or input is touched.
         base=Path(os.environ.get('TANTO_PRODUCT_ROOT',Path(__file__).resolve().parents[1]))
-        try:winsound.PlaySound(str(base/'src/assets'/f'{kind}.wav'),winsound.SND_FILENAME|winsound.SND_ASYNC|winsound.SND_NODEFAULT)
-        except RuntimeError:self.status.set('Audio cue unavailable; check the recording status above.')
+        volume=self.volume.get()
+        if volume==0:return
+        try:
+            source=base/'src/assets'/f'{kind}.wav'
+            if volume<100:
+                if self.cue_cache is None:self.cue_cache=tempfile.TemporaryDirectory(prefix='tanto-recorder-audio-')
+                target=Path(self.cue_cache.name)/f'{kind}-{volume}.wav'
+                if not target.exists():
+                    with wave.open(str(source),'rb') as sound:
+                        if sound.getsampwidth()!=4:raise ValueError('Cue must use signed 32-bit PCM')
+                        params=sound.getparams();samples=array('i',sound.readframes(sound.getnframes()))
+                    # Windows is little-endian; scaling both channels equally preserves stereo and duration.
+                    samples=array('i',(int(sample*volume/100) for sample in samples))
+                    with wave.open(str(target),'wb') as sound:sound.setparams(params);sound.writeframes(samples.tobytes())
+                source=target
+            winsound.PlaySound(str(source),winsound.SND_FILENAME|winsound.SND_ASYNC|winsound.SND_NODEFAULT)
+        except (RuntimeError,OSError,ValueError,wave.Error):self.status.set('Audio cue unavailable; check the recording status above.')
+
+    def stop_cue(self):
+        # Stop Recorder's current cue before releasing its temporary audio files.
+        # PlaySound(None) releases the asynchronous file reader; it does not change any mixer volume.
+        # Clear cached attenuation files on volume changes and normal shutdown so they cannot accumulate.
+        try:winsound.PlaySound(None,0)
+        except RuntimeError:pass
+        if self.cue_cache:self.cue_cache.cleanup();self.cue_cache=None
+
+    def set_volume(self,value):
+        # Set the player's cue volume and show a whole percentage or Muted.
+        # Stop any current cue immediately; the next cue or Test button uses the new level.
+        # Reuse the existing debounced preference save so dragging the slider does not flood disk writes.
+        self.volume.set(max(0,min(100,round(float(value)))))
+        self.volume_text.set(f'{self.volume.get()}%' if self.volume.get() else 'Muted')
+        self.stop_cue();self.draft_changed()
 
     def show_guide(self):
         # Open the tutorial inside the Guide tab, including during recording.
@@ -546,6 +596,7 @@ class Recorder:
         if self.close_job:self.root.after_cancel(self.close_job);self.close_job=None
         if self.busy(): self.close_job=self.root.after(150,self.close);return
         if self.after_id: self.root.after_cancel(self.after_id)
+        self.stop_cue()
         self.root.update_idletasks()
         self.root.destroy()
 

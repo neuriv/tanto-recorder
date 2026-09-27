@@ -4,5 +4,5 @@
   "name": "TantoRecorder",
   "engine_repository": "https://github.com/neuriv/tanto-engine.git",
   "engine_commit": "3f6b701294a12e672749eee992e0dba2395d9926",
-  "version": "0.2.0-alpha.2"
+  "version": "0.2.0-alpha.3"
 }

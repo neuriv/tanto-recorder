@@ -1,5 +1,15 @@
 # Release notes
 
+## 0.2.0-alpha.3
+
+Source prepared; not packaged. Further tests and packaging paused at the user's request.
+
+- Settings adds remembered 0–100% volume for both recording cues, including mute, with Test start / Test stop buttons. Volume changes stop the current cue and apply to the next sound. Preview buttons are disabled while recording or exporting.
+- Lower levels attenuate temporary PCM copies; packaged sounds, game audio and Windows mixer settings remain unchanged. Cached copies are removed on volume changes and shutdown.
+- Includes the supplied start/stop sounds and ZIP verification from 0.2.0-alpha.2, which was compiled locally before the volume request and not published.
+
+Volume behavior has not been tested. Audible playback, live-game and another-PC acceptance remain pending.
+
 ## 0.2.0-alpha.2
 
 - Start recording plays the supplied `t2wxkfk.wav`; Stop plays `6s3fj0w.wav`. Both files are bundled without trimming or conversion. Playback remains asynchronous, and Stop replaces any unfinished Start sound.

@@ -13,6 +13,8 @@ Source SHA-256 fingerprints (identical to the bundled files):
 - Start: `c3f96b54638f57ebb5b29b524feed1db47ab4767a071cdc84fd4ee3afc63a9cd`
 - Stop: `7fc636695de0104b1503215449a9a507b08a07737b77d15e0dabdf860fe76f69`
 
+Below 100% volume, Recorder multiplies both channels' signed PCM samples by the selected fraction and writes temporary WAV copies. Sample rate, channel count and duration stay the same; shipped files stay untouched. Zero skips playback. Copies are cached until volume changes or Recorder closes. File playback stays asynchronous because Python's [winsound API](https://docs.python.org/3.12/library/winsound.html) does not support asynchronous memory-image playback.
+
 
 `fonts/Inter-Regular.ttf` and `Inter-SemiBold.ttf` come from [Inter 4.1](https://github.com/rsms/inter/releases/tag/v4.1). Their SIL Open Font License accompanies them as `fonts/LICENSE.txt`. Fonts load privately with AddFontResourceExW; they are not installed system-wide.
 
