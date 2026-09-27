@@ -111,7 +111,9 @@ function render(value: View): void {
   for (const id of ['new', 'open', 'export', 'library', 'bind']) $<HTMLButtonElement>(id).disabled = state.running || state.exporting;
   $<HTMLButtonElement>('save-note').disabled = state.exporting || noteSaving;
   $<HTMLTextAreaElement>('description').disabled = state.exporting || noteSaving;
-  $('session-name').textContent = state.folder ? `${state.session?.boss_name} · ${state.session?.takes.length || 'Legacy'} takes` : 'A session keeps your recordings and descriptions together.';
+  const nextBoss = state.settings.boss_draft || '';
+  $('session-name').textContent = state.session && nextBoss.trim() === state.session.boss_name ?
+    `${state.session.boss_name} · ${state.session.takes.length} takes` : nextBoss ? `${nextBoss} · next encounter` : 'A session keeps your recordings and descriptions together.';
   $('library-path').textContent = state.settings.recordings_directory;
   $('volume-label').textContent = `${state.settings.cue_volume}%`;
   if (document.activeElement !== $('volume')) $<HTMLInputElement>('volume').value = String(state.settings.cue_volume);
@@ -126,7 +128,7 @@ function render(value: View): void {
   }));
   if (!state.health.tail.length) $('tail').textContent = 'IDs appear here only after capture begins.';
   if (!initialized || changedSession) {
-    if (document.activeElement !== $('boss')) $<HTMLInputElement>('boss').value = state.session?.boss_name || state.settings.boss_draft || '';
+    if (document.activeElement !== $('boss')) $<HTMLInputElement>('boss').value = state.settings.boss_draft ?? state.session?.boss_name ?? '';
     if (document.activeElement !== $('description')) $<HTMLTextAreaElement>('description').value = state.session?.draft.text || '';
     editing = state.session?.draft.editing_id || null;
     $('draft-state').textContent = editing ? '· edit draft restored' : '· autosaved';
@@ -178,6 +180,13 @@ for (const button of document.querySelectorAll<HTMLElement>('[data-tab]')) butto
 $('toggle').onclick = () => { void draftQueue.then(() => call('toggle', $<HTMLInputElement>('boss').value)); };
 for (const name of ['new', 'open', 'export', 'library']) $(name).onclick = () => { void draftQueue.then(() => call(name)); };
 $('boss').oninput = () => { void call('context', $<HTMLInputElement>('boss').value); };
+$('boss').onchange = () => {
+  // Commit the encounter once editing finishes, rather than making folders for every keystroke.
+  // Preserve queued notes under their original boss before switching to a fresh encounter.
+  // Start waits on the same queue, so mouse and shortcut paths receive consistent context.
+  const boss = $<HTMLInputElement>('boss').value;
+  draftQueue = draftQueue.then(() => call('context-commit', boss));
+};
 $('description').oninput = () => {
   // Queue draft writes in typing order; each acknowledgement follows an atomic disk save.
   // Saved-description edits remain a draft until Ctrl+S updates that selected annotation.

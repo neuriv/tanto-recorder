@@ -93,7 +93,32 @@ function failure(error: unknown): void {
   // Existing saved actions and the pending draft remain available for recovery/export.
   // The renderer receives plain text, never HTML assembled from error messages.
   health = { ...health, state: 'error', detail: error instanceof Error ? error.message : String(error) };
+  diagnostic('error', { detail: health.detail });
   broadcast();
+}
+
+function diagnostic(event: string, fields: Record<string, unknown> = {}): void {
+  // Keep workflow failures and shortcut decisions outside individual recording sessions.
+  // Two bounded files retain recent history without logging descriptions or every action ID.
+  // Diagnostic storage failure must not prevent the independent capture journal from working.
+  try {
+    fs.mkdirSync(stateRoot, { recursive: true });
+    const file = path.join(stateRoot, 'recorder.log');
+    if (fs.existsSync(file) && fs.statSync(file).size > 1024 * 1024) fs.renameSync(file, path.join(stateRoot, 'recorder.previous.log'));
+    fs.appendFileSync(file, JSON.stringify({ at: new Date().toISOString(), version, event, ...fields }) + '\n');
+  } catch (error) { console.error('Recorder diagnostic log unavailable:', String(error)); }
+}
+
+function commitContext(value: string): void {
+  // A different boss starts a new encounter; earlier raw observations and descriptions stay labeled correctly.
+  // Save and detach the old session, then create a folder only when recording or writing a description.
+  // The selected boss becomes the shared source for the visible field, saved settings and global hotkey.
+  const boss = value.trim().replace(/\s+/g, ' ');
+  if (session && session.boss_name !== boss) {
+    requireIdle(); save(); folder = null; session = null;
+    health = { state: 'idle', detail: 'New encounter selected. Your previous session is saved.', actions: 0, bytes: 0, last_t: 0, tail: [] };
+  }
+  settings.boss_draft = boss; save();
 }
 
 function requireIdle(): void {
@@ -142,18 +167,21 @@ function setHotkey(value: string): void {
   if (value !== 'Off' && (!/^(?:(?:Control|Ctrl|Alt|Shift)\+)*(?:F(?:[2-9]|10|11)|[A-Z0-9])$/.test(value) ||
       (!/^F\d+$/.test(value) && !/Control\+|Ctrl\+|Alt\+/.test(value)) || /^(?:Control|Ctrl)\+S$|^Alt\+F4$/.test(value)))
     throw Error('Use F2–F11 or a Ctrl/Alt combination; Ctrl+S and Alt+F4 are reserved.');
-  if (!smoke && value !== 'Off' && (value !== settings.hotkey || bindingShortcut) && !globalShortcut.register(value, shortcut))
+  if (!smoke && value !== 'Off' && !globalShortcut.isRegistered(value) && !globalShortcut.register(value, shortcut))
     throw Error('That shortcut is already in use. Choose another.');
   if (!smoke && settings.hotkey !== value && settings.hotkey !== 'Off') globalShortcut.unregister(settings.hotkey);
   settings.hotkey = value;
   bindingShortcut = false;
+  diagnostic('hotkey_registered', { hotkey: value });
 }
 
 function shortcut(): void {
   // Use the same Start/Stop path for the global shortcut and visible control.
   // A recording cannot start before the encounter name reaches the saved session state.
   // Errors remain visible in Recorder and never trigger game input.
-  if (exporting || closing || closeRequested || dialogBusy || bindingShortcut || stopPending) return;
+  const blocked = exporting || closing || closeRequested || dialogBusy || bindingShortcut || (stopPending && Date.now() - stopRequestedAt <= 8000);
+  diagnostic('hotkey_pressed', { hotkey: settings.hotkey, blocked, running: !!worker, dialogBusy, bindingShortcut, stopPending });
+  if (blocked) return;
   try { toggle(settings.boss_draft || session?.boss_name || ''); } catch (error) { failure(error); }
 }
 
@@ -168,17 +196,20 @@ function toggle(boss: string): void {
   }
   requireIdle();
   if (smoke) throw Error('Game capture is disabled in the UI check.');
-  if (!session || session.boss_name !== boss.trim()) {
-    save(); ({ folder, session } = createSession(settings.recordings_directory, boss));
-  }
+  const executable = app.isPackaged ? path.join(process.resourcesPath, 'worker', 'TantoCapture.exe') : process.env.TANTO_PYTHON || 'python';
+  if (app.isPackaged && !fs.existsSync(executable))
+    throw Error('Recorder’s capture worker is missing. Close Recorder completely, then reopen TantoRecorder.exe. No recording was started.');
+  commitContext(boss);
+  if (!session) ({ folder, session } = createSession(settings.recordings_directory, settings.boss_draft!));
   const take: Take = { id: crypto.randomUUID(), started_at: Date.now() / 1000, actions: 0, last_t: 0, state: 'waiting' };
   session.takes.push(take); save();
   stopPending = cueStarted = false; errorText = '';
   health = { state: 'waiting', detail: 'Waiting for actual action IDs. Do not treat this as a recorded move yet.', actions: 0, bytes: 0, last_t: 0, tail: [] };
-  const executable = app.isPackaged ? path.join(process.resourcesPath, 'worker', 'TantoCapture.exe') : process.env.TANTO_PYTHON || 'python';
   const args = [...(app.isPackaged ? [] : ['-u', '-B', path.join(root, 'launch.py')]), '--journal', path.join(folder!, 'events.jsonl'), '--take', take.id,
     '--discovery-cache', path.join(stateRoot, 'discovery.json')];
   const child = worker = spawn(executable, args, { windowsHide: true, stdio: 'pipe', cwd: app.isPackaged ? path.dirname(executable) : root });
+  let launchError = '';
+  diagnostic('worker_start', { executable, folder, take: take.id, boss: session.boss_name });
   lastHeartbeat = Date.now();
   const lines = createInterface({ input: child.stdout });
   lines.on('line', line => {
@@ -188,6 +219,7 @@ function toggle(boss: string): void {
     try {
       const message = JSON.parse(line) as Health;
       if (!['waiting', 'recording', 'stopped', 'error'].includes(message.state) || !Number.isFinite(message.actions)) throw Error('Invalid capture health message');
+      if (message.state !== health.state) diagnostic('worker_state', { state: message.state, detail: message.detail, actions: message.actions });
       lastHeartbeat = Date.now(); health = message;
       Object.assign(take, { actions: message.actions, last_t: message.last_t, state: message.state });
       if (message.state === 'recording' && message.actions > 0 && !cueStarted) {
@@ -197,7 +229,7 @@ function toggle(boss: string): void {
     } catch (error) { failure(error); }
   });
   child.stderr.on('data', data => { errorText = (errorText + data.toString()).slice(-4000); });
-  child.on('error', failure);
+  child.on('error', error => { launchError = error.message; failure(error); });
   child.stdin.on('error', error => { if (!stopPending) failure(error); });
   workerDone = new Promise(resolve => child.on('close', code => {
     // Process closure is the completion barrier for journal writes and ownership release.
@@ -205,7 +237,8 @@ function toggle(boss: string): void {
     // Earlier checkpoints remain recoverable even when the worker exits abnormally.
     worker = null; stopPending = false; take.ended_at = Date.now() / 1000;
     take.state = code === 0 ? 'stopped' : 'interrupted';
-    if (code !== 0) health = { ...health, state: 'error', detail: `Capture interrupted. Earlier synced IDs remain. ${errorText.trim().split(/\r?\n/).at(-1) || `Worker exit ${code}`}` };
+    if (code !== 0) health = { ...health, state: 'error', detail: `Capture interrupted. ${health.actions ? 'Earlier synced IDs remain. ' : ''}${launchError || errorText.trim().split(/\r?\n/).at(-1) || `Worker exit ${code}`}` };
+    diagnostic('worker_exit', { code, take: take.id, actions: health.actions, launchError, stderr: errorText });
     if (cueStarted && !window.isDestroyed()) window.webContents.send('cue', 'stop');
     try { save(); } catch (error) { failure(error); }
     broadcast(); resolve();
@@ -220,6 +253,7 @@ async function command(name: string, value: any): Promise<View> {
   switch (name) {
     case 'state': return view();
     case 'context': settings.boss_draft = String(value || '').slice(0, 100); atomicJSON(settingsFile, settings); break;
+    case 'context-commit': requireIdle(); commitContext(String(value || '').slice(0, 100)); diagnostic('encounter_selected', { boss: settings.boss_draft }); break;
     case 'bind-start': requireIdle(); bindingShortcut = true; if (!smoke) globalShortcut.unregister(settings.hotkey); break;
     case 'bind-cancel': if (bindingShortcut) setHotkey(settings.hotkey); break;
     case 'toggle': toggle(String(value || '')); break;
@@ -227,7 +261,8 @@ async function command(name: string, value: any): Promise<View> {
       if (exporting) throw Error('Wait until the export finishes before editing.');
       const text = String(value.text || '');
       if (text.length > 20000) throw Error('Keep a description under 20,000 characters.');
-      if (!session) ({ folder, session } = createSession(settings.recordings_directory, String(value.boss || '')));
+      commitContext(String(value.boss || ''));
+      if (!session) ({ folder, session } = createSession(settings.recordings_directory, settings.boss_draft!));
       if (value.editing_id && !session.annotations.some(note => note.id === value.editing_id)) throw Error('That description is no longer available for editing.');
       session.draft = { text, editing_id: value.editing_id || undefined }; save(); break;
     }
@@ -342,6 +377,15 @@ async function smokeCheck(report: string): Promise<void> {
     checks.draft_saved = saved.draft.text === 'Two slashes. High priority.';
     await command('label', { text: saved.draft.text });
     checks.description_saved = readJSON(path.join(folder!, 'encounter.json')).annotations[0].text === saved.draft.text;
+    const previousFolder = folder!;
+    await window.webContents.executeJavaScript(`(async()=>{
+      const input=document.getElementById('boss'); input.value='Second offline encounter';
+      input.dispatchEvent(new Event('input')); input.dispatchEvent(new Event('change'));
+      await window.flushRecorderDraft();
+    })()`);
+    checks.boss_context = folder === null && settings.boss_draft === 'Second offline encounter' &&
+      await window.webContents.executeJavaScript(`document.getElementById('boss').value==='Second offline encounter' && document.getElementById('session-name').textContent.includes('Second offline encounter')`);
+    checks.prior_description_preserved = readJSON(path.join(previousFolder, 'encounter.json')).annotations[0].text === saved.draft.text;
     checks.assets = ['background.png', 'start.wav', 'stop.wav'].every(name => fs.existsSync(path.join(root, 'src/assets', name)));
     checks.worker = !app.isPackaged || fs.existsSync(path.join(process.resourcesPath, 'worker/TantoCapture.exe'));
     if (app.isPackaged) {
@@ -397,19 +441,23 @@ async function createWindow(): Promise<void> {
   }
 }
 
-if (!app.requestSingleInstanceLock()) app.quit();
+if (!app.requestSingleInstanceLock()) {
+  diagnostic('existing_instance', { resources: process.resourcesPath });
+  app.quit();
+}
 else app.whenReady().then(async () => {
   // Restore saved preferences and drafts without creating a new Downloads recording folder.
   // Fresh installs use 40% start/stop cues; explicit existing volume choices survive upgrades.
   // Hotkey and worker failures are visible while the rest of the application remains usable.
   let startupError: unknown;
+  diagnostic('startup', { packaged: app.isPackaged, resources: process.resourcesPath });
   let old: any = {};
   try { old = readJSON(settingsFile) || {}; } catch (error) { startupError = error; }
   settings = { ...old, recordings_directory: old.recordings_directory || path.join(stateRoot, 'Recordings'),
     cue_volume: Number.isFinite(old.cue_volume) ? Math.max(0, Math.min(100, old.cue_volume)) : 40,
     hotkey: old.hotkey || 'F8', tutorial_version: old.tutorial_version || 0, motion: old.motion !== false };
   if (settings.last_session && fs.existsSync(settings.last_session)) {
-    try { await restore(settings.last_session); } catch (error) { startupError = error; }
+    try { await restore(settings.last_session); settings.boss_draft = old.boss_draft ?? settings.boss_draft; } catch (error) { startupError = error; }
   }
   ipcMain.handle('recorder', async (event, name: string, value: unknown) => {
     // Only the application's own top-level local page may request recorder operations.
@@ -423,7 +471,7 @@ else app.whenReady().then(async () => {
     if (startupError) throw startupError;
     await timedCapture(); return;
   }
-  if (!smoke && settings.hotkey !== 'Off' && !globalShortcut.register(settings.hotkey, shortcut)) failure('Saved shortcut is unavailable. Choose another in Settings.');
+  try { setHotkey(settings.hotkey); } catch (error) { failure(error); }
   if (startupError) failure(startupError);
   setInterval(() => {
     // Missing heartbeats are a visible capture fault, not proof that recording still works.
@@ -442,6 +490,6 @@ else app.whenReady().then(async () => {
     console.error(String(error)); app.exit(1);
   } else { dialog.showErrorBox('Tanto Recorder could not open', String(error)); app.quit(); }
 });
-app.on('second-instance', () => { if (window) { window.restore(); window.focus(); } });
+app.on('second-instance', () => { if (window && !smoke && !automated) { window.restore(); window.focus(); } });
 app.on('will-quit', () => globalShortcut.unregisterAll());
 app.on('window-all-closed', () => app.quit());

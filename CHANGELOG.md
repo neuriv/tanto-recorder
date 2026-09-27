@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.3.0-alpha.4
+
+- Give each portable launch its own extracted runtime, preventing another launch's cleanup from deleting the active capture worker.
+- Keep changed boss names consistent across the field, session, descriptions and shortcut.
+- Explain missing-worker failures before starting a take and retain recent diagnostics in a bounded local log.
+
 ## 0.3.0-alpha.3
 
 - Start capturing IDs as soon as a valid action node is found, while discovery continues.
