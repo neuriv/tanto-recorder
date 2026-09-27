@@ -113,22 +113,81 @@ def export_capture(folder, destination):
     return destination
 
 
-def intake_bundle(bundle, destination):
+def export_sessions(folders, destination):
+    """Keep each session's names and history isolated inside one shareable collection."""
+    folders=list(dict.fromkeys(Path(folder).resolve() for folder in folders))
+    if not folders or len(folders)>100:raise ValueError('Select 1–100 saved session folders.')
+    destination=Path(destination);destination.parent.mkdir(parents=True,exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='.tanto-export-',dir=destination.parent) as temporary:
+        temporary=Path(temporary);manifest=dict(schema_version=1,kind='tanto_recording_collection',sessions=[])
+        with zipfile.ZipFile(temporary/'collection.zip','x',compression=zipfile.ZIP_STORED) as archive:
+            for index,folder in enumerate(folders,1):
+                if not (folder/'encounter.json').is_file():
+                    raise ValueError(f'{folder.name} is not a saved session. Select its individual session folders.')
+                name=f'session-{index:04d}.zip';session=export_capture(folder,temporary/name)
+                source=json.loads((folder/'encounter.json').read_text(encoding='utf8'))
+                manifest['sessions'].append(dict(path=name,size=session.stat().st_size,
+                    sha256=hashlib.sha256(session.read_bytes()).hexdigest(),boss_name=source.get('boss_name',source['boss_id']),
+                    recording_id=source['recording_id']))
+                archive.write(session,name)
+            archive.writestr('manifest.json',json.dumps(manifest,indent=2))
+        # Validate all sessions together, including expanded size, before publishing.
+        intake_bundle(temporary/'collection.zip',temporary/'validation',validate_only=True)
+        (temporary/'collection.zip').rename(destination)
+    return destination
+
+
+def intake_collection(archive, manifest, destination, digest, validate_only):
+    sessions=manifest.get('sessions')
+    if manifest.get('schema_version')!=1 or not isinstance(sessions,list) or not 1<=len(sessions)<=100:
+        raise ValueError('Invalid recording collection')
+    if any(not isinstance(item,dict) or not re.fullmatch(r'session-[0-9]{4}\.zip',str(item.get('path','')))
+           or type(item.get('size')) is not int or not isinstance(item.get('sha256'),str) for item in sessions):
+        raise ValueError('Invalid collection session entry')
+    names=[item['path'] for item in sessions]
+    if len(names)!=len(set(names)) or set(archive.namelist())!=set(names)|{'manifest.json'}:
+        raise ValueError('Collection does not describe its members')
+    with tempfile.TemporaryDirectory(prefix='tanto-collection-') as temporary:
+        expanded=0;paths=[]
+        for item in sessions:
+            data=archive.read(item['path'])
+            if len(data)!=item['size'] or hashlib.sha256(data).hexdigest()!=item['sha256']:
+                raise ValueError('Collection hash or size mismatch')
+            path=Path(temporary)/item['path'];path.write_bytes(data);paths.append(path)
+            with zipfile.ZipFile(path) as inner:
+                expanded+=sum(info.file_size for info in inner.infolist())
+                if expanded>512*1024*1024:raise ValueError('Collection exceeds expanded intake size limit')
+                child=json.loads(inner.read('manifest.json'))
+                if not isinstance(child,dict) or child.get('kind')!='tanto_recording':
+                    raise ValueError('Collections can contain only individual recording bundles')
+            intake_bundle(path,destination,validate_only=True)
+        if validate_only:return
+        report=dict(schema_version=1,kind='tanto_recording_collection',bundle_sha256=digest,
+                    review_status='pending',curated_changes=False,
+                    sessions=[intake_bundle(path,destination) for path in paths])
+        target=destination/'collections'/f'{digest}.json';target.parent.mkdir(parents=True,exist_ok=True)
+        atomic_json(target,report)
+        return report
+
+
+def intake_bundle(bundle, destination, *, validate_only=False):
     """Validate all members, deduplicate raw evidence and stage a pending review report."""
     bundle, destination = Path(bundle), Path(destination)
     digest = hashlib.sha256(bundle.read_bytes()).hexdigest()
     report_path = destination/'submissions'/f'{digest}.json'
-    if report_path.exists():
-        return json.loads(report_path.read_text(encoding='utf8'))
+    for cached in (report_path,destination/'collections'/f'{digest}.json'):
+        if cached.exists() and not validate_only:return json.loads(cached.read_text(encoding='utf8'))
     with zipfile.ZipFile(bundle) as archive:
         members = archive.infolist()
         names = [item.filename for item in members]
         if len(names) != len(set(names)) or len(names) > 1024 or sum(item.file_size for item in members) > 512*1024*1024:
             raise ValueError('Bundle has duplicate members or exceeds intake limits')
+        manifest=json.loads(archive.read('manifest.json')) if 'manifest.json' in names else None
+        if isinstance(manifest,dict) and manifest.get('kind')=='tanto_recording_collection':
+            return intake_collection(archive,manifest,destination,digest,validate_only)
         allowed = re.compile(r'(manifest\.json|labels\.jsonl|Descriptions\.csv|Summary\.json|take-[0-9]+/events\.jsonl)')
         if any(not allowed.fullmatch(name) for name in names) or 'manifest.json' not in names:
             raise ValueError('Bundle contains an unsupported path or lacks its manifest')
-        manifest = json.loads(archive.read('manifest.json'))
         if not isinstance(manifest,dict) or manifest.get('kind') != 'tanto_recording' or manifest.get('schema_version') != 1:
             raise ValueError('Unsupported recording bundle')
         boss = validate_boss_id(manifest.get('boss_id'))
@@ -181,6 +240,7 @@ def intake_bundle(bundle, destination):
                 reconstructions[name] = reconstruct_capture(path, boss)
             except (ValueError, TypeError, KeyError, AttributeError, OverflowError) as error:
                 raise ValueError('Unsupported capture structure: '+name) from error
+    if validate_only:return
     previous = [json.loads(path.read_text(encoding='utf8')) for path in sorted((destination/'submissions').glob('*.json'))]
     hashes = {name: hashlib.sha256(data).hexdigest() for name,data in raw.items()}
     known = {take['sha256'] for report in previous for take in report['takes']}

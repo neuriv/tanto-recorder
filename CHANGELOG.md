@@ -2,7 +2,13 @@
 
 ## 0.2.0-alpha.1
 
-Reserved for the next Recorder release: multi-session export, reusable recording libraries, configurable hotkeys and an inline glass guide.
+- Explorer multi-folder selection exports complete sessions from one or several bosses to Downloads/tanto-zips. Intake validates and processes the whole collection; old individual ZIPs still work.
+- Settings remembers a chosen recording library across releases. Existing sessions and saved descriptions remain compatible; changing libraries does not alter old takes.
+- Press-to-bind keyboard shortcuts, cancellation and conflict feedback; F8 remains the default.
+- Beveled glass Record, Settings and Guide tabs over the unchanged wallpaper. Larger text, bundled Inter fonts and a scrollable inline guide. Start / Stop remains accessible on every tab.
+- Mandatory versioned release artifacts, annotated tag, hashes, exact source pins, offline tests and packaged UI smoke check.
+
+Validation: 225 workflow tests and 8 resource tests passed through Test-Offline.ps1. The release gate also checks the packaged UI. Native Explorer interaction and visual acceptance remain manual checks; desktop capture was unavailable during development.
 
 EXE builds require clean source, an exact Engine pin, the two maintained offline suites and immutable versioned artifacts. Live game, physical controller and another-PC acceptance remain pending.
 

@@ -6,6 +6,30 @@ import threading
 HOTKEYS={'Off':None, **{f'F{n}':(0,0x70+n-1) for n in range(6,12)}, 'Ctrl+Shift+R':(6,ord('R'))}
 
 
+def parse_hotkey(name):
+    if name=='Off':return None
+    parts=name.split('+');modifiers=parts[:-1];key=parts[-1]
+    if len(set(modifiers))!=len(modifiers) or any(part not in ('Ctrl','Alt','Shift') for part in modifiers):
+        raise ValueError('Use Ctrl, Alt or Shift with one key.')
+    mask=sum({'Alt':1,'Ctrl':2,'Shift':4}[part] for part in modifiers)
+    if key.startswith('F') and key[1:].isdigit() and 2<=int(key[1:])<=24 and key!='F12':
+        vk=0x70+int(key[1:])-1
+    elif len(key)==1 and key in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' and mask&3:
+        vk=ord(key)
+    else:raise ValueError('Use F2–F11 / F13–F24, or Ctrl / Alt plus a letter or number.')
+    if (mask,vk) in ((2,ord('S')),(1,0x73)):
+        raise ValueError('Ctrl+S saves descriptions; Alt+F4 closes the window. Choose another binding.')
+    return mask,vk
+
+
+def key_event_name(event):
+    key=event.keysym.upper()
+    if key in ('SHIFT_L','SHIFT_R','CONTROL_L','CONTROL_R','ALT_L','ALT_R'):return None
+    parts=[name for name,mask in (('Ctrl',4),('Alt',0x20000|8),('Shift',1)) if event.state&mask]
+    name='+'.join([*parts,key]);parse_hotkey(name)
+    return name
+
+
 class GlobalHotkey:
     def __init__(self, name, publish):
         self.stop=threading.Event()
@@ -13,7 +37,7 @@ class GlobalHotkey:
         self.thread.start()
 
     def listen(self, name, publish):
-        key=HOTKEYS[name]
+        key=parse_hotkey(name)
         if key is None: return
         api=C.WinDLL('user32',use_last_error=True)
         api.RegisterHotKey.argtypes=[W.HWND,C.c_int,W.UINT,W.UINT]
