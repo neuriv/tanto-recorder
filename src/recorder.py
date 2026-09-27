@@ -21,6 +21,9 @@ from windows_paths import downloads_dir, choose_recording_folders
 
 
 def boss_identity(name):
+    # Turn the entered encounter name into a stable session identity.
+    # Recognize configured names; otherwise hash the normalized name while preserving the player's wording.
+    # This is naming context only: unknown names do not acquire boss-identification fingerprints.
     name=' '.join(name.split())
     if not name or len(name)>100:
         raise ValueError('Enter a boss or enemy name (1–100 characters) before recording.')
@@ -32,6 +35,9 @@ def boss_identity(name):
 
 class Recorder:
     def __init__(self, root, enable_hotkey=True, settings_path=None):
+        # Build the Recorder window and restore its library, last session, draft and keyboard shortcut.
+        # Keep widget changes on Tk's UI thread; capture/export workers communicate through a queue.
+        # The status and Start/Stop controls sit above every tab so opening the guide does not hide recording control.
         self.root=root;self.thread=None;self.folder=None;self.stop=threading.Event();self.latest={}
         self.events=queue.SimpleQueue();self.operation=None;self.closing=False;self.close_job=None;self.hotkey=None
         self.draft_job=None;self.editing=None;self.sounded=False
@@ -50,13 +56,23 @@ class Recorder:
         self.scale=max(1,float(root.tk.call('tk','scaling'))/(96/72));s=self.scale
         root.geometry(f'{round(1060*s)}x{round(850*s)}');root.minsize(round(760*s),round(800*s))
         self.backdrop=InkBackdrop(root,s,fonts);self.backdrop.on_guide=self.show_guide
-        root.bind('<F1>',lambda event:self.show_guide())
+        root.bind('<F1>',lambda event: (
+            # Route F1 to Recorder's inline Guide tab.
+            # Ignore the key-event object because opening help needs no input coordinates.
+            # The common Start/Stop controls remain outside the changing page.
+            self.show_guide()
+        ))
         panel=ttk.Frame(self.backdrop);panel.columnconfigure(0,weight=1);panel.rowconfigure(2,weight=1)
         self.backdrop.panel=self.backdrop.create_window(24,96,anchor='nw',window=panel)
         nav=ttk.Frame(panel);nav.grid(row=0,column=0,sticky='ew',pady=(0,10))
         self.tabs={};self.current_tab='Record'
         for title in ('Record','Settings','Guide'):
-            button=ttk.Button(nav,text=title,style='Tab.TButton',command=lambda name=title:self.show_tab(name))
+            button=ttk.Button(nav,text=title,style='Tab.TButton',command=lambda name=title: (
+                # Open the tab belonging to this button.
+                # Freeze the current loop title in a default argument so every button does not open the last tab.
+                # The page switch reuses the main window and its shared recording controls.
+                self.show_tab(name)
+            ))
             button.pack(side='left',padx=(0,8));self.tabs[title]=button
         card=self.backdrop.card(panel);card.grid(row=1,column=0,sticky='ew',pady=(0,10));card.columnconfigure(1,weight=1)
         self.pulse=tk.Canvas(card,width=24,height=24,background=SURFACE,highlightthickness=0)
@@ -91,16 +107,34 @@ class Recorder:
         self.note_status=tk.StringVar(value='Describe the sequence. Stop before saving.')
         self.note_label=self.backdrop.label(notes,textvariable=self.note_status,style='Muted.TLabel',wraplength=600)
         self.note_label.grid(row=2,column=0,columnspan=2,sticky='ew')
-        root.bind('<Control-s>',lambda event:self.save_description())
+        root.bind('<Control-s>',lambda event: (
+            # Route Ctrl+S to the same save path as the description button.
+            # That path retains drafts and enforces stopped-take annotation bounds.
+            # The shortcut writes notes only and does not send an input to the game.
+            self.save_description()
+        ))
         table=self.backdrop.card(page);table.grid(row=3,column=0,sticky='nsew');table.columnconfigure(0,weight=1);table.rowconfigure(0,weight=1)
         self.labels=SequenceList(table,self.backdrop);self.labels.grid(row=0,column=0,sticky='nsew')
         scroll=ttk.Scrollbar(table,orient='vertical',command=self.labels.yview);scroll.grid(row=0,column=1,sticky='ns')
         def position_scroll(first,last):
+            # Show a scrollbar only when saved descriptions extend beyond the visible list.
+            # Tk supplies fractional first/last positions; forward them to the scrollbar before changing its visibility.
+            # Grid removal preserves its layout settings so later list growth can restore it without rebuilding widgets.
             scroll.set(first,last)
             if first<=0 and last>=1:scroll.grid_remove()
             else:scroll.grid()
-        self.labels.configure(yscrollcommand=position_scroll);self.labels.bind('<Double-1>',lambda event:self.edit_selected())
-        self.labels.bind('<Return>',lambda event:self.edit_selected())
+        self.labels.configure(yscrollcommand=position_scroll);self.labels.bind('<Double-1>',lambda event: (
+            # Open the highlighted saved description for revision.
+            # Mouse double-click and Return share the same validation and draft-preservation path.
+            # The event's coordinates are unnecessary because selection already identifies the label.
+            self.edit_selected()
+        ))
+        self.labels.bind('<Return>',lambda event: (
+            # Open the highlighted saved description for revision.
+            # Mouse double-click and Return share the same validation and draft-preservation path.
+            # The event's coordinates are unnecessary because selection already identifies the label.
+            self.edit_selected()
+        ))
         self.help_label=self.backdrop.label(page,text='Pause the game yourself. Stop, describe, then export selected sessions.',style='Muted.TLabel',wraplength=610)
         self.help_label.grid(row=4,column=0,sticky='ew',pady=(8,0))
         settings_page=self.pages['Settings'];settings_page.columnconfigure(0,weight=1)
@@ -124,7 +158,12 @@ class Recorder:
         self.hotkey_label=self.backdrop.label(settings_page,textvariable=self.hotkey_status,style='Card.TLabel',wraplength=640)
         self.hotkey_label.grid(row=6,column=0,sticky='ew',pady=(0,12))
         self.backdrop.label(settings_page,text='Choose a preset or press Bind a key, then your keyboard shortcut. Escape cancels. Use a function key or Ctrl / Alt plus a letter or number. F1 opens this guide; Ctrl+S saves a description.',style='Muted.TLabel',wraplength=640).grid(row=7,column=0,sticky='ew')
-        panel.bind('<Configure>',lambda event:self.resize_text(event.width))
+        panel.bind('<Configure>',lambda event: (
+            # Pass the settled panel width to Recorder's text-wrapping rules.
+            # Use the Configure event's width rather than polling unrelated screen geometry.
+            # Only layout changes; no recording or preference is rewritten.
+            self.resize_text(event.width)
+        ))
         self.show_tab('Record')
         root.protocol('WM_DELETE_WINDOW',self.close)
         self.custom_bosses=settings.get('custom_bosses',[])
@@ -137,11 +176,17 @@ class Recorder:
         self.poll()
 
     def resize_text(self,width):
+        # Rewrap explanatory text when the Recorder window changes size.
+        # Reserve room for the fixed Start/Stop control and divide the encounter form into readable columns.
+        # Only wrapping changes; recording state and saved descriptions are unaffected by resizing.
         for label in (self.hotkey_label,self.help_label,self.note_label,self.library_label):label.configure(wraplength=max(240,width-56))
         self.session_label.configure(wraplength=max(160,(width-80)//2))
         self.status_label.configure(wraplength=max(180,width-300*self.scale))
 
     def show_tab(self,name):
+        # Display Record, Settings or the inline tutorial within the same window.
+        # Hide the other pages, mark the active tab and rebuild guide text using the current shortcut.
+        # Schedule one glass-background repaint after layout changes rather than opening another window.
         for page in self.pages.values():page.grid_remove()
         self.pages[name].grid(row=0,column=0,sticky='nsew');self.current_tab=name
         for title,button in self.tabs.items():button.configure(style='Selected.Tab.TButton' if title==name else 'Tab.TButton')
@@ -152,16 +197,28 @@ class Recorder:
         self.backdrop.schedule_skin()
 
     def busy(self):
+        # Report whether the current recording or export worker is still running.
+        # Check the actual thread lifetime, including its final flush, instead of trusting a displayed status string.
+        # Callers use this to block operations that could race with evidence writes.
         return self.thread is not None and self.thread.is_alive()
 
     def draft(self):
+        # Snapshot the unfinished description and any annotation being revised.
+        # Read only UI-owned values on the Tk thread.
+        # The editing reference preserves which saved label a later Save should revise.
         return dict(text=self.description.get('1.0','end-1c'),editing=self.editing)
 
     def set_draft(self,value):
+        # Restore or clear the editor's unfinished text and revision target.
+        # Reset Tk's modified flag and undo stack after inserting the supplied draft.
+        # Programmatic restoration should not look like a new user edit or undo into another session's text.
         self.editing=value.get('editing');self.description.delete('1.0','end')
         self.description.insert('1.0',value.get('text',''));self.description.edit_modified(False);self.description.edit_reset()
 
     def draft_changed(self,*args):
+        # Debounce typing and encounter-name changes into an autosave.
+        # Cancel the older timer and schedule one save after 300 ms of inactivity.
+        # Ignore unchanged Text notifications and shutdown so callbacks do not keep rescheduling themselves.
         if self.closing:return
         if args and isinstance(args[0],tk.Event) and not self.description.edit_modified():return
         self.description.edit_modified(False)
@@ -169,6 +226,9 @@ class Recorder:
         self.draft_job=self.root.after(300,self.save_settings)
 
     def save_settings(self):
+        # Preserve preferences and unfinished text before closing or switching sessions.
+        # Write the session draft and per-user settings with flushed atomic replacement, including the chosen library path.
+        # A disk error returns false and stays visible so callers can avoid discarding unsaved text.
         if self.draft_job:self.root.after_cancel(self.draft_job);self.draft_job=None
         try:
             self.settings_path.parent.mkdir(parents=True,exist_ok=True)
@@ -183,18 +243,29 @@ class Recorder:
             self.note_status.set('Save failed: '+str(error));return False
 
     def cue(self,kind):
-        # Nonblocking local WAV playback; never controller vibration or game input.
+        # Play Recorder's short local start or stop tone.
+        # Use asynchronous WAV playback so audio cannot stall capture or the Tk event loop.
+        # This does not trigger game audio, controller vibration or any input to Nioh.
         base=Path(os.environ.get('TANTO_PRODUCT_ROOT',Path(__file__).resolve().parents[1]))
         try:winsound.PlaySound(str(base/'src/assets'/f'{kind}.wav'),winsound.SND_FILENAME|winsound.SND_ASYNC|winsound.SND_NODEFAULT)
         except RuntimeError:self.status.set('Audio cue unavailable; check the recording status above.')
 
     def show_guide(self):
+        # Open the tutorial inside the Guide tab, including during recording.
+        # Leave the shared Start/Stop controls and normal event loop available.
+        # Once shutdown starts, avoid creating new UI work that would delay closing.
         if not self.closing:self.show_tab('Guide')
 
     def finish_guide(self):
+        # Remember that this guide version has been read and return to Record.
+        # Persist the tutorial preference alongside the current draft and library settings.
+        # The Guide tab and F1 remain available for reopening it later.
         self.tutorial_seen=True;self.save_settings();self.show_tab('Record')
 
     def choose_recordings(self):
+        # Ask Windows for the folder that should hold future recording sessions.
+        # Start from the remembered library or its parent when that directory no longer exists.
+        # Cancellation leaves the current library alone; selection errors are shown in Recorder's status.
         if self.busy():return
         chosen=filedialog.askdirectory(title='Choose recording library (existing folders are welcome)',parent=self.root,
             initialdir=self.recordings if self.recordings.exists() else self.recordings.parent)
@@ -203,6 +274,9 @@ class Recorder:
             except (OSError,ValueError) as error:self.status.set(str(error))
 
     def set_recordings(self,folder):
+        # Adopt an existing or new recording library without moving or deleting its contents.
+        # Save the current draft before leaving its session, and reject a single-session folder as a library root.
+        # Persist the resolved absolute path so a later EXE version reuses the same location.
         if self.busy():return False
         folder=Path(folder).resolve()
         if (folder/'encounter.json').exists():raise ValueError('Choose the library containing your sessions, not an individual session.')
@@ -214,6 +288,9 @@ class Recorder:
         return self.save_settings()
 
     def begin_binding(self):
+        # Temporarily listen for a new keyboard shortcut inside Recorder.
+        # Unregister the old global key and advance its generation so queued old-key messages cannot start capture.
+        # Require an idle recorder and focus the binding button before accepting keys.
         if self.busy() or self.binding:return
         if self.hotkey:self.hotkey.close();self.hotkey=None
         self.hotkey_generation+=1
@@ -221,6 +298,9 @@ class Recorder:
         self.binding=self.root.bind('<KeyPress>',self.capture_binding,add='+')
 
     def capture_binding(self,event):
+        # Accept a supported shortcut or cancel with Escape.
+        # Ignore bare modifiers, validate reserved combinations, and remove the temporary key listener when finished.
+        # Only an accepted shortcut changes the saved key; cancellation restores the previous registration.
         if event.keysym=='Escape':name=None
         else:
             try:name=key_event_name(event)
@@ -232,20 +312,34 @@ class Recorder:
         self.configure_hotkey();return 'break'
 
     def configure_hotkey(self,event=None,persist=True):
+        # Register the selected shortcut with Windows on a dedicated listener thread.
+        # Tag its queued events with a generation, rejecting messages from registrations that were replaced.
+        # Off leaves Start/Stop usable, and registration failures are reported without synthesizing any key presses.
         self.hotkey_generation+=1;generation=self.hotkey_generation
         if self.hotkey: self.hotkey.close();self.hotkey=None
         self.hotkey_status.set('Hotkey off. Use Start / Stop above.' if self.key.get()=='Off' else 'Registering hotkey…')
         if self.enable_hotkey and self.key.get()!='Off':
-            self.hotkey=GlobalHotkey(self.key.get(),lambda kind,value:self.events.put((kind,value,generation)))
+            self.hotkey=GlobalHotkey(self.key.get(),lambda kind,value: (
+                # Queue a hotkey listener event for the Tk thread.
+                # Capture this registration's generation so remapping can reject already queued old events.
+                # The listener never manipulates widgets directly from its worker thread.
+                self.events.put((kind,value,generation))
+            ))
         if persist: self.save_settings()
 
     def toggle(self):
+        # Interpret the recording button or global shortcut as Start/Stop.
+        # A running worker receives a cooperative stop request and finishes flushing before another operation begins.
+        # Ignore toggles while exporting, binding a key or shutting down to prevent overlapping work.
         if self.closing or self.binding or self.operation=='export': return
         if self.busy():
             self.stop.set();self.headline.set('Finishing recording…');self.status.set('Flushing the take and preserving its evidence.')
         else: self.start(resume=self.folder is not None)
 
     def start(self,resume=False):
+        # Start a new encounter session or resume the explicitly opened one.
+        # Save pending notes first; new sessions get unique folders and resumes retain all earlier numbered takes.
+        # Launch a read-only worker and send its status through the queue; workers never touch Tk widgets.
         if self.busy() or self.closing: return
         if self.folder and self.description.get('1.0','end-1c').strip() and list(self.folder.glob('take-*/events.jsonl')):
             if not self.save_description():return
@@ -273,14 +367,25 @@ class Recorder:
         self.sounded=False
         self.stop.clear();self.operation='capture';self.latest=dict(state='starting',detail='Looking for Nioh and encounter actors.')
         def capture():
+            # Run encounter sampling away from the UI thread.
+            # Publish progress with its session folder so late messages cannot overwrite a different session's status.
+            # Always report completion, including failures, allowing the UI to finish its stop/save lifecycle.
             try:
                 record_encounter(boss,folder,stop_event=self.stop,boss_name=name,signature=signature,
-                                 status_callback=lambda value:self.events.put(('capture_status',(folder,value),None)))
+                                 status_callback=lambda value: (
+                                     # Queue progress from the read-only capture worker.
+                                     # Include its session folder so late messages cannot overwrite a newly selected session.
+                                     # No hotkey generation applies to capture progress, hence the final None marker.
+                                     self.events.put(('capture_status',(folder,value),None))
+                                 ))
             except Exception as error:self.events.put(('capture_status',(folder,dict(state='error',detail=str(error))),None))
             finally:self.events.put(('capture_finished',folder,None))
         self.thread=threading.Thread(target=capture,daemon=False);self.thread.start()
 
     def new_session(self):
+        # Leave the current recording safely and prepare an empty encounter form.
+        # Save its draft before clearing session references, descriptions and queued display state.
+        # The old folder remains available through Open session; no capture files are removed.
         if self.busy(): return
         if not self.save_settings():return
         self.set_draft({});self.folder=None;self.latest={};self.boss.set('');self.labels.delete(*self.labels.get_children())
@@ -288,6 +393,9 @@ class Recorder:
         self.headline.set('New session');self.status.set('Enter the boss or enemy name before starting.');self.selector.focus_set();self.save_settings()
 
     def open_session(self):
+        # Let the player revisit a saved session through the Windows folder picker.
+        # Save the current draft before loading another session's manifest, notes and unfinished text.
+        # Cancellation keeps the current session; incompatible folders produce a visible error.
         if self.busy(): return
         chosen=filedialog.askdirectory(title='Open recording session',parent=self.root,initialdir=self.recordings if self.recordings.exists() else self.recordings.parent)
         if not chosen: return
@@ -297,6 +405,9 @@ class Recorder:
             messagebox.showerror('Cannot open session',str(error),parent=self.root)
 
     def load_session(self,folder):
+        # Restore a session's encounter name, saved descriptions and unfinished revision.
+        # Read and validate its metadata before changing the active folder and editor.
+        # Resuming later appends takes rather than resetting or overwriting existing recordings.
         manifest=json.loads((folder/'encounter.json').read_text(encoding='utf8'))
         labels=load_annotations(folder);name=manifest.get('boss_name',manifest['boss_id']);boss_identity(name)
         draft=json.loads((folder/'draft.json').read_text(encoding='utf8')) if (folder/'draft.json').exists() else {}
@@ -304,16 +415,25 @@ class Recorder:
         self.headline.set('Session restored');self.status.set('Each Start adds a new take. Previous recordings and notes are preserved.')
 
     def refresh_labels(self,labels=None):
+        # Rebuild the saved-sequence list from the latest annotation revisions.
+        # Keep label IDs as row identities and show sampled intervals plus uncertainty markers.
+        # Readable table text is a preview; the complete description remains in the annotation file.
         self.labels.delete(*self.labels.get_children())
         for label in load_annotations(self.folder) if labels is None else labels:
             marks=' · '+', '.join(label['markers']) if label['markers'] else ''
             self.labels.insert('','end',iid=label['label_id'],values=(label['take'],f"{label['start_t']:.2f} – {label['end_t']:.2f}",label['label']+marks))
 
     def describe(self):
+        # Focus the always-visible description editor and explain how to save.
+        # Typing updates the draft automatically, while Ctrl+S attaches text to a stopped sequence.
+        # The function does not create a popup or infer any move boundary.
         self.description.focus_set()
         self.note_status.set('Type below. Drafts save automatically; Ctrl+S saves a stopped sequence.')
 
     def edit_selected(self):
+        # Load the highlighted description into the editor for a new revision.
+        # Save pending text first, then recover the complete annotation by its stable label ID.
+        # Keep the prior take, interval and markers so editing wording does not silently retime evidence.
         selected=self.labels.selection()
         if not selected or not self.folder or self.busy():return
         if self.description.get('1.0','end-1c').strip() and not self.save_description():return
@@ -323,12 +443,20 @@ class Recorder:
         except (OSError,ValueError,StopIteration) as error:self.note_status.set('Cannot edit: '+str(error))
 
     def save_description(self):
+        # Attach the current text to a stopped take or revise its selected annotation.
+        # New notes span the latest take since its previous description; edits retain their original interval.
+        # Persist the draft first, keep it on failure, and clear the editor only after the annotation is saved.
         if not self.save_settings():return False
         if self.busy():self.note_status.set('Draft saved. Stop recording to attach it to a sequence.');return False
         if not self.description.get('1.0','end-1c').strip():return True
         if not self.folder:self.note_status.set('Draft saved. Start a recording to attach a sequence.');return False
         try:
-            takes=sorted(self.folder.glob('take-*/events.jsonl'),key=lambda p:int(p.parent.name[5:]))
+            takes=sorted(self.folder.glob('take-*/events.jsonl'),key=lambda p: (
+                # Order take folders by the number after take-.
+                # Numeric ordering still works after take numbers outgrow their initial zero padding.
+                # The newest completed take supplies the default interval for a new description.
+                int(p.parent.name[5:])
+            ))
             if not takes:raise ValueError('Draft saved. No recorded samples yet.')
             label=self.editing
             take=label['take'] if label else takes[-1].parent.name
@@ -341,6 +469,9 @@ class Recorder:
         except (OSError,ValueError) as error:self.note_status.set(str(error));return False
 
     def export(self,folders=None):
+        # Select one or more saved session folders and export them as one collection.
+        # Suspend the global shortcut while Explorer is open, then pack on a worker into Downloads/tanto-zips.
+        # Save current notes first; cancellation publishes nothing and the UI remains responsive during packing.
         if self.busy() or self.closing:return
         if self.folder:
             if not self.save_description():return
@@ -355,6 +486,9 @@ class Recorder:
         self.operation='export';self.latest={};self.headline.set('Preparing export…')
         self.status.set(f'Packing {len(folders)} sessions. You can keep using the guide while this finishes.')
         def work():
+            # Create the collection archive away from the UI thread.
+            # Use the actual redirected Windows Downloads folder independently of the recording-library location.
+            # Report the finished path or error through the queue; export helpers publish only complete archives.
             try:
                 path=export_sessions(folders,downloads_dir()/'tanto-zips'/f'Tanto-{time.time_ns()}.zip')
                 self.events.put(('exported',path,None))
@@ -362,6 +496,9 @@ class Recorder:
         self.thread=threading.Thread(target=work,daemon=False);self.thread.start()
 
     def poll(self):
+        # Apply queued worker and hotkey events on the Tk thread.
+        # Discard stale generations/session messages, then update button availability from the real worker state.
+        # Reschedule this poll every 100 ms; confirmed capture status controls tones and does not certify a boss by name.
         while not self.events.empty():
             kind,value,generation=self.events.get()
             if generation is not None and generation!=self.hotkey_generation: continue
@@ -399,6 +536,9 @@ class Recorder:
         self.after_id=self.root.after(100,self.poll)
 
     def close(self):
+        # Close Recorder without interrupting recording or export writes.
+        # Save the draft, request capture stop and unregister the shortcut, then wait cooperatively for the worker.
+        # Cancel scheduled callbacks before destroying Tk; a save failure keeps the window open for recovery.
         if not self.closing and not self.save_settings():return
         self.closing=True;self.stop.set()
         if self.hotkey: self.hotkey.close();self.hotkey=None
@@ -410,6 +550,9 @@ class Recorder:
 
 
 def main(argv=None):
+    # Choose offline intake, an isolated packaged-UI check or the normal Recorder window.
+    # The smoke path uses temporary recordings, disables game access/hotkeys and collects callback failures.
+    # Normal startup restores preferences and opens the updated inline guide only when it has not been completed.
     parser=argparse.ArgumentParser(description='Tanto read-only boss recorder')
     parser.add_argument('--ui-smoke',type=Path)
     parser.add_argument('--intake',type=Path,help='Validate and stage a contributor ZIP without opening the UI')
@@ -421,7 +564,12 @@ def main(argv=None):
     errors=[]
     if args.ui_smoke:
         root.attributes('-alpha',0)
-        root.report_callback_exception=lambda kind,error,trace:errors.append(str(error))
+        root.report_callback_exception=lambda kind,error,trace: (
+            # Collect a Tk callback failure for the enclosing test or smoke receipt.
+            # A background UI exception must make validation fail instead of being printed and overlooked.
+            # Store readable error text; the callback itself remains on the Tk thread.
+            errors.append(str(error))
+        )
     app=Recorder(root,enable_hotkey=not args.ui_smoke,
                  settings_path=args.ui_smoke.parent/'recorder-smoke-settings.json' if args.ui_smoke else None)
     if not args.ui_smoke and not app.tutorial_seen:root.after(100,app.show_guide)
@@ -437,6 +585,9 @@ def main(argv=None):
         restored=app.description.get('1.0','end-1c')=='Unfinished note'
         app.backdrop.on_guide()
         def finish():
+            # Finish the isolated UI check after Tk has had time to render.
+            # Write explicit results for wallpaper, inline guide, description persistence and draft restoration.
+            # Close the test window and remove only its temporary fixture; no game or personal recordings are involved.
             rendered=app.backdrop.picture.width()==app.backdrop.winfo_width()
             args.ui_smoke.write_text(json.dumps(dict(passed=not errors and rendered and saved and restored and app.guide.winfo_toplevel() is root,game_access=False,
                 local_guide=app.guide.winfo_exists()==1,wallpaper_rendered=rendered,description_saved=saved,draft_restored=restored,errors=errors)))

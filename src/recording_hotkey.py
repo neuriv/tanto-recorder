@@ -7,6 +7,9 @@ HOTKEYS={'Off':None, **{f'F{n}':(0,0x70+n-1) for n in range(6,12)}, 'Ctrl+Shift+
 
 
 def parse_hotkey(name):
+    # Turn a readable keyboard shortcut into Windows modifier and virtual-key numbers.
+    # Allow supported function keys or Ctrl/Alt plus a letter/number, reserving guide/save/close shortcuts.
+    # Off returns no registration; unsupported combinations fail before a listener thread starts.
     if name=='Off':return None
     parts=name.split('+');modifiers=parts[:-1];key=parts[-1]
     if len(set(modifiers))!=len(modifiers) or any(part not in ('Ctrl','Alt','Shift') for part in modifiers):
@@ -23,6 +26,9 @@ def parse_hotkey(name):
 
 
 def key_event_name(event):
+    # Translate the key pressed during Bind a key into the saved shortcut spelling.
+    # Tk state bits describe Ctrl, Alt and Shift; they differ from RegisterHotKey's modifier numbers.
+    # Ignore modifier-only presses and run the same validation used for saved bindings.
     key=event.keysym.upper()
     if key in ('SHIFT_L','SHIFT_R','CONTROL_L','CONTROL_R','ALT_L','ALT_R'):return None
     parts=[name for name,mask in (('Ctrl',4),('Alt',0x20000|8),('Shift',1)) if event.state&mask]
@@ -32,11 +38,17 @@ def key_event_name(event):
 
 class GlobalHotkey:
     def __init__(self, name, publish):
+        # Start a dedicated Windows listener for the chosen recording shortcut.
+        # Give it a stop event and a queue-publishing callback instead of access to Tk widgets.
+        # The listener is a daemon, while explicit close still releases its Windows registration promptly.
         self.stop=threading.Event()
         self.thread=threading.Thread(target=self.listen,args=(name,publish),daemon=True)
         self.thread.start()
 
     def listen(self, name, publish):
+        # Receive the registered shortcut even when Recorder is not the focused application.
+        # Register on the owning thread with MOD_NOREPEAT and poll only WM_HOTKEY messages.
+        # Publish a toggle or registration error; always unregister on exit and never synthesize keyboard input.
         key=parse_hotkey(name)
         if key is None: return
         api=C.WinDLL('user32',use_last_error=True)
@@ -60,5 +72,8 @@ class GlobalHotkey:
             api.UnregisterHotKey(None,1)
 
     def close(self):
+        # Stop listening and release the shortcut for other applications.
+        # Signal the listener's cooperative loop and wait for its unregister cleanup to finish.
+        # Joining before a replacement registration prevents a false conflict with our own old listener.
         self.stop.set()
         self.thread.join()

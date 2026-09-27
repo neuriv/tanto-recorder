@@ -1,5 +1,7 @@
 # Tanto Recorder
 
+New to the code? Start with [CODE_GUIDE.md](CODE_GUIDE.md), which explains the Nioh concepts, file roles and implementation flow.
+
 Read-only Nioh boss and enemy recording for contributors. The Windows EXE is a private test build; live game/hardware acceptance remains pending. It does not modify the game, inject a runtime, control the character, or capture the screen.
 
 ## Record a sequence

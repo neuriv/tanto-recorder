@@ -5,13 +5,26 @@ from uuid import UUID
 
 
 def choose_recording_folders(owner, initial):
+    # Open Explorer's native folder picker with multi-selection enabled.
+    # Use the Windows COM dialog and filesystem-only results, starting at the remembered recording library.
+    # Return paths or an empty cancellation result; release every COM object and allocated path string.
     """Explorer's native multi-folder picker (IFileOpenDialog), without extra packages."""
     ole=C.WinDLL('ole32');shell=C.WinDLL('shell32')
-    def guid(value):return C.create_string_buffer(UUID(value).bytes_le)
+    def guid(value):
+        # Encode a Windows interface/class identifier into its native 16-byte layout.
+        # GUID bytes use mixed little-endian field ordering, provided by UUID.bytes_le.
+        # Keeping this buffer alive through the call lets COM identify the requested dialog or shell interface.
+        return C.create_string_buffer(UUID(value).bytes_le)
     def method(obj,index,*types):
+        # Bind a documented COM interface method from its vtable slot.
+        # Include the object's implicit this pointer and the exact Windows argument types.
+        # WINFUNCTYPE preserves the native calling convention instead of treating the slot as a Python callable.
         table=C.cast(obj,C.POINTER(C.POINTER(C.c_void_p))).contents
         return C.WINFUNCTYPE(C.c_long,C.c_void_p,*types)(table[index])
     def checked(result):
+        # Turn a failed Windows HRESULT into an ordinary Python error.
+        # HRESULT success values are nonnegative signed 32-bit numbers; failure values have the high bit set.
+        # Retain the hexadecimal code so picker failures can be diagnosed without guessing a filesystem cause.
         if result<0:raise OSError(f'Folder picker failed (HRESULT {result & 0xffffffff:08X})')
     ole.CoInitializeEx.argtypes=[C.c_void_p,C.c_uint32];ole.CoInitializeEx.restype=C.c_long
     ole.CoCreateInstance.argtypes=[C.c_void_p,C.c_void_p,C.c_uint32,C.c_void_p,C.POINTER(C.c_void_p)]
@@ -53,6 +66,9 @@ def choose_recording_folders(owner, initial):
 
 
 def downloads_dir():
+    # Find the user's actual Downloads directory, including Windows folder redirection.
+    # Ask the shell for the Downloads known-folder GUID instead of assuming a username or drive.
+    # Free the shell-allocated path after copying it into a Python Path, even when an error occurs.
     shell=C.WinDLL('shell32');ole=C.WinDLL('ole32')
     shell.SHGetKnownFolderPath.argtypes=[C.c_void_p,C.c_uint32,C.c_void_p,C.POINTER(C.c_void_p)]
     shell.SHGetKnownFolderPath.restype=C.c_long

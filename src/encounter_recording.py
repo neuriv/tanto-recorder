@@ -134,14 +134,9 @@ def decode_action_metadata(event):
 
 
 def reconstruct_capture(source, boss_id, destination=None):
-    # Build action identities and temporal strings from a saved take.
-    # Pair metadata with coherent actor states and split sequences at gaps.
-    # Preserve uncertain observations without claiming verified combos.
-    # Reconstruct sampled strings, never claim that adjacency proves a combo.
-    #
-    # Raw memory addresses are retained in the original capture only. Permanent
-    # identities use boss, actor-local label and source action/motion identifiers.
-    # Malformed lines and observation gaps prevent sequence stitching.
+    # Turn sampled observations into action identities and candidate sequences for review.
+    # Use stable actor/action/motion identities, keeping raw addresses only in the original capture.
+    # Split at malformed lines and observation gaps; consecutive samples alone do not prove a combo.
     validate_boss_id(boss_id)
     source = Path(source)
     digest = hashlib.sha256()
@@ -476,13 +471,9 @@ def discover_encounter(game, stop_requested=lambda: (
 
 def record_encounter(boss_id, outdir, stop_file=None, signature=None, stop_event=None,
                      retry_seconds=3.0, status_callback=None, backend=None, boss_name=None):
-    # Keep an encounter recording alive across process and actor replacement.
-    # Lock its folder, preserve numbered takes and reconstruct after interruptions.
-    # Surface programming errors instead of retrying them as missing gameplay.
-    # Record until explicit stop; recover across process exit and actor reload.
-    #
-    # Existing folders resume the same boss after a crash. Every take is new; raw
-    # events are never replaced. backend injection permits entirely offline tests.
+    # Keep one named recording session across stops, process exits and actor replacement.
+    # Lock its folder and allocate fresh numbered takes; resume never overwrites earlier raw observations.
+    # Retry discovery failures, expose programming errors, and allow an injected backend for offline tests.
     validate_boss_id(boss_id)
     if not 0.05 <= retry_seconds <= 60:
         raise ValueError('Retry interval must be 0.05..60 seconds')
@@ -591,6 +582,9 @@ def record_encounter(boss_id, outdir, stop_file=None, signature=None, stop_event
 
 
 def sampled_time(event):
+    # Extract an observation's time in seconds when it is a usable sample.
+    # Only supported numeric, finite, nonnegative timestamps can define annotation bounds.
+    # Missing or malformed times remain absent rather than creating an invented recording interval.
     if isinstance(event, dict) and isinstance(event.get('kind'), str):
         value = event.get('t')
         if type(value) in (int, float) and 0 <= value < float('inf'):
@@ -599,7 +593,9 @@ def sampled_time(event):
 
 
 def latest_sample_time(path):
-    # Ignore an unfinished final record while the recorder is still writing.
+    # Find the latest usable time in a saved take, including its ending record.
+    # Scan only the final 64 KiB, dropping a partial first line and unfinished/invalid records.
+    # This is the sampled recording boundary, not proof of the exact animation frame.
     with path.open('rb') as stream:
         stream.seek(0,2)
         start = max(0,stream.tell()-65536)
@@ -620,6 +616,9 @@ def latest_sample_time(path):
 
 
 def parse_annotations(text):
+    # Recover the latest saved description revision for each label.
+    # Read the append-only history and preserve explicit interval, marker and revision information.
+    # Malformed history is rejected instead of silently losing a contributor's correction.
     labels = {}
     for number, line in enumerate(text.splitlines(), 1):
         if not line.strip():
@@ -642,11 +641,17 @@ def parse_annotations(text):
 
 
 def load_annotations(folder):
+    # Load the saved descriptions belonging to a session folder.
+    # An absent labels file means no saved descriptions; existing content goes through revision parsing.
+    # Draft text is stored separately and is not promoted into a completed annotation here.
     path = Path(folder)/'labels.jsonl'
     return parse_annotations(path.read_text(encoding='utf8')) if path.exists() else []
 
 
 def validate_annotation(label, takes):
+    # Check that a description names a real take and stays within its sampled duration.
+    # Validate interval ordering, allowed markers and field types before any intake or revision write.
+    # Reject path-shaped take names so an annotation cannot point outside the session.
     take = label.get('take')
     if not isinstance(take, str) or not re.fullmatch(r'take-[0-9]+', take) or take not in takes:
         raise ValueError('Choose an existing recorded take')
@@ -659,6 +664,9 @@ def validate_annotation(label, takes):
 
 
 def save_annotation(folder, description, take, start_t, end_t, markers=(), label_id=None):
+    # Save a new description or append a correction while retaining earlier revisions.
+    # Validate against the take's sampled duration, then flush a new history file and atomically replace the old one.
+    # Raw event files stay untouched, and an interrupted write cannot publish a half-written history.
     folder = Path(folder)
     manifest = json.loads((folder/'encounter.json').read_text(encoding='utf8'))
     if not isinstance(description, str) or not description.strip():
@@ -689,6 +697,9 @@ def save_annotation(folder, description, take, start_t, end_t, markers=(), label
 
 
 def annotate_recent(folder, description):
+    # Attach a description at the latest sampled instant of the newest take.
+    # Reject sessions without recorded samples instead of creating an ungrounded label.
+    # The zero-length interval is a contributor note, not an inferred start/end boundary for a move.
     takes = sorted(Path(folder).glob('take-*/events.jsonl'))
     if not takes:
         raise ValueError('A recorded take and a description are required')

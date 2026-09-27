@@ -15,6 +15,9 @@ from encounter_recording import (atomic_json, load_annotations,
 
 
 def session_summary(folder):
+    # Summarize recorded actions, repeated sequences and descriptions for a human reviewer.
+    # Reconstruct every take from its raw bytes and replace local paths with session-relative evidence references.
+    # Repeated ordering and native transition hints remain candidates; the report never marks moves playable.
     folder = Path(folder)
     manifest = json.loads((folder/'encounter.json').read_text(encoding='utf8'))
     takes, counts, repeats = [], {}, Counter()
@@ -23,6 +26,9 @@ def session_summary(folder):
         relative = path.relative_to(folder).as_posix()
         # Export evidence references relative to the session, never local filesystem paths.
         def portable(value):
+            # Remove machine-specific paths from nested reconstruction evidence.
+            # Walk dictionaries/lists and replace each path field with this take's relative JSONL path.
+            # Other values retain their original types and meaning for later intake comparison.
             if isinstance(value, dict):
                 return {key: relative if key == 'path' else portable(item) for key,item in value.items()}
             if isinstance(value, list):
@@ -67,10 +73,16 @@ def session_summary(folder):
 
 
 def descriptions_csv(boss_id, labels):
+    # Produce a readable spreadsheet-friendly list of saved sequence descriptions.
+    # Include boss context, take, sampled interval, markers and timing uncertainty.
+    # Keep raw observations in their separate files; this CSV is a review aid rather than primary evidence.
     output = io.StringIO(newline='')
     writer = csv.writer(output)
     writer.writerow(['Boss', 'Take', 'Start seconds', 'End seconds', 'Description', 'Markers', 'Timing confidence'])
     def literal(value):
+        # Prevent a contributor's description from becoming a spreadsheet formula.
+        # Prefix text beginning with formula/control characters with an apostrophe.
+        # CSV quoting still handles commas and newlines; the original annotation text remains unchanged.
         text = str(value)
         return "'"+text if text.lstrip().startswith(('=', '+', '-', '@')) or text.startswith(('\t', '\r', '\n')) else text
     for label in labels:
@@ -80,6 +92,9 @@ def descriptions_csv(boss_id, labels):
 
 
 def export_capture(folder, destination):
+    # Package one complete session while excluding unrelated local files and drafts.
+    # Snapshot raw takes and saved revision history, derive reports from those exact bytes, and hash every member.
+    # Publish by renaming only after the ZIP closes; existing destinations and partial failures cannot overwrite evidence.
     folder, destination = Path(folder), Path(destination)
     manifest = json.loads((folder/'encounter.json').read_text(encoding='utf8'))
     files = {path.relative_to(folder).as_posix(): path.read_bytes()
@@ -114,6 +129,9 @@ def export_capture(folder, destination):
 
 
 def export_sessions(folders, destination):
+    # Package selected sessions from one or several bosses into a single shareable ZIP.
+    # Keep each session in a numbered inner ZIP so identical folder names and take numbers cannot collide.
+    # Validate the whole collection before publication, preserving old single-session intake compatibility.
     """Keep each session's names and history isolated inside one shareable collection."""
     folders=list(dict.fromkeys(Path(folder).resolve() for folder in folders))
     if not folders or len(folders)>100:raise ValueError('Select 1–100 saved session folders.')
@@ -138,6 +156,9 @@ def export_sessions(folders, destination):
 
 
 def intake_collection(archive, manifest, destination, digest, validate_only):
+    # Validate and unpack a multi-session submission for review.
+    # Check outer hashes and the combined expanded-size limit, then validate every inner session before staging any.
+    # Reject nested collections; accepted sessions reuse the same deduplication and conflict checks as older ZIPs.
     sessions=manifest.get('sessions')
     if manifest.get('schema_version')!=1 or not isinstance(sessions,list) or not 1<=len(sessions)<=100:
         raise ValueError('Invalid recording collection')
@@ -171,6 +192,9 @@ def intake_collection(archive, manifest, destination, digest, validate_only):
 
 
 def intake_bundle(bundle, destination, *, validate_only=False):
+    # Validate a submitted ZIP and stage its evidence for a developer's pending review.
+    # Check member paths, sizes, hashes, annotation bounds and reconstruction structure before saving raw blobs.
+    # Reuse evidence by SHA-256 and flag conflicting labels/boss context; intake never edits playable move definitions.
     """Validate all members, deduplicate raw evidence and stage a pending review report."""
     bundle, destination = Path(bundle), Path(destination)
     digest = hashlib.sha256(bundle.read_bytes()).hexdigest()
@@ -266,6 +290,9 @@ def intake_bundle(bundle, destination, *, validate_only=False):
             if old['boss_id'] != boss and any(take['sha256'] == sha for take in old['takes']):
                 report['conflicts'].append(dict(kind='boss_identity', sha256=sha, other_boss_id=old['boss_id']))
     def source_hash(label, take_hashes):
+        # Find the raw-take fingerprint underlying one description.
+        # Translate its take name into the corresponding events.jsonl entry in the supplied hash map.
+        # Conflict checks use byte identity so renamed submissions cannot hide contradictory descriptions.
         return take_hashes[label['take']+'/events.jsonl']
     for label in labels:
         sha = source_hash(label, hashes)

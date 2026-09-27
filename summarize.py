@@ -62,7 +62,12 @@ def capture_report(index, catalogue):
         sources.append(dict(item, matched_sword_samples=accepted, issues=capture['issues'],
                             ranking='Retained sword sample only' if accepted else 'No attributed known sword observations'))
     return dict(schema_version=1, sources=sources, labels=labels,
-        occurrences=sorted(counts.values(),key=lambda r:(r['boss_id'],-r['observed_entries'],r['action_id'])),
+        occurrences=sorted(counts.values(),key=lambda r: (
+            # Order the capture report by boss, then most observed action entries.
+            # Negating the count gives descending frequency while action ID provides a stable tie-breaker.
+            # This affects report order only and does not rank moves as gameplay-ready.
+            (r['boss_id'],-r['observed_entries'],r['action_id'])
+        )),
         limitations=['Targeted recordings are not unbiased boss move probabilities.',
                     'Entries require observed action-identity changes; first observations after gaps are censored.',
                     'Counter or pointer changes alone remain unverified re-entries, not move occurrences.',

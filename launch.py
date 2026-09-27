@@ -1,3 +1,6 @@
+# Select packaged or sibling read-only Engine code before starting Recorder or offline intake.
+# PyInstaller exposes bundled files through _MEIPASS; source development uses this checkout.
+# Keep product data/state paths separate from shared implementation; see CODE_GUIDE.md.
 import os
 from pathlib import Path
 import sys

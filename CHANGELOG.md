@@ -1,5 +1,9 @@
 # Release notes
 
+## Unreleased
+
+Player-readable function/callback comments, mechanistic explanations and a code guide; Engine source pin refreshed after its review. Recorder's executable Python logic, evidence schemas and assets are unchanged. The published 0.2.0-alpha.1 EXE, tag and receipts remain immutable; a future compilation requires a new version.
+
 ## 0.2.0-alpha.1
 
 - Explorer multi-folder selection exports complete sessions from one or several bosses to Downloads/tanto-zips. Intake validates and processes the whole collection; old individual ZIPs still work.
