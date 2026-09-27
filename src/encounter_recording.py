@@ -1,7 +1,8 @@
 # User-started, read-only encounter recording and interruption-safe reconstruction.
 #
-# No video, screenshots, hooks, writes to game memory, or calibration. The trainer
-# calls main() in its encounter worker, or record_encounter() on a worker thread.
+# Live sampling is read-only; reconstruction below can also run with Nioh closed.
+# Raw action IDs belong to an actor and game build: the same number is not a move
+# name across every boss. Descriptions and boss names are review context, not proof.
 # Importing this module neither attaches to Nioh nor accesses a controller.
 import argparse
 import hashlib
@@ -74,12 +75,13 @@ def capture_events(source, issues):
 
 
 def decode_action_metadata(event):
-    # Decode stable action, motion and timing fields from saved byte prefixes.
-    # Preserve native gates and contact rows without promoting temporal adjacency into combos.
-    # Keep permanent move identities independent of runtime addresses.
+    # Translate saved game bytes into an action ID, animation ID and native timing hints.
+    # Read little-endian fields at the observed Nioh build's offsets; these are not a universal file format.
+    # Keep transition conditions and contact rows intact so a reviewer can distinguish a link from proof it ran.
     raw = bytes.fromhex(event.get('descriptor_bytes', ''))
     payload = bytes.fromhex((event.get('payload_prefix') or {}).get('bytes', ''))
     result = {}
+    # The full 32-bit key avoids merging actions that happen to share their low 16 bits.
     if len(raw) >= 4:
         result['action_id'] = struct.unpack_from('<I', raw)[0]
     if len(payload) >= 0x38:
@@ -134,9 +136,9 @@ def decode_action_metadata(event):
 
 
 def reconstruct_capture(source, boss_id, destination=None):
-    # Turn sampled observations into action identities and candidate sequences for review.
-    # Use stable actor/action/motion identities, keeping raw addresses only in the original capture.
-    # Split at malformed lines and observation gaps; consecutive samples alone do not prove a combo.
+    # Turn a raw take into reviewable action identities and per-actor ordering, retaining every recorded role.
+    # First pair metadata with coherent states; a second streaming pass counts entries and breaks at gaps.
+    # Keep the full JSONL for tail-to-description matching: this grouped summary cannot replace its timeline.
     validate_boss_id(boss_id)
     source = Path(source)
     digest = hashlib.sha256()
@@ -150,6 +152,7 @@ def reconstruct_capture(source, boss_id, destination=None):
     issues = []
     # Pair metadata only with its immediately preceding, owner-validated state.
     # Later repeats can reuse it only while the same actor/payload/key remains.
+    # Keys are source line numbers, so a repeated ID cannot borrow another actor's metadata.
     trusted = {}
     last_state = {}
     cache = {}
@@ -190,6 +193,8 @@ def reconstruct_capture(source, boss_id, destination=None):
                 continue
             trusted[state_number] = cache[signature] = decoded
 
+    # Hash maps avoid rescanning earlier observations for each sampled state.
+    # Sequence wrappers stop at 64 actions; the raw take still preserves their continuous order.
     actions, successors, strings, unclassified, labels, current, identities = {}, {}, [], [], {}, {}, {}
     gaps = []
     generation = 0
@@ -214,9 +219,9 @@ def reconstruct_capture(source, boss_id, destination=None):
         for label in list(current):
             close(label, reason)
     def actor_label(event):
-        # Assign capture-local labels to generation, owner and role identities.
-        # Split a sequence whenever an address acquires a different identity.
-        # Avoid carrying boss attribution through allocator address reuse.
+        # Give each observed actor a take-local label without throwing away unknown actors.
+        # Include session generation, owner and role because Nioh can reuse an object's memory address.
+        # End the old sequence on identity changes so two enemies cannot become one apparent combo.
         obj = event.get('object')
         role = event.get('role', 'unassigned')
         identity = (generation, obj, event.get('owner_like'), role)
@@ -283,6 +288,8 @@ def reconstruct_capture(source, boss_id, destination=None):
             gaps.append(dict(kind='timestamp_regression', evidence=evidence(number, event)))
             close(label, 'timestamp_regression')
             previous = None
+        # A changing counter/pointer may be a new execution or a native state update.
+        # Count it as uncertain until the raw tail and description establish the actual attack sequence.
         serial = (event.get('current'), event.get('counter'))
         if previous is None:
             row['censored_observations'] += 1
@@ -316,6 +323,7 @@ def reconstruct_capture(source, boss_id, destination=None):
                                 if target is not None and link['target_action_id'] == target]
         edge['confidence'] = ('native_supported_order' if edge['native_links'] else
                               'repeated_temporal_order' if edge['count'] > 1 else 'temporal_order_only')
+    # "complete" only means start/end records parsed; it does not mean every game action was observed.
     result = {'schema_version': 1, 'kind': 'encounter_reconstruction', 'boss_id': boss_id,
               'boss_name': BOSSES[boss_id]['name'] if boss_id in BOSSES else boss_id.replace('_',' ').title(),
               'source': {'path': str(source), 'sha256': digest.hexdigest()}, 'complete': started and ended and not issues,
@@ -616,9 +624,9 @@ def latest_sample_time(path):
 
 
 def parse_annotations(text):
-    # Recover the latest saved description revision for each label.
-    # Read the append-only history and preserve explicit interval, marker and revision information.
-    # Malformed history is rejected instead of silently losing a contributor's correction.
+    # Recover the newest saved description for each label while leaving its history on disk.
+    # Require revisions 1, 2, 3... in file order so missing or reordered corrections are visible.
+    # Keep the player's wording unchanged; priority words and boss names never become verified move identities.
     labels = {}
     for number, line in enumerate(text.splitlines(), 1):
         if not line.strip():
@@ -697,9 +705,9 @@ def save_annotation(folder, description, take, start_t, end_t, markers=(), label
 
 
 def annotate_recent(folder, description):
-    # Attach a description at the latest sampled instant of the newest take.
-    # Reject sessions without recorded samples instead of creating an ungrounded label.
-    # The zero-length interval is a contributor note, not an inferred start/end boundary for a move.
+    # Anchor a description to the latest sampled time in the newest take.
+    # Review backward from this anchor for the last few matching action executions, across all recorded roles.
+    # A zero-length annotation is a search anchor, not a claim that the described move lasted zero seconds.
     takes = sorted(Path(folder).glob('take-*/events.jsonl'))
     if not takes:
         raise ValueError('A recorded take and a description are required')

@@ -1,52 +1,27 @@
-# Read Recorder as a Nioh player
+# How Recorder works
 
-Recorder watches game memory and saves observations for later move review. It does not play Nioh, inject gameplay hooks, change moves or capture the screen. Typing a boss name labels the encounter; only a configured action/motion fingerprint can verify an actor.
+Recorder observes Nioh; it never sends game input, injects hooks, writes game memory or records the screen. A boss name is your encounter label. Capture includes every readable action node because the described movement may belong to any actor in the final observations.
 
-Keep 3–5 direct opening comments per function/callback: player-facing purpose, mechanism and the important constraint. Use inline explanations for thread ownership, native API contracts, atomic writes and evidence boundaries rather than comments that merely repeat names.
+`desktop/main.ts` owns the lifecycle, OS shortcut and user workflow. `preload.ts` exposes a small command bridge to a sandboxed page; `renderer.ts` and `style.css` handle presentation. The page gets no process handle or arbitrary filesystem API. A renderer restart does not stop the capture worker.
 
-## The recording vocabulary
+`launch.py` starts `src/action_capture.py`. It reuses Engine's researched process/build checks and read-only discovery. It writes a coherent full action ID before requesting optional motion/transition metadata. Missing fingerprints and controllers cannot prevent capture. The user's boss name never assigns actor identity.
 
-- A **library** contains saved sessions. It defaults to `%LOCALAPPDATA%/Tanto/Recorder/Recordings`; Settings can select another folder, including an older Downloads library.
-- A **session** belongs to one named encounter and owns a manifest, numbered takes, saved description history and a draft. Its directory survives upgrades.
-- A **take** is one raw observation file. Actor rediscovery can split one user recording interval into several takes; gaps remain explicit.
-- An **annotation** describes a sampled interval in a take. Editing it adds a revision; it does not rewrite earlier wording or raw events.
-- A **collection** is the new shareable ZIP containing several session ZIPs and an outer hash manifest. Different bosses and repeated folder/take names remain separate.
-- A **fingerprint** compares stable source identities. An address is temporary; a name is context; consecutive observations are not proof of an executable combo.
+Discovery uses a separate read-only handle while known actors keep sampling. A vanished actor becomes a gap; others continue. The metadata cache holds at most 8,192 entries and UI memory retains twelve observations. Sampling targets 10 ms and records long gaps; brief actions can still be missed.
 
-## Follow Start, Stop, Save and Export
+The worker appends the journal independently of renderer IPC. Flush and fsync run at approximately one-second health checkpoints and Stop; displayed counts advance only after successful sync. Abrupt termination may lose the unfinished checkpoint. Disk errors end capture visibly. An OS byte lock excludes another writer without a lock sidecar.
 
-`launch.py` selects source or packaged paths and exposes only the read-only Engine subset. `src/recorder.py` owns the window and user workflow. Tk's thread changes widgets; capture/export threads publish messages into a queue. `poll` consumes those messages and rejects stale session or hotkey-generation events.
+New sessions have two files: `events.jsonl` stores observations, diagnostics and take IDs; `encounter.json` stores boss context, take boundaries, descriptions and draft/edit target. Each Start gets a unique take and elapsed clock. `storage.ts` syncs temporary metadata before replacing the previous document. Close drains queued draft saves, then waits for the worker's final sync.
 
-Start saves pending text, creates or resumes a session and launches `record_encounter`. Stop sets a cooperative event; the worker finishes writing before the UI permits another operation. The start sound requires a confirmed sampling state, not merely successful discovery. Settings saves `cue_volume` (0–100, default 100) for both cues. Lower levels scale temporary PCM copies; mute skips playback. A volume change stops the current cue and clears its cache before the next sound. Close waits for recording/export completion and keeps the window open if saving the draft fails.
+Restoration streams the journal to recover counts without loading all observations. A truncated final row is retained, separated from later appended rows and reported. Older raw takes, `labels.jsonl` and `draft.json` remain untouched. Legacy revisions fold by `label_id` for display; their original history remains in exports.
 
-`src/encounter_recording.py` owns discovery, take allocation, reconstruction and annotation history. It locks a session against competing writers, retains previous take files and reacquires changed actors. Reconstruction counts observed identity changes, preserves uncertain repeats and breaks sequences at gaps. `latest_sample_time` inspects the final 64 KiB of a take to bound a note; these sampled times are not exact animation-frame certification.
+Review starts with the final action executions before Stop and matches their ordered IDs to the description. Retain all actors as candidates. Merge repeated polling only within the same execution; preserve actual repetitions and look past idle/recovery when needed. Full IDs, source context and timestamps matter. Review priority and stance are separate; adjacency never proves a playable combo.
 
-`src/recording_bundle.py` snapshots raw takes and saved labels, derives Summary.json and Descriptions.csv from those bytes, and hashes members. Collection export uses numbered inner ZIPs to prevent path collisions. Intake validates all sessions before staging evidence, rejects nested collections and caps expanded evidence at 512 MiB. It deduplicates raw bytes by SHA-256, flags conflicting descriptions/boss context and leaves review pending. An I/O failure during staging is still a failure; validation-first is not a multi-file database transaction.
+`desktop/export.ts` accepts selected sessions or a parent library. It streams regular files, hashes the exact bytes and supports ZIP64. Draft-only sessions remain included. Folder dialogs suspend recording actions; export locks editing. Output failure aborts upstream streams and removes its partial file. Only a closed, synced archive receives its final ZIP name in Windows' actual Downloads directory.
 
-`src/windows_paths.py` asks Windows for redirected Downloads and uses Explorer's COM folder picker for multi-selection. COM is Windows' interface-based object API: a GUID identifies an interface, a vtable slot selects its method, HRESULT reports success/failure, and acquired objects/path strings must be released. Picker cancellation returns an empty selection. Exports always go to Downloads/tanto-zips independently of the recording-library path.
+`recording_bundle.py` accepts the new flat archive and both legacy ZIP formats. Intake streams hashes/extraction, rejects unsafe paths and conflicting identities, checks free space and stages complete evidence by archive hash. It flags empty sessions and malformed rows. Legacy reconstruction/report functions remain offline developer tools; intake never installs MWM moves.
 
-## Keys and the interface
+Preferences live under `%LOCALAPPDATA%/Tanto/Recorder`; the default library is its `Recordings` subfolder. Existing libraries need no migration or move. Electron owns the bindable shortcut and suspends it during binding. Supplied WAV cues use application-local volume, default 40%; Stop replaces unfinished Start audio. These are sounds, not controller vibration.
 
-`src/recording_hotkey.py` translates readable shortcuts into Windows modifier/virtual-key numbers. A dedicated thread owns RegisterHotKey and its message queue. MOD_NOREPEAT suppresses held-key repetition; closing/rebinding unregisters the old key. Listener generations prevent already queued old-key messages from toggling a new session. No key is synthesized for the game.
+The original wallpaper moves through a slow CSS transform instead of a large GIF; reduced motion disables animation. Five tutorial pages remain available through Quick guide/F1. What's new displays the shipped changelog with the same image in its banner; it does not fetch or install updates.
 
-`src/recorder_theme.py` samples the wallpaper under frames and text so section backgrounds disappear. A small text shadow improves edge contrast; inputs and buttons keep their native surfaces. Native layouts preserve dropdown fields and arrows. Window bounds and local text scaling keep controls inside the usable desktop without changing Windows preferences.
-
-Bundled Source Serif 4 Small Text fonts load privately, with installed serif fallbacks. `QuickGuide` presents six complete topics on short pages; Previous/Next changes their bound text. Tutorial version 3 appears once until acknowledged. Quick guide/F1 reopens it, and Start/Stop remains above every page. `SequenceList` shortens previews while retaining complete descriptions for editing.
-
-## Files, schemas and packaging
-
-| Location | Contents and interpretation |
-|---|---|
-| `product.json`, `Build.ps1`, `requirements.txt` | Product name/version/Engine pin, the shared release-gate launcher, and the pinned Pillow dependency. |
-| `data/bosses.json` | Shipped name suggestions and the supported encounter metadata. Name coverage exceeds fingerprint coverage. |
-| `data/catalogue.json`, `data/encounters/` | Historical development observations/reconstructions, excluded from the consumer package. |
-| `captures/` | Retained raw JSONL evidence; `index.json` records provenance/hashes and `summary.json` records derived reporting. Never add comments or alter raw events. |
-| `summarize.py` | Rebuilds the development capture report against known source identities without changing raw evidence or playable definitions. |
-| `src/assets/` | The unchanged wallpaper, local cue WAVs, bundled font files and their licenses/provenance README. Binary assets are explained, not rewritten as code. |
-| `%LOCALAPPDATA%/Tanto/Recorder/settings.json` | Chosen library, shortcut, guide version, last session and unfinished draft. Each active session also has its own draft.json. |
-| Session `encounter.json`, `take-*/events.jsonl`, `labels.jsonl` | Encounter context, sampled events, and append-only description revisions. Older labels receive explicit legacy IDs during parsing. |
-| `.gitignore`, `.gitattributes` | Keep generated runtime/build output out of commits and preserve text/binary handling. |
-
-JSON/JSONL does not permit comments. These schema explanations and the source validators provide the commentary without corrupting evidence. Hex addresses, unknown flags and opaque byte slices are not assigned invented meanings.
-
-Every EXE uses Engine's `RELEASES.md` contract. Engine's two entrypoints are reused through `Test-Offline.ps1`; `--ui-smoke` checks the packaged window using temporary data and disabled game access. Offline checks, native picker/visual review, live-game acceptance and another-PC acceptance are separate evidence. Comment-only source changes do not replace or re-tag the published 0.2.0-alpha.1 package.
+The release gate bundles only `action_capture`, `boss_probe` discovery/metadata and `nioh_memory` in the worker; Electron carries assets once. Recorder's EXE excludes Tk, controller reading, gameplay DLLs, historical captures and offline intake. The npm lock pins desktop dependencies. Engine's two entrypoints remain under `Test-Offline.ps1`; packaged `--ui-smoke` disables game access and uses temporary settings. Gameplay and another-PC acceptance remain separate.

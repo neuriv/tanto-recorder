@@ -1,4 +1,6 @@
 """Rebuild the common capture report without changing raw evidence or curated labels."""
+# This historical known-sword report is narrower than Recorder's evidence collection.
+# Unidentified/player observations stay in raw files even when they do not enter these ranked counts.
 import hashlib
 import json
 from pathlib import Path
@@ -8,9 +10,9 @@ ROOT = Path(__file__).resolve().parent
 sys.path[:0] = [str(ROOT/'src'), str(ROOT.parent/'tanto-engine/runtime')]
 from encounter_recording import reconstruct_capture
 def iter_moves(catalogue):
-    # Keep the curated string hierarchy while joining per-action source identities.
-    # Aliases are deduplicated by the report's source key.
-    # Recording statistics never change playable definitions.
+    # Visit a named move and every action nested under its multi-hit string.
+    # Yield references rather than copy the large source metadata attached to each step.
+    # Group aliases later by full source identity; the traversal never edits playable definitions.
     for move in catalogue['moves']:
         yield move
         yield from iter_moves({'moves':move.get('steps',[])})
@@ -18,9 +20,9 @@ def iter_moves(catalogue):
 
 
 def capture_report(index, catalogue):
-    # Count observed entries for known sword identities, scoped to boss and source bank.
-    # Deduplicate raw hashes and keep uncertain starts separate from measured entries.
-    # Preserve descriptions verbatim; temporal adjacency never proves a native combo.
+    # Count already-known sword identities from historical boss-attributed takes; this is not the capture filter.
+    # Deduplicate exact raw hashes and join on boss, full action ID, animation and timing to avoid numeric collisions.
+    # Leave descriptions verbatim and uncertain entries separate; review the raw ending to match a new description.
     known = {}
     for move in iter_moves(catalogue):
         source = move.get('source', {})
@@ -47,6 +49,7 @@ def capture_report(index, catalogue):
         for action in capture['actions']:
             source = action['source']
             key = (item['boss_id'], source['action_id'], source['motion_id'], source['timing_id'])
+            # Exclusion only narrows this legacy report; new-move review must inspect all roles in the raw take.
             if action['role'] != 'boss_candidate' or key not in known:
                 continue
             accepted += action['observations']

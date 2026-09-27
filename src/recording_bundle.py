@@ -1,11 +1,16 @@
 """Offline reports and review-only contributor intake. Never edits curated definitions."""
+# Reports are disposable views of raw takes; a missing report is recoverable, a missing take is not.
+# Boss names/descriptions travel with evidence but do not prove who executed any captured action ID.
 from collections import Counter
 import csv
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
 import re
+import shutil
+import stat
 import tempfile
 import zipfile
 
@@ -15,9 +20,9 @@ from encounter_recording import (atomic_json, load_annotations,
 
 
 def session_summary(folder):
-    # Summarize recorded actions, repeated sequences and descriptions for a human reviewer.
-    # Reconstruct every take from its raw bytes and replace local paths with session-relative evidence references.
-    # Repeated ordering and native transition hints remain candidates; the report never marks moves playable.
+    # Give a reviewer counts and possible strings without deleting player or unidentified actor observations.
+    # Reconstruct raw takes and use session-relative references so evidence survives transfer to another PC.
+    # Counts are discovery aids; use the raw ending and description to identify the actual requested move.
     folder = Path(folder)
     manifest = json.loads((folder/'encounter.json').read_text(encoding='utf8'))
     takes, counts, repeats = [], {}, Counter()
@@ -35,6 +40,7 @@ def session_summary(folder):
                 return [portable(item) for item in value]
             return value
         result = portable(result)
+        # A source number is meaningful together with role, animation and timing, not by number alone.
         by_id = {}
         for action in result['actions']:
             source = action['source']
@@ -49,6 +55,7 @@ def session_summary(folder):
                 row[field] += action[field]
         for sequence in result['strings']:
             actions = [by_id[action] for action in sequence['actions']]
+            # Short repeated windows are hints only: sampling cannot prove the game's combo/input rules.
             for length in range(2, min(4, len(actions)) + 1):
                 repeats.update(tuple(actions[offset:offset+length]) for offset in range(len(actions)-length+1))
         takes.append(dict(take=path.parent.name, **result))
@@ -156,9 +163,9 @@ def export_sessions(folders, destination):
 
 
 def intake_collection(archive, manifest, destination, digest, validate_only):
-    # Validate and unpack a multi-session submission for review.
-    # Check outer hashes and the combined expanded-size limit, then validate every inner session before staging any.
-    # Reject nested collections; accepted sessions reuse the same deduplication and conflict checks as older ZIPs.
+    # Open a legacy collection of session ZIPs and check every session before staging evidence.
+    # Check byte hashes and total expanded size so damaged or unexpectedly large archives fail explicitly.
+    # Keep one level of nesting; each session uses the same identity and description checks as a single ZIP.
     sessions=manifest.get('sessions')
     if manifest.get('schema_version')!=1 or not isinstance(sessions,list) or not 1<=len(sessions)<=100:
         raise ValueError('Invalid recording collection')
@@ -191,22 +198,199 @@ def intake_collection(archive, manifest, destination, digest, validate_only):
         return report
 
 
+def file_sha256(path):
+    # Identify exact evidence bytes without loading a long recording or ZIP into RAM.
+    # Read fixed-size chunks; filenames and folder names do not affect the result.
+    # The hash names immutable submissions and detects changed archive members.
+    digest = hashlib.sha256()
+    with Path(path).open('rb') as stream:
+        while chunk := stream.read(1024 * 1024):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def intake_session_archive(archive, manifest, destination, digest, validate_only):
+    # Retain every selected session, including draft-only sessions with no captured IDs.
+    # Validate paths/hashes, then stream files into a temporary folder on the destination disk.
+    # Publish the whole folder only after all checks pass; reports never edit playable MWM data.
+    sessions, entries = manifest.get('sessions'), manifest.get('files')
+    if manifest.get('schema_version') != 2 or not isinstance(sessions, list) or not sessions:
+        raise ValueError('Invalid session archive manifest')
+    if not isinstance(entries, list) or not entries or len(entries) > 99999 or len(sessions) > len(entries):
+        raise ValueError('Invalid session archive file list')
+
+    def safe_path(name):
+        # Accept portable relative ZIP names whose Windows extraction has one unambiguous meaning.
+        # Reject traversal, alternate streams, reserved devices and aliases caused by trailing dots/spaces.
+        # Paths are checked before any payload is opened or written to the staging directory.
+        if not isinstance(name, str) or any(c in name for c in '\\<>:"|?*') or any(ord(c) < 32 for c in name):
+            raise ValueError('Unsafe archive path')
+        parts = name.split('/')
+        if any(not part or part in ('.', '..') or part.endswith((' ', '.')) or
+               re.fullmatch(r'(?i:con|prn|aux|nul|com[1-9¹²³]|lpt[1-9¹²³])', part.split('.')[0]) for part in parts):
+            raise ValueError('Unsafe archive path: ' + name)
+        return parts
+
+    roots, recording_ids = {}, set()
+    for session in sessions:
+        if not isinstance(session, dict):
+            raise ValueError('Invalid session entry')
+        parts = safe_path(session.get('path'))
+        identity = session.get('recording_id')
+        if len(parts) != 2 or parts[0] != 'sessions' or not isinstance(identity, str) or not identity:
+            raise ValueError('Invalid session path or recording identity')
+        key = session['path'].casefold()
+        if key in roots or identity in recording_ids or not isinstance(session.get('boss_name'), str):
+            raise ValueError('Duplicate session or invalid boss label')
+        roots[key] = session
+        recording_ids.add(identity)
+    listed = {}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise ValueError('Invalid archive file entry')
+        parts = safe_path(entry.get('path'))
+        key = entry['path'].casefold()
+        if len(parts) < 3 or '/'.join(parts[:2]).casefold() not in roots or key in listed:
+            raise ValueError('Duplicate file or file outside selected sessions')
+        if type(entry.get('size')) is not int or entry['size'] < 0 or not re.fullmatch('[0-9a-f]{64}', str(entry.get('sha256'))):
+            raise ValueError('Invalid archive file size or hash')
+        listed[key] = entry
+    members = archive.infolist()
+    if len(members) != len(entries) + 1:
+        raise ValueError('Manifest does not describe every archive member')
+    seen = set()
+    for info in members:
+        parts = safe_path(info.filename)
+        key = info.filename.casefold()
+        mode = stat.S_IFMT(info.external_attr >> 16)
+        if key in seen or mode not in (0, stat.S_IFREG) or info.is_dir() or info.flag_bits & 1:
+            raise ValueError('Duplicate, encrypted or non-regular archive member')
+        seen.add(key)
+        if info.filename == 'manifest.json':
+            continue
+        entry = listed.get(key)
+        if entry is None or info.filename != entry['path'] or info.file_size != entry['size']:
+            raise ValueError('Manifest path or size mismatch: ' + info.filename)
+        if any('/'.join(parts[:end]).casefold() in listed for end in range(1, len(parts))):
+            raise ValueError('Archive file also used as a directory')
+    if seen != set(listed) | {'manifest.json'}:
+        raise ValueError('Manifest does not describe every archive member')
+
+    def small_json(path):
+        # Read bounded session metadata, not the potentially multi-gigabyte action journal.
+        # A malformed metadata document fails intake while the original ZIP remains untouched.
+        # Raw payload extraction itself has no arbitrary session-size ceiling.
+        with path.open('rb') as stream:
+            data = stream.read(16 * 1024 * 1024 + 1)
+        if len(data) > 16 * 1024 * 1024:
+            raise ValueError('Session metadata exceeds 16 MiB: ' + path.name)
+        return json.loads(data)
+
+    def count_records(path, kind):
+        # Count usable action or saved-description rows; damaged lines remain visible as review warnings.
+        # Bound each parser read so a damaged line cannot consume memory proportional to the take.
+        # All actor roles count; description revisions count as history rows, not distinct verified moves.
+        count = damaged = 0
+        with path.open('rb') as stream:
+            while line := stream.readline(1024 * 1024):
+                if not line.endswith(b'\n') and len(line) == 1024 * 1024:
+                    while line and not line.endswith(b'\n'):
+                        line = stream.readline(1024 * 1024)
+                    damaged += 1
+                    continue
+                if not line.strip():
+                    continue
+                try:
+                    event = json.loads(line)
+                    if not isinstance(event, dict) or not isinstance(event.get('kind'), str):
+                        raise ValueError('Invalid event')
+                    count += event['kind'] == kind
+                except (ValueError, UnicodeError):
+                    damaged += 1
+        return count, damaged
+
+    submissions = destination / 'submissions'
+    if not validate_only:
+        submissions.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='.tanto-intake-', dir=submissions if not validate_only else None) as temporary:
+        stage = Path(temporary) / 'archive'
+        stage.mkdir()
+        if sum(info.file_size for info in members) > shutil.disk_usage(stage).free:
+            raise ValueError('Not enough free disk space to retain the expanded recording archive')
+        # Extraction computes hashes from exactly the bytes written; it never calls extractall.
+        for info in members:
+            target = stage.joinpath(*info.filename.split('/'))
+            target.parent.mkdir(parents=True, exist_ok=True)
+            checksum, size = hashlib.sha256(), 0
+            with archive.open(info) as source, target.open('xb') as output:
+                while chunk := source.read(1024 * 1024):
+                    output.write(chunk)
+                    checksum.update(chunk)
+                    size += len(chunk)
+                output.flush()
+                os.fsync(output.fileno())
+            if info.filename != 'manifest.json':
+                entry = listed[info.filename.casefold()]
+                if size != entry['size'] or checksum.hexdigest() != entry['sha256']:
+                    raise ValueError('Archive file hash or size mismatch: ' + info.filename)
+        report = dict(schema_version=2, kind='tanto_session_archive', bundle_sha256=digest,
+                      review_status='pending', curated_changes=False, sessions=[])
+        for session in sessions:
+            folder = stage / session['path']
+            encounter = small_json(folder / 'encounter.json')
+            if not isinstance(encounter, dict) or encounter.get('schema_version') not in (1, 2) or encounter.get('recording_id') != session['recording_id'] or encounter.get('boss_name', encounter.get('boss_id')) != session['boss_name']:
+                raise ValueError('Session identity disagrees with archive manifest')
+            annotations = encounter.get('annotations', [])
+            if not isinstance(annotations, list):
+                raise ValueError('Invalid saved description list')
+            draft = encounter.get('draft', {})
+            if encounter.get('schema_version') != 2 and (folder / 'draft.json').is_file():
+                draft = small_json(folder / 'draft.json')
+            annotation_count, damaged_labels = len(annotations), 0
+            if encounter.get('schema_version') != 2 and (folder / 'labels.jsonl').is_file():
+                annotation_count, damaged_labels = count_records(folder / 'labels.jsonl', 'user_label')
+            action_rows = damaged = 0
+            for path in [folder / 'events.jsonl', *folder.glob('take-*/events.jsonl')]:
+                if path.is_file():
+                    count, issues = count_records(path, 'action_state')
+                    action_rows += count
+                    damaged += issues
+            report['sessions'].append(dict(path=session['path'], recording_id=session['recording_id'],
+                boss_name=session['boss_name'], action_rows=action_rows, annotation_count=annotation_count,
+                has_draft=bool(draft.get('text')) if isinstance(draft, dict) else bool(draft),
+                malformed_event_lines=damaged, malformed_description_lines=damaged_labels,
+                no_raw_evidence=action_rows == 0))
+        if validate_only:
+            return report
+        atomic_json(stage / 'review.json', report)
+        # Same-volume rename publishes complete evidence once; it cannot overwrite an existing submission.
+        stage.rename(submissions / digest)
+    return report
+
+
 def intake_bundle(bundle, destination, *, validate_only=False):
-    # Validate a submitted ZIP and stage its evidence for a developer's pending review.
-    # Check member paths, sizes, hashes, annotation bounds and reconstruction structure before saving raw blobs.
-    # Reuse evidence by SHA-256 and flag conflicting labels/boss context; intake never edits playable move definitions.
+    # Check a submitted ZIP, then retain its evidence in the developer's pending-review store.
+    # Permit only declared paths and verify exact byte hashes before trusting descriptions or reconstructing data.
+    # Reuse identical take bytes by SHA-256; conflicting descriptions are reported, never silently resolved.
+    # Successful intake means readable evidence, not a tested move or permission to change MWM's definitions.
     """Validate all members, deduplicate raw evidence and stage a pending review report."""
     bundle, destination = Path(bundle), Path(destination)
-    digest = hashlib.sha256(bundle.read_bytes()).hexdigest()
+    digest = file_sha256(bundle)
     report_path = destination/'submissions'/f'{digest}.json'
-    for cached in (report_path,destination/'collections'/f'{digest}.json'):
+    for cached in (report_path,destination/'collections'/f'{digest}.json', destination/'submissions'/digest/'review.json'):
         if cached.exists() and not validate_only:return json.loads(cached.read_text(encoding='utf8'))
     with zipfile.ZipFile(bundle) as archive:
         members = archive.infolist()
         names = [item.filename for item in members]
-        if len(names) != len(set(names)) or len(names) > 1024 or sum(item.file_size for item in members) > 512*1024*1024:
+        if len(names) != len(set(names)) or len(names) > 100000:
             raise ValueError('Bundle has duplicate members or exceeds intake limits')
+        if 'manifest.json' in names and archive.getinfo('manifest.json').file_size > 32 * 1024 * 1024:
+            raise ValueError('Archive manifest exceeds 32 MiB')
         manifest=json.loads(archive.read('manifest.json')) if 'manifest.json' in names else None
+        if isinstance(manifest,dict) and manifest.get('kind')=='tanto_session_archive':
+            return intake_session_archive(archive,manifest,destination,digest,validate_only)
+        if len(names) > 1024 or sum(item.file_size for item in members) > 512*1024*1024:
+            raise ValueError('Legacy bundle exceeds intake limits')
         if isinstance(manifest,dict) and manifest.get('kind')=='tanto_recording_collection':
             return intake_collection(archive,manifest,destination,digest,validate_only)
         allowed = re.compile(r'(manifest\.json|labels\.jsonl|Descriptions\.csv|Summary\.json|take-[0-9]+/events\.jsonl)')
@@ -230,6 +414,7 @@ def intake_bundle(bundle, destination, *, validate_only=False):
             if len(data) != item['size'] or hashlib.sha256(data).hexdigest() != item['sha256']:
                 raise ValueError('Bundle hash or size mismatch: '+item['path'])
             content[item['path']] = data
+    # Derived CSV/JSON reports cannot stand in for missing action observations.
     raw = {name:data for name,data in content.items() if name.endswith('/events.jsonl')}
     if not raw:
         raise ValueError('Bundle contains no raw takes')
@@ -265,6 +450,7 @@ def intake_bundle(bundle, destination, *, validate_only=False):
             except (ValueError, TypeError, KeyError, AttributeError, OverflowError) as error:
                 raise ValueError('Unsupported capture structure: '+name) from error
     if validate_only:return
+    # Review identity is the raw file hash, not its filename: a renamed resubmission is still the same take.
     previous = [json.loads(path.read_text(encoding='utf8')) for path in sorted((destination/'submissions').glob('*.json'))]
     hashes = {name: hashlib.sha256(data).hexdigest() for name,data in raw.items()}
     known = {take['sha256'] for report in previous for take in report['takes']}

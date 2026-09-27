@@ -1,0 +1,31 @@
+{
+  "name": "tanto-recorder",
+  "productName": "Tanto Recorder",
+  "version": "0.3.0-alpha.1",
+  "private": true,
+  "description": "Read-only Nioh action recorder",
+  "author": "neuriv",
+  "main": "desktop-dist/main.cjs",
+  "scripts": {
+    "build": "node desktop/build.mjs",
+    "check": "tsc --noEmit",
+    "start": "npm run build && electron ."
+  },
+  "dependencies": { "yazl": "3.3.1" },
+  "devDependencies": {
+    "electron": "44.4.5",
+    "electron-builder": "26.15.3",
+    "esbuild": "0.28.2",
+    "typescript": "7.0.2",
+    "@types/node": "22.19.15",
+    "@types/yazl": "3.3.1"
+  },
+  "build": {
+    "appId": "neuriv.tanto.recorder",
+    "asar": true,
+    "files": ["desktop-dist/**/*", "src/assets/background.png", "src/assets/start.wav", "src/assets/stop.wav", "data/bosses.json", "product.json", "CHANGELOG.md"],
+    "extraResources": [{ "from": "desktop-worker", "to": "worker" }],
+    "win": { "target": "portable", "artifactName": "TantoRecorder.exe", "signAndEditExecutable": false },
+    "portable": { "requestExecutionLevel": "user" }
+  }
+}

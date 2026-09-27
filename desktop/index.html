@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'">
+  <title>Tanto Recorder</title><link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wallpaper" aria-hidden="true"></div><div class="shade" aria-hidden="true"></div>
+  <div class="app">
+    <header><div class="brand"><span class="eyebrow">TANTO</span><h1>Recorder<span class="brand-dot">.</span></h1></div>
+      <nav aria-label="Main navigation"><button data-tab="record" class="active">Record</button><button data-tab="settings">Settings</button><button data-tab="guide">Quick guide</button></nav>
+      <button id="updates" class="version" title="What's new">What's new <span id="version"></span></button>
+    </header>
+    <section class="capture-status" aria-label="Capture status">
+      <div class="status-copy"><span class="eyebrow"><span id="dot" class="dot"></span><span id="state">READY</span></span>
+        <h2 id="headline">Capture the last move.</h2><p id="detail" role="status">Name the encounter. Stop just after the move you want to describe.</p></div>
+      <button id="toggle" class="capture-button"><span id="capture-symbol">●</span><span id="toggle-label">Start recording</span><kbd id="key">F8</kbd></button>
+    </section>
+    <main>
+      <section id="record" class="page">
+        <div class="encounter-row"><label class="field boss-field"><span class="eyebrow">BOSS / ENCOUNTER</span><input id="boss" list="bosses" placeholder="Who are you fighting?" maxlength="100" autocomplete="off"><datalist id="bosses"></datalist></label>
+          <div class="metrics"><strong id="count">0</strong><span>saved action observations</span></div></div>
+        <div class="session-tools"><span id="session-name">A session keeps your recordings and descriptions together.</span><div><button id="new">New</button><button id="open">Open</button><button id="export">Export ZIP ↗</button></div></div>
+        <div class="description"><label for="description" class="eyebrow">DESCRIBE THE ENDING <span id="draft-state">· autosaved</span></label>
+          <textarea id="description" rows="3" maxlength="20000" placeholder="e.g. Two quick slashes, then a jumping overhead cut. High priority."></textarea>
+          <div class="description-footer"><span id="description-help">Stop after the move. The last few IDs help match your words.</span><button id="save-note">Save description <kbd>Ctrl S</kbd></button></div></div>
+        <div class="evidence-row"><span class="eyebrow">LATEST IDS <span class="muted">· all actors</span></span><div id="tail" aria-label="Latest captured action IDs">IDs appear here only after capture begins.</div></div>
+        <section class="notes"><div class="notes-heading"><span class="eyebrow">SAVED DESCRIPTIONS</span><span id="notes-count">0</span></div><div id="notes"><p class="empty">Record. Describe. Repeat.</p></div></section>
+      </section>
+      <section id="settings" class="page hidden settings-page">
+        <h2>Make it yours.</h2><p class="intro">Your preferences stay on this computer. Your recordings stay where you choose.</p>
+        <div class="setting-row"><div><h3>Recording library</h3><p id="library-path"></p><p>Existing recording folders are welcome. Nothing is moved or deleted.</p></div><button id="library">Choose folder ↗</button></div>
+        <div class="setting-row"><div><h3>Start / stop shortcut</h3><p>Works while Nioh is focused. Escape cancels binding.</p></div><button id="bind">F8</button></div>
+        <div class="setting-row"><div><h3>Recording cues</h3><p>Your supplied start and stop sounds. Default volume: 40%.</p></div><div class="volume"><label for="volume" id="volume-label">40%</label><input id="volume" type="range" min="0" max="100" value="40"><button id="preview-sound">Preview</button></div></div>
+        <div class="setting-row"><div><h3>Subtle background motion</h3><p>A slow moving wallpaper. Automatically respects reduced motion.</p></div><label class="switch"><input id="motion" type="checkbox" checked><span>On</span></label></div>
+      </section>
+      <section id="guide" class="page hidden guide-page">
+        <span class="eyebrow" id="guide-number">QUICK GUIDE · 01 / 05</span><h2 id="guide-title"></h2><p class="guide-lead" id="guide-lead"></p><div id="guide-steps"></div>
+        <div class="guide-navigation"><button id="guide-prev">← Previous</button><div id="guide-dots" aria-label="Guide pages"></div><button id="guide-next">Next →</button></div>
+        <p class="guide-footnote">Open Quick guide or press F1 whenever you need a reminder.</p>
+      </section>
+    </main>
+    <footer><span>READ-ONLY CAPTURE <span class="separator">/</span> No game changes. No screen recording.</span><span id="footer-status">Ready</span></footer>
+  </div>
+  <dialog id="changelog"><div class="update-banner"><span class="eyebrow">TANTO RECORDER</span><h2>What's new.</h2><button id="close-updates" aria-label="Close release notes">×</button></div><div class="update-body"><span id="update-version" class="eyebrow"></span><div id="release-notes"></div><button id="dismiss-updates">Back to recording →</button></div></dialog>
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -4,6 +4,6 @@
 
 `start.wav` comes from `t2wxkfk.wav` (5.110 seconds); `stop.wav` comes from `6s3fj0w.wav` (6.041 seconds). Both retain the supplied stereo, 48 kHz, signed 32-bit PCM bytes. The build manifest records their hashes.
 
-Volume scales temporary PCM copies without changing sample rate, channels or duration. Zero skips playback; other levels play asynchronously. Temporary copies are removed when volume changes or Recorder closes.
+Electron plays the original WAVs with application-local gain, default 40%. Zero skips playback; Stop replaces unfinished Start audio. No scaled temporary WAVs are needed.
 
-The bundled [Source Serif 4.005](https://github.com/adobe-fonts/source-serif/releases/tag/4.005R) Small Text regular and semibold TTFs load privately. Their SIL Open Font License is included in `fonts/LICENSE.txt`; no installation or separate font download is needed. Inter and the glass renderer have been removed.
+The interface uses Windows' Segoe UI Variable/Segoe UI fonts. Historical [Source Serif 4.005](https://github.com/adobe-fonts/source-serif/releases/tag/4.005R) files and their SIL license remain here for older releases; the Electron package excludes them.

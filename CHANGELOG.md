@@ -1,8 +1,15 @@
 # Release notes
 
-## Unreleased
+## 0.3.0-alpha.1
 
-Refresh the development Engine pin for the SKM-to-MWM repository rename. Published Recorder EXEs, assets and runtime behavior remain unchanged.
+- Replace the Python window with Electron, TypeScript and CSS: cleaner text, subtle wallpaper motion and lightweight controls.
+- Capture action IDs from all readable actors. Boss labels and optional metadata no longer gate collection.
+- Save one append-only action journal plus one session file; sync regularly and show actual saved-ID counts and failures.
+- Restore drafts and interrupted sessions, including older recording libraries.
+- Export selected sessions or the entire library into one ZIP directly in Downloads, including drafts and empty sessions.
+- Add a fitted five-page guide, reopenable release notes and 40% default start/stop sound volume.
+
+Live-game recording, extended play sessions and another-PC acceptance remain pending. Actor names remain encounter context; recorded IDs require review before becoming playable moves.
 
 ## 0.2.0-alpha.6
 

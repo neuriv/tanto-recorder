@@ -1,13 +1,11 @@
 # Tanto Recorder
 
-Read-only Nioh move recorder. Share only `TantoRecorder.exe` from this private repository's Releases. Python, the required runtime, wallpaper, fonts and sounds are embedded; no companion assets or repositories are needed.
+Read-only Nioh move recorder. The portable `TantoRecorder.exe` embeds its interface, capture worker, wallpaper and sounds; recipients need only that file.
 
-A worker samples game state into session/take files. Tk handles the interface, and a bindable Windows hotkey queues Start / Stop. Saved descriptions keep revision history; unfinished text autosaves as a draft.
+`desktop/` contains Electron, TypeScript and CSS. Its main process owns sessions, descriptions, the global shortcut and streamed ZIP export; the sandboxed page handles presentation. Run `npm ci`, then `npm start` for development with the sibling Engine and Python.
 
-Sessions default to `%LOCALAPPDATA%/Tanto/Recorder/Recordings`. Settings can reuse another library. Export packages selected sessions into a ZIP under `Downloads/tanto-zips`, preserving each take, description history and file hashes.
+`src/action_capture.py` samples all readable action nodes through two read-only Engine modules. It appends IDs before optional metadata, periodically syncs the journal and reports saved counts. Boss names label sessions without blocking capture.
 
-Start and Stop play bundled WAVs at a remembered volume. Lower levels scale temporary PCM copies; zero mutes. Bright Source Serif text sits directly over the wallpaper. Quick guide / F1 opens the full six-page tutorial, which also appears once after upgrading.
+New sessions use `encounter.json` for descriptions/take boundaries and `events.jsonl` for observations. Settings can reuse an old recording library. Export writes one ZIP directly to Downloads, retaining selected sessions and drafts; `recording_bundle.py` validates incoming archives for review.
 
-Boss names provide context; only Okatsu, Jin and Maria have identification fingerprints. Recorded moves require developer review before use in a mod. Recorder does not change moves or control Nioh.
-
-`Build.ps1` packages the pinned read-only Engine subset and records release provenance. Developers use the sibling Engine checkout; users need only the EXE. See [CODE_GUIDE.md](CODE_GUIDE.md) for details and the built-in Guide for usage.
+`Build.ps1` uses Engine's version, pin, dependency, validation and checksum gates. See [CODE_GUIDE.md](CODE_GUIDE.md) for mechanisms. Offline checks do not establish gameplay acceptance.
