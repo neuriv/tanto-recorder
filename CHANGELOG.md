@@ -1,5 +1,9 @@
 # Release notes
 
+## Unreleased
+
+Refresh the development Engine pin for the SKM-to-MWM repository rename. Published Recorder EXEs, assets and runtime behavior remain unchanged.
+
 ## 0.2.0-alpha.6
 
 - Restore the full tutorial across six short pages: library setup, recording, descriptions, editing, exports, shortcuts and sounds.
