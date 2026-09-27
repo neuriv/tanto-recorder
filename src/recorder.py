@@ -14,8 +14,9 @@ from tkinter import filedialog, messagebox, ttk
 from encounter_recording import BOSSES, atomic_json, latest_sample_time, load_annotations, record_encounter, save_annotation
 from recording_bundle import export_capture, intake_bundle
 from recording_hotkey import GlobalHotkey, HOTKEYS
+from recorder_theme import BG, SURFACE, INPUT, TEXT, MUTED, ACCENT, InkBackdrop, theme
+from windows_paths import downloads_dir
 
-BG='#0d1118'; SURFACE='#161e2b'; INPUT='#202c3e'; TEXT='#e6edf7'; MUTED='#a0aec2'; ACCENT='#91b3ff'
 
 
 def boss_identity(name):
@@ -28,33 +29,6 @@ def boss_identity(name):
     return 'encounter_'+hashlib.sha256(name.casefold().encode()).hexdigest()[:16],name
 
 
-def theme(root):
-    root.configure(background=BG)
-    style=ttk.Style(root);style.theme_use('clam')
-    style.configure('.',background=BG,foreground=TEXT,font=('Segoe UI',10),borderwidth=0,
-                    bordercolor=INPUT,lightcolor=INPUT,darkcolor=INPUT)
-    style.configure('TButton',background=INPUT,padding=(12,9),focusthickness=2,focuscolor=ACCENT)
-    style.map('TButton',background=[('active','#2d405c'),('disabled',SURFACE)],foreground=[('disabled',MUTED)])
-    style.configure('Primary.TButton',background=ACCENT,foreground=BG,font=('Segoe UI',10,'bold'))
-    style.map('Primary.TButton',background=[('active','#b3caff'),('disabled',INPUT)],foreground=[('disabled',MUTED)])
-    style.configure('TEntry',fieldbackground=INPUT,insertcolor=TEXT,padding=8)
-    style.configure('TCombobox',fieldbackground=INPUT,arrowcolor=TEXT,padding=7)
-    style.map('TCombobox',fieldbackground=[('readonly',INPUT)],selectbackground=[('readonly',INPUT)],selectforeground=[('readonly',TEXT)])
-    style.configure('TCheckbutton',background=BG,indicatorbackground=INPUT)
-    style.map('TCheckbutton',background=[('active',BG)])
-    style.configure('Card.TFrame',background=SURFACE)
-    style.configure('Card.TLabel',background=SURFACE)
-    style.configure('Muted.TLabel',foreground=MUTED)
-    style.configure('Treeview',background=SURFACE,fieldbackground=SURFACE,rowheight=32)
-    style.map('Treeview',background=[('selected','#304a71')],foreground=[('selected',TEXT)])
-    style.configure('Treeview.Heading',background=INPUT,padding=8)
-    style.configure('Vertical.TScrollbar',background=INPUT,troughcolor=BG,arrowcolor=MUTED,
-                    bordercolor=BG,lightcolor=INPUT,darkcolor=INPUT)
-    root.option_add('*TCombobox*Listbox.background',INPUT)
-    root.option_add('*TCombobox*Listbox.foreground',TEXT)
-    root.option_add('*TCombobox*Listbox.selectBackground','#304a71')
-
-
 class Recorder:
     def __init__(self, root, enable_hotkey=True, settings_path=None):
         self.root=root;self.thread=None;self.folder=None;self.stop=threading.Event();self.latest={}
@@ -64,14 +38,15 @@ class Recorder:
         try: settings=json.loads(self.settings_path.read_text(encoding='utf8'))
         except (OSError,ValueError): settings={}
         if not isinstance(settings,dict): settings={}
-        theme(root);root.title('Tanto Recorder')
+        fonts=theme(root);root.title('Tanto Recorder')
+        self.recordings=downloads_dir()/'Tanto Recordings'
         self.scale=max(1,float(root.tk.call('tk','scaling'))/(96/72))
         root.geometry(f'{round(960*self.scale)}x{round(740*self.scale)}')
         root.minsize(round(680*self.scale),round(650*self.scale))
-        panel=ttk.Frame(root,padding=24);panel.pack(fill='both',expand=True)
+        self.backdrop=InkBackdrop(root,self.scale,fonts)
+        panel=ttk.Frame(self.backdrop)
+        self.backdrop.panel=self.backdrop.create_window(24,106,anchor='nw',window=panel)
         panel.columnconfigure(0,weight=1);panel.rowconfigure(7,weight=1)
-        ttk.Label(panel,text='TANTO  /  RECORDER',font=('Segoe UI',19,'bold')).grid(row=0,column=0,sticky='w')
-        ttk.Label(panel,text='Capture a sequence. Describe what happened. Share the evidence.',style='Muted.TLabel').grid(row=1,column=0,sticky='w',pady=(4,18))
         form=ttk.Frame(panel);form.grid(row=2,column=0,sticky='ew');form.columnconfigure(0,weight=1)
         ttk.Label(form,text='Boss or enemy name · required').grid(row=0,column=0,sticky='w')
         ttk.Label(form,text='Global start / stop key').grid(row=0,column=1,sticky='w',padx=(16,0))
@@ -156,7 +131,7 @@ class Recorder:
                 signature=manifest.get('signature');(self.folder/'STOP').unlink(missing_ok=True)
             else:
                 boss,name=boss_identity(self.boss.get());signature=None
-                self.folder=Path.home()/'Downloads/Tanto Recordings'/f'{boss}-{time.time_ns()}'
+                self.folder=self.recordings/f'{boss}-{time.time_ns()}'
                 self.labels.delete(*self.labels.get_children())
         except (OSError,ValueError,KeyError,TypeError) as error:
             self.headline.set('Cannot start');self.status.set(str(error));return
@@ -177,7 +152,7 @@ class Recorder:
 
     def open_session(self):
         if self.busy(): return
-        chosen=filedialog.askdirectory(title='Open recording session',parent=self.root,initialdir=Path.home()/'Downloads/Tanto Recordings')
+        chosen=filedialog.askdirectory(title='Open recording session',parent=self.root,initialdir=self.recordings)
         if not chosen: return
         try:
             folder=Path(chosen);manifest=json.loads((folder/'encounter.json').read_text(encoding='utf8'))
@@ -256,7 +231,7 @@ class Recorder:
         folder=self.folder;self.operation='export';self.latest={};self.headline.set('Preparing export…');self.status.set('Building reports and checking evidence. You can resize this window while it works.')
         def work():
             try:
-                path=export_capture(folder,Path.home()/'Downloads'/f'Tanto-{folder.name}-{time.time_ns()}.zip')
+                path=export_capture(folder,self.recordings/'Exports'/f'Tanto-{folder.name}-{time.time_ns()}.zip')
                 self.events.put(('exported',path,None))
             except Exception as error: self.events.put(('export_error',str(error),None))
         self.thread=threading.Thread(target=work,daemon=False);self.thread.start()
@@ -299,7 +274,7 @@ def main(argv=None):
     parser=argparse.ArgumentParser(description='Tanto read-only boss recorder')
     parser.add_argument('--ui-smoke',type=Path)
     parser.add_argument('--intake',type=Path,help='Validate and stage a contributor ZIP without opening the UI')
-    parser.add_argument('--intake-dir',type=Path,default=Path.home()/'Downloads/Tanto Intake')
+    parser.add_argument('--intake-dir',type=Path,default=downloads_dir()/'Tanto Intake')
     args=parser.parse_args(argv)
     if args.intake:
         print(json.dumps(intake_bundle(args.intake,args.intake_dir),indent=2));return 0
