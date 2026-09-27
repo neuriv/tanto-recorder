@@ -58,7 +58,7 @@ class Recorder:
         version_file=base/'build-manifest.json' if (base/'build-manifest.json').exists() else base/'product.json'
         version=json.loads(version_file.read_text(encoding='utf8'));version=version.get('product',version).get('version','development')
         root.title('Tanto Recorder · '+version)
-        self.recordings=Path(settings.get('recordings_directory') or downloads_dir()/'Tanto Recordings').resolve()
+        self.recordings=Path(settings.get('recordings_directory') or self.settings_path.parent/'Recordings').resolve()
         self.scale=max(1,float(root.tk.call('tk','scaling'))/(96/72));s=self.scale
         root.geometry(f'{round(1060*s)}x{round(850*s)}');root.minsize(round(760*s),round(800*s))
         self.backdrop=InkBackdrop(root,s,fonts);self.backdrop.on_guide=self.show_guide
@@ -168,7 +168,9 @@ class Recorder:
         audio=ttk.Frame(settings_page);audio.grid(row=9,column=0,sticky='ew');audio.columnconfigure(0,weight=1)
         self.volume_slider=ttk.Scale(audio,from_=0,to=100,variable=self.volume,command=self.set_volume)
         self.volume_slider.grid(row=0,column=0,sticky='ew',padx=(0,12))
-        self.backdrop.label(audio,textvariable=self.volume_text,width=6).grid(row=0,column=1)
+        # Reserve pixels in the layout; WallpaperLabel does not accept Label's character-width option.
+        audio.columnconfigure(1,minsize=round(70*s))
+        self.backdrop.label(audio,textvariable=self.volume_text).grid(row=0,column=1,sticky='ew')
         for column,kind in enumerate(('start','stop'),2):
             button=ttk.Button(audio,text=f'Test {kind}',command=lambda name=kind: (
                 # Preview the chosen cue at the saved Recorder volume.

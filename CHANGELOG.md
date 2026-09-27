@@ -1,5 +1,14 @@
 # Release notes
 
+## 0.2.0-alpha.4
+
+- Fix startup: reserve the volume label's width in its layout instead of passing an unsupported widget argument.
+- Default new recording libraries to local AppData, keeping Downloads clear. Existing selected libraries still work.
+- Share only `TantoRecorder.exe`; Python, fonts, wallpaper, sounds and the required read-only runtime are embedded.
+- Shorten READMEs and release notes. A focused packaged startup check replaces the broad offline suites for this fix; its result is recorded in the release receipts.
+
+Live-game, audible playback and another-PC acceptance remain pending.
+
 ## 0.2.0-alpha.3
 
 Packaged as an untested prerelease for the user's external tester. Automated suites and packaged UI smoke execution were explicitly skipped at the user's request; receipts record this exception rather than borrowing older results.

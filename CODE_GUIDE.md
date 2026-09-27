@@ -6,7 +6,7 @@ Keep 3–5 direct opening comments per function/callback: player-facing purpose,
 
 ## The recording vocabulary
 
-- A **library** is the folder containing saved sessions. It defaults to the actual Windows Downloads/Tanto Recordings directory and can be changed in Settings.
+- A **library** contains saved sessions. It defaults to `%LOCALAPPDATA%/Tanto/Recorder/Recordings`; Settings can select another folder, including an older Downloads library.
 - A **session** belongs to one named encounter and owns a manifest, numbered takes, saved description history and a draft. Its directory survives upgrades.
 - A **take** is one raw observation file. Actor rediscovery can split one user recording interval into several takes; gaps remain explicit.
 - An **annotation** describes a sampled interval in a take. Editing it adds a revision; it does not rewrite earlier wording or raw events.

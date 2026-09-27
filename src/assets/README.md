@@ -1,21 +1,11 @@
 # Recorder assets
 
-`background.png` is an imagegen edit of the user-supplied `recorder background.png` (William and guardian spirit), not claimed as original artwork. The built-in tool returned **1672 × 941**; the user chose to keep that resolution after a 4K retry returned the same size. The app blends this dim image at 65% against ink black; glass panels sample, blur and tint that same wallpaper. Labels sample the composed panel surface.
+`background.png` is the accepted 1672 × 941 dimmed, dithered edit of the user-supplied William/guardian-spirit artwork. Panels blur and tint this image; labels sample the panel surface. The original composition remains unchanged.
 
-Final asset prompt (built-in imagegen; first edit selected):
+`start.wav` comes from `t2wxkfk.wav` (5.110 seconds); `stop.wav` comes from `6s3fj0w.wav` (6.041 seconds). Both retain the supplied stereo, 48 kHz, signed 32-bit PCM bytes. The build manifest records their hashes.
 
-> Edit the supplied image for the Tanto Recorder application wallpaper. Preserve the exact scene composition, William kneeling with sword, guardian spirit, rain and background. Output a 4K 3840 x 2160 landscape PNG. Apply fine ordered dithering with subtle ASCII marks and tiny Japanese glyph texture, integrated into shading, not large readable text. Dim the entire image substantially to about 30 percent of original brightness so cream application text can remain readable directly over it. Retain blue-black, muted crimson colors and recognizable scene. No panels, rectangles, labels, UI, logos, extra characters or added objects. The image is a wallpaper, not a screenshot.
+Volume scales temporary PCM copies without changing sample rate, channels or duration. Zero skips playback; other levels play asynchronously. Temporary copies are removed when volume changes or Recorder closes.
 
-`start.wav` is the user-supplied `t2wxkfk.wav` (5.110 seconds); `stop.wav` is the user-supplied `6s3fj0w.wav` (6.041 seconds). Both are unmodified stereo, 48 kHz, signed 32-bit PCM WAV files. Playback is asynchronous; a new cue interrupts the previous cue. These sounds belong to Recorder's interface, not Nioh's game audio.
+The bundled [Inter 4.1](https://github.com/rsms/inter/releases/tag/v4.1) fonts load privately. Their SIL Open Font License is included in `fonts/LICENSE.txt`; no system-wide installation is needed.
 
-Source SHA-256 fingerprints (identical to the bundled files):
-
-- Start: `c3f96b54638f57ebb5b29b524feed1db47ab4767a071cdc84fd4ee3afc63a9cd`
-- Stop: `7fc636695de0104b1503215449a9a507b08a07737b77d15e0dabdf860fe76f69`
-
-Below 100% volume, Recorder multiplies both channels' signed PCM samples by the selected fraction and writes temporary WAV copies. Sample rate, channel count and duration stay the same; shipped files stay untouched. Zero skips playback. Copies are cached until volume changes or Recorder closes. File playback stays asynchronous because Python's [winsound API](https://docs.python.org/3.12/library/winsound.html) does not support asynchronous memory-image playback.
-
-
-`fonts/Inter-Regular.ttf` and `Inter-SemiBold.ttf` come from [Inter 4.1](https://github.com/rsms/inter/releases/tag/v4.1). Their SIL Open Font License accompanies them as `fonts/LICENSE.txt`. Fonts load privately with AddFontResourceExW; they are not installed system-wide.
-
-Glass design reference: [PyGlass](https://github.com/neomosh8/pyglass), especially `pyglass/refract.py` and its explanation of clear interiors, refracting rims, frosting and contrast tints. Recorder uses an independently implemented static Pillow approximation. It does not bundle Qt, NumPy, PyGlass code or any screen-capture path. Bevels and tint support readability; this is not a physically exact refraction renderer.
+[PyGlass](https://github.com/neomosh8/pyglass) informed the beveled, frosted design. Recorder implements its own static Pillow treatment; it bundles no PyGlass code, Qt, NumPy or screen-capture component.

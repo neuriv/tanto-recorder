@@ -401,7 +401,7 @@ class QuickGuide(ttk.Frame):
         scroll=ttk.Scrollbar(self,orient='vertical',command=text.yview);scroll.grid(row=0,column=1,sticky='ns')
         text.configure(yscrollcommand=scroll.set)
         text.tag_configure('heading',foreground=ACCENT,font=(wallpaper.fonts[1],15,'bold'),spacing1=12,spacing3=6)
-        steps=[('Your first recording','Choose a library in Settings. An existing Tanto Recordings folder works; its sessions stay intact.'),
+        steps=[('Your first recording','Recordings default to your local AppData / Tanto / Recorder / Recordings folder. Settings can choose another library, including an old Tanto Recordings folder.'),
             ('01  Name the encounter','On Record, enter a boss or enemy name. One encounter per session. Names alone do not verify an actor.'),
             ('02  Start, then fight',f'Press {key} or Start recording. Wait for Recording before fighting; the start sound confirms it unless muted. Settings has your keyboard shortcut, cue volume and Test buttons.'),
             ('03  Stop and describe','Pause Nioh yourself, then use the same key or Stop. Wait for Stopped; the stop sound confirms it unless muted. Describe the sequence; Save or Ctrl+S.'),
