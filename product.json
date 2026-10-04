@@ -2,9 +2,9 @@
   "schema_version": 1,
   "kind": "recorder",
   "name": "TantoRecorder",
-  "engine_repository": "https://github.com/neuriv/tanto-engine.git",
-  "engine_commit": "c4867073edd5c5682a40c93241efce3274ecf488",
-  "version": "0.3.0-alpha.4",
+  "engine_repository": "https://github.com/neuriv/tanto.git",
+  "engine_commit": "8247c137dbabd2948ca7c1bf7940e60806ae8e78",
+  "version": "0.4.0",
   "desktop": "electron",
   "worker_name": "TantoCapture"
 }

@@ -7,7 +7,9 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parent
-sys.path[:0] = [str(ROOT/'src'), str(ROOT.parent/'tanto-engine/runtime')]
+engine=ROOT.parent/'tanto'
+if not engine.is_dir(): engine=ROOT.parent/'tanto-engine'
+sys.path[:0] = [str(ROOT/'src'), str(engine/'runtime')]
 from encounter_recording import reconstruct_capture
 def iter_moves(catalogue):
     # Visit a named move and every action nested under its multi-hit string.

@@ -1,10 +1,12 @@
 # Release notes
 
-## Unreleased
+## 0.4.0
 
 Boss names confirm when committed; one boss session can hold multiple described takes. A shorter guide explains Start, Stop, describe and record the next move. Capture states distinguish starting, recording, stopping, saved and incomplete results; a worker exit alone cannot claim a successful save.
 
-Primary action snapshots precede asynchronous optional metadata. Recordings retain actor generations, skipped counters, inferred previous IDs, sampling/metadata coverage and source fingerprints. Full payloads and bounded action-bank, motion and timing context support later imports. Reconstruction matches delayed metadata to its original observation. Death/pause causes remain unverified without a researched marker. No new EXE is included.
+Primary action snapshots precede asynchronous optional metadata. Recordings retain actor generations, skipped counters, inferred previous IDs, sampling/metadata coverage and source fingerprints. Full payloads and bounded action-bank, motion and timing context support later imports. Reconstruction matches delayed metadata to its original observation. Death/pause causes remain unverified without a researched marker. The portable EXE is rebuilt with these changes and the current reviewed Tanto capture implementation.
+
+Source development accepts the renamed `tanto` checkout. The package pins the exact reviewed Engine commit and retains its own Python/runtime and capture assets. Another-PC verification remains pending.
 
 ## 0.3.0-alpha.4
 

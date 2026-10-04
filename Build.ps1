@@ -2,8 +2,12 @@
 # The gate owns version/pin checks, tests, packaging, checksums and the immutable version tag.
 # OneDir changes packaging layout only; it does not bypass release validation.
 # SkipTestsReason records an explicitly authorized untested prerelease; normal builds retain mandatory tests.
-param([string]$EngineRoot = (Join-Path $PSScriptRoot '..\tanto-engine'), [string]$PythonRuntime = 'python', [switch]$OneDir, [string]$SkipTestsReason = '', [switch]$StartupCheck)
+param([string]$EngineRoot = '', [string]$PythonRuntime = 'python', [switch]$OneDir, [string]$SkipTestsReason = '', [switch]$StartupCheck)
 $ErrorActionPreference = 'Stop'
+if (-not $EngineRoot) {
+    $EngineRoot = Join-Path $PSScriptRoot '..\tanto'
+    if (-not (Test-Path -LiteralPath $EngineRoot)) { $EngineRoot = Join-Path $PSScriptRoot '..\tanto-engine' }
+}
 $EngineRoot = (Resolve-Path -LiteralPath $EngineRoot).Path
 # Pass separate arguments so a checkout or Python path containing spaces remains intact.
 $arguments = @('-B', (Join-Path $EngineRoot 'build_product.py'), $PSScriptRoot)
