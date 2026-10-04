@@ -20,7 +20,7 @@ Review starts with the final action executions before Stop and matches their ord
 
 `desktop/export.ts` accepts selected sessions or a parent library. It streams regular files, hashes the exact bytes and supports ZIP64. Draft-only sessions remain included. Folder dialogs suspend recording actions; export locks editing. Output failure aborts upstream streams and removes its partial file. Only a closed, synced archive receives its final ZIP name in Windows' actual Downloads directory.
 
-`recording_bundle.py` accepts the new flat archive and both legacy ZIP formats. Intake streams hashes/extraction, rejects unsafe paths and conflicting identities, checks free space and stages complete evidence by archive hash. It flags empty sessions and malformed rows. Legacy reconstruction/report functions remain offline developer tools; intake never installs MWM moves.
+`recording_bundle.py` accepts the new flat archive and both legacy ZIP formats. Intake streams hashes/extraction, rejects unsafe paths and conflicting identities, checks free space and stages complete evidence by archive hash. It flags empty sessions and malformed rows. Legacy reconstruction/report functions remain offline developer tools; intake never installs WM moves.
 
 Preferences live under `%LOCALAPPDATA%/Tanto/Recorder`; the default library is its `Recordings` subfolder. Existing libraries need no migration or move. Electron owns the bindable shortcut and suspends it during binding. Supplied WAV cues use application-local volume, default 40%; Stop replaces unfinished Start audio. These are sounds, not controller vibration.
 

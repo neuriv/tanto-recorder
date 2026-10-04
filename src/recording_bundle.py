@@ -212,7 +212,7 @@ def file_sha256(path):
 def intake_session_archive(archive, manifest, destination, digest, validate_only):
     # Retain every selected session, including draft-only sessions with no captured IDs.
     # Validate paths/hashes, then stream files into a temporary folder on the destination disk.
-    # Publish the whole folder only after all checks pass; reports never edit playable MWM data.
+    # Publish the whole folder only after all checks pass; reports never edit playable WM data.
     sessions, entries = manifest.get('sessions'), manifest.get('files')
     if manifest.get('schema_version') != 2 or not isinstance(sessions, list) or not sessions:
         raise ValueError('Invalid session archive manifest')
@@ -372,7 +372,7 @@ def intake_bundle(bundle, destination, *, validate_only=False):
     # Check a submitted ZIP, then retain its evidence in the developer's pending-review store.
     # Permit only declared paths and verify exact byte hashes before trusting descriptions or reconstructing data.
     # Reuse identical take bytes by SHA-256; conflicting descriptions are reported, never silently resolved.
-    # Successful intake means readable evidence, not a tested move or permission to change MWM's definitions.
+    # Successful intake means readable evidence, not a tested move or permission to change WM's definitions.
     """Validate all members, deduplicate raw evidence and stage a pending review report."""
     bundle, destination = Path(bundle), Path(destination)
     digest = file_sha256(bundle)
